@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 /// video.
 
 import 'package:video_player/video_player.dart';
+import 'widgets/video_player/video_progress_indicator.dart';
 
 void main() {
   runApp(
@@ -84,42 +85,7 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
                   VideoPlayer(_controller),
                   ClosedCaption(text: _controller.value.caption.text),
                   _ControlsOverlay(controller: _controller),
-                  Container(
-                    constraints: const BoxConstraints(maxHeight: 10),
-                    child: TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 200),
-                        tween: Tween<double>(begin: 0, end: sliderSize),
-                        curve: Curves.ease,
-                        builder: (BuildContext _, double sliderSizeAnimated,
-                            Widget? __) {
-                          return SliderTheme(
-                            data: SliderThemeData(
-                                thumbColor: Colors.blue,
-                                trackHeight: sliderSizeAnimated * 5 + 3,
-                                thumbShape: RoundSliderThumbShape(
-                                    enabledThumbRadius:
-                                        sliderSizeAnimated * 10)),
-                            child: Slider(
-                              value: sliderValue,
-                              onChanged: (v) {
-                                setState(() {
-                                  sliderValue = v;
-                                });
-                              },
-                              onChangeStart: (double _) {
-                                setState(() {
-                                  sliderSize = 1;
-                                });
-                              },
-                              onChangeEnd: (double _) {
-                                setState(() {
-                                  sliderSize = 0;
-                                });
-                              },
-                            ),
-                          );
-                        }),
-                  ),
+                  MyVideoProgressIndicator(controller: _controller),
                 ],
               ),
             ),

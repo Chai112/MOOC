@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 // myPage class which creates a state on call
 class MyPage extends StatefulWidget {
-  const MyPage({Key? key}) : super(key: key);
+  final int x;
+  const MyPage({Key? key, required this.x}) : super(key: key);
 
   @override
   _State createState() => _State();
@@ -10,9 +11,21 @@ class MyPage extends StatefulWidget {
 
 // myPage state
 class _State extends State<MyPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   // main build function
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    int x2 = widget.x * 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Page"),

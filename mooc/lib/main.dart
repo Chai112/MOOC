@@ -70,27 +70,28 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          Container(padding: const EdgeInsets.only(top: 20.0)),
-          const Text('With remote mp4'),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 720),
-            padding: const EdgeInsets.all(20),
-            child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: <Widget>[
-                  VideoPlayer(_controller),
-                  ClosedCaption(text: _controller.value.caption.text),
-                  _ControlsOverlay(controller: _controller),
-                  MyVideoProgressIndicator(controller: _controller),
-                ],
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Column(
+            children: <Widget>[
+              Container(padding: const EdgeInsets.only(top: 20.0)),
+              const Text('With remote mp4'),
+              AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: <Widget>[
+                    VideoPlayer(_controller),
+                    ClosedCaption(text: _controller.value.caption.text),
+                    _ControlsOverlay(controller: _controller),
+                    MyVideoProgressIndicator(controller: _controller),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -10,18 +10,8 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json({limit: '10gb'}));
 
-const db = require('./database');
-const Tests = require('./tests');
+const Db = require('./database');
 
-// print that we are starting the server 
-console.log("starting server");
-
-// mysql home server
-// password is your normal F133 password
-// fcl03570@mzico.com (10/02/22)
-
-
-Tests.test();
 
 // this is called everytime a request is GET'ted at localhost
 app.get('/', function (request, response) { // call a function where request and response are arguments

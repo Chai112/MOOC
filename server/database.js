@@ -13,7 +13,7 @@ var connection;
 // connect to the MySQL server
 var connected = false;
 
-function _sqlConnect() {
+function sqlConnect() {
     if (connected)  // if already connected
         return Promise.resolve();
     // handshake
@@ -26,14 +26,13 @@ function _sqlConnect() {
                 throw err;
             }
             connected = true;
-            console.log("SQL:   Connected");
             resolve();
         });
     });
 }
 
 // disconnect from the MySQL server
-function _sqlDisconnect() {
+function sqlDisconnect() {
     if (!connected)  // if already disconnected
         return Promise.resolve();
 
@@ -45,14 +44,13 @@ function _sqlDisconnect() {
                 throw err;
             }
             connected = false;
-            console.log("SQL:   Disconnected");
             resolve();
         });
     });
 }
 
 // wraps a string around strings
-function _santizeSqlValue(input) {
+function santizeSqlValue(input) {
     if (typeof input === "string") {
         return `"${input}"`;
     } else {
@@ -79,12 +77,11 @@ class DatabaseTable {
 
         queryStr += ');';
         await this.query(queryStr);
-        console.log("successful init");
     }
 
     async query(queryStr) {
-        await _sqlConnect();
-        console.log(`DATABASE:  querying ${queryStr}`)
+        await sqlConnect();
+        //console.log(`DATABASE:  querying ${queryStr}`)
         return new Promise(resolve => {
             connection.query(queryStr, function (error, results, fields) {
                 if (error) throw error;
@@ -110,7 +107,7 @@ class DatabaseTable {
         for (let name in entry) {
             let value = entry[name];
             queryStrCol += `${name}, `;
-            queryStrVal += `${_santizeSqlValue(value)}, `
+            queryStrVal += `${santizeSqlValue(value)}, `
         }
         // remove the , at the end
         queryStrCol = queryStrCol.substring(0, queryStrCol.length - 2);
@@ -122,7 +119,7 @@ class DatabaseTable {
 
     async updateTable(where, entry) {
         let whereName = Object.keys(where)[0];
-        let whereValue = `${_santizeSqlValue(where[whereName])}`;
+        let whereValue = `${santizeSqlValue(where[whereName])}`;
         let queryStrWhere = `${whereName} = ${whereValue}`;
 
         let queryStrEntries = "";
@@ -147,10 +144,11 @@ class DatabaseTable {
 
     async deleteFromTable(where) {
         let whereName = Object.keys(where)[0];
-        let whereValue = `${_santizeSqlValue(where[whereName])}`;
+        let whereValue = `${santizeSqlValue(where[whereName])}`;
         let queryStr = `DELETE FROM ${this.tableName} WHERE ${whereName} = ${whereValue};`;
         await this.query(queryStr);
     }
 }
 
+module.exports.sqlConnect = sqlConnect;
 module.exports.DatabaseTable = DatabaseTable;

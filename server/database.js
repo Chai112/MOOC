@@ -51,8 +51,28 @@ function _sqlDisconnect() {
     });
 }
 
+class DatabaseTable {
+    tableName;
+    properties;
 
-class Database {
+    constructor(tableName, properties) {
+        this.tableName = tableName;
+        this.properties = properties;
+    }
+
+    async init() {
+        let queryStr = `CREATE TABLE IF NOT EXISTS ${this.tableName} (`;
+        this.properties.forEach((item, index, arr) => {
+            queryStr += `${item.name} ${item.type}, `;
+        });
+        // remove the , at the end
+        queryStr = queryStr.substring(0, queryStr.length - 2);
+
+        queryStr += ');';
+        await this.query(queryStr);
+        console.log("successful init");
+    }
+
     async query(queryStr) {
         await _sqlConnect();
         console.log(`DATABASE:  querying ${queryStr}`)
@@ -64,31 +84,18 @@ class Database {
         });
     }
 
-    // make sure these tables exist
-    async assertTable(tableName, properties) {
-        let queryStr = `CREATE TABLE IF NOT EXISTS ${tableName} (`;
-        properties.forEach((item, index, arr) => {
-            queryStr += `${item.name} ${item.type}, `;
-        });
-        // remove the , at the end
-        queryStr = queryStr.substring(0, queryStr.length - 2);
-
-        queryStr += ');';
-        await this.query(queryStr);
-    }
-
     // drop table
-    async dropTable(tableName) {
-        let queryStr = `DROP TABLE ${tableName};`;
+    async dropTable() {
+        let queryStr = `DROP TABLE ${this.tableName};`;
         await this.query(queryStr);
     }
 
-    async selectTable(tableName) {
-        let queryStr = `SELECT  * FROM ${tableName};`;
+    async selectTable() {
+        let queryStr = `SELECT  * FROM ${this.tableName};`;
         return await this.query(queryStr);
     }
 
-    async insertIntoTable(tableName, entry) {
+    async insertIntoTable(entry) {
         let queryStrCol = "";
         let queryStrVal = "";
         for (let name in entry) {
@@ -104,11 +111,11 @@ class Database {
         queryStrCol = queryStrCol.substring(0, queryStrCol.length - 2);
         queryStrVal = queryStrVal.substring(0, queryStrVal.length - 2);
 
-        let queryStr = `INSERT INTO ${tableName} (${queryStrCol}) VALUES (${queryStrVal});`;
+        let queryStr = `INSERT INTO ${this.tableName} (${queryStrCol}) VALUES (${queryStrVal});`;
         await this.query(queryStr);
     }
 
-    async updateTable(tableName, where, entry) {
+    async updateTable(where, entry) {
         let whereName = Object.keys(where)[0];
         let whereValue = "";
         let value = where[whereName];
@@ -135,9 +142,9 @@ class Database {
         // remove the , at the end
         queryStrEntries = queryStrEntries.substring(0, queryStrEntries.length - 2);
 
-        let queryStr = `UPDATE ${tableName} SET ${queryStrEntries}  WHERE ${queryStrWhere};`;
+        let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries}  WHERE ${queryStrWhere};`;
         await this.query(queryStr);
     }
 }
 
-module.exports.Database = Database;
+module.exports.DatabaseTable = DatabaseTable;

@@ -10,8 +10,7 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json({limit: '10gb'}));
 
-const databaseModule = require('./database');
-const db = new databaseModule.Database();
+const db = require('./database');
 
 // print that we are starting the server 
 console.log("starting server");
@@ -27,8 +26,7 @@ async function test() {
     // connect to MySQL server
     //try {
         //await db.query("hey");
-        await db.dropTable("Users");
-        await db.assertTable("Users",
+        var users = new db.DatabaseTable("Users",
             [
                 {
                 "name": "username",
@@ -39,19 +37,33 @@ async function test() {
                 "type": "varchar(32)"
                 }
         ]);
-        await db.insertIntoTable("Users",
+        users.init();
+        await users.dropTable();
+        users = new db.DatabaseTable("Users",
+            [
+                {
+                "name": "username",
+                "type": "varchar(50)"
+                },
+                {
+                "name": "password",
+                "type": "varchar(32)"
+                }
+        ]);
+        users.init();
+        await users.insertIntoTable(
         {
             username: "cat",
             password: "bat"
         });
-        await db.insertIntoTable("Users",
+        await users.insertIntoTable(
         {
             username: "cat",
             password: "mat"
         });
-        let data = await db.selectTable("Users");
+        let data = await users.selectTable();
         console.log(data);
-        db.updateTable("Users", 
+        users.updateTable(
             // where...
             {username: "cat"},
             // set entry to...
@@ -60,9 +72,8 @@ async function test() {
                 password: "nat",
             }
         );
-        data = await db.selectTable("Users");
+        data = await users.selectTable();
         console.log(data);
-        await db.dropTable("Users");
         console.log("TEST: PASSED   successfully connected to database");
         /*
     } catch {

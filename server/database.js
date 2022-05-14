@@ -51,6 +51,15 @@ function _sqlDisconnect() {
     });
 }
 
+// wraps a string around strings
+function _santizeSqlValue(input) {
+    if (typeof input === "string") {
+        return `"${input}"`;
+    } else {
+        return `${input}`;
+    }
+}
+
 class DatabaseTable {
     tableName;
     properties;
@@ -101,11 +110,7 @@ class DatabaseTable {
         for (let name in entry) {
             let value = entry[name];
             queryStrCol += `${name}, `;
-            if (typeof value === "string") {
-                queryStrVal += `"${value}", `;
-            } else {
-                queryStrVal += `${value}, `;
-            }
+            queryStrVal += `${_santizeSqlValue(value)}, `
         }
         // remove the , at the end
         queryStrCol = queryStrCol.substring(0, queryStrCol.length - 2);
@@ -117,13 +122,7 @@ class DatabaseTable {
 
     async updateTable(where, entry) {
         let whereName = Object.keys(where)[0];
-        let whereValue = "";
-        let value = where[whereName];
-        if (typeof value === "string") {
-            whereValue = `"${value}"`;
-        } else {
-            whereValue = `${value}`;
-        }
+        let whereValue = `${_santizeSqlValue(where[whereName])}`;
         let queryStrWhere = `${whereName} = ${whereValue}`;
 
         let queryStrEntries = "";
@@ -143,6 +142,13 @@ class DatabaseTable {
         queryStrEntries = queryStrEntries.substring(0, queryStrEntries.length - 2);
 
         let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries}  WHERE ${queryStrWhere};`;
+        await this.query(queryStr);
+    }
+
+    async deleteFromTable(where) {
+        let whereName = Object.keys(where)[0];
+        let whereValue = `${_santizeSqlValue(where[whereName])}`;
+        let queryStr = `DELETE FROM ${this.tableName} WHERE ${whereName} = ${whereValue};`;
         await this.query(queryStr);
     }
 }

@@ -7,7 +7,7 @@ Ensure that you go into security groups and edit inbound rules so that any ipv4 
 1. Get node and npm.
 2. Install dependencies
 ```
-$ npm install pm2 express mysql cors
+$ npm install pm2 express mysql cors crypto-js
 ```
 3. Retype the .PEM file directory in `ssh-server.sh` and `build-server.sh`
 4. Reconfigure the ssh/scp address in the same files.

@@ -52,10 +52,15 @@ function sqlDisconnect() {
 // wraps a string around strings
 function santizeSqlValue(input) {
     if (typeof input === "string") {
-        return `"${input}"`;
+        // just to be safe!
+        return `"${encodeURI(input)}"`;
     } else {
         return `${input}`;
     }
+}
+
+function getDatetime() {
+    return new Date().toString();
 }
 
 class DatabaseTable {
@@ -110,12 +115,12 @@ class DatabaseTable {
     }
 
     // drop table
-    async dropTable() {
+    async drop() {
         let queryStr = `DROP TABLE ${this.tableName};`;
         await this.query(queryStr);
     }
 
-    async selectTable(where) {
+    async select(where) {
         let queryStr = `SELECT * FROM ${this.tableName}`;
         if (where !== undefined) {
             let whereName = Object.keys(where)[0];
@@ -126,9 +131,10 @@ class DatabaseTable {
         return await this.query(queryStr);
     }
 
-    async insertIntoTable(entry) {
+    async insertInto(entry) {
         let queryStrCol = `${this.tableKeyName}, `;
-        let queryStrVal = `${await this.getNextKey()}, `;
+        let nextKey = await this.getNextKey();
+        let queryStrVal = `${nextKey}, `;
         for (let name in entry) {
             let value = entry[name];
             queryStrCol += `${name}, `;
@@ -140,9 +146,10 @@ class DatabaseTable {
 
         let queryStr = `INSERT INTO ${this.tableName} (${queryStrCol}) VALUES (${queryStrVal});`;
         await this.query(queryStr);
+        return nextKey;
     }
 
-    async updateTable(where, entry) {
+    async update(where, entry) {
         let whereName = Object.keys(where)[0];
         let whereValue = `${santizeSqlValue(where[whereName])}`;
         let queryStrWhere = `${whereName} = ${whereValue}`;
@@ -167,7 +174,7 @@ class DatabaseTable {
         await this.query(queryStr);
     }
 
-    async deleteFromTable(where) {
+    async deleteFrom(where) {
         let whereName = Object.keys(where)[0];
         let whereValue = `${santizeSqlValue(where[whereName])}`;
         let queryStr = `DELETE FROM ${this.tableName} WHERE ${whereName} = ${whereValue};`;
@@ -176,4 +183,7 @@ class DatabaseTable {
 }
 
 module.exports.sqlConnect = sqlConnect;
+module.exports.sqlDisconnect = sqlDisconnect;
+module.exports.getDatetime = getDatetime;
+
 module.exports.DatabaseTable = DatabaseTable;

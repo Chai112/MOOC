@@ -3,14 +3,14 @@ const Auth = require('../auth');
 
 var assert = require('assert');
 
-describe('Basic Suite', function () {
+describe('SQL Suite', function () {
     it('should connect to the SQL server', async function () {
         Db.sqlConnect();
     });
     let testingTable;
     it('should initialize & clear table', async function () {
         testingTable = new Db.DatabaseTable("Tests",
-            "test_id",
+            "testId",
             [
                 {
                 "name": "username",
@@ -23,63 +23,50 @@ describe('Basic Suite', function () {
             ]
         );
         await testingTable.init();
-        await testingTable.dropTable();
-        testingTable = new Db.DatabaseTable("Tests",
-            "test_id",
-            [
-                {
-                "name": "username",
-                "type": "varchar(50)"
-                },
-                {
-                "name": "password",
-                "type": "varchar(32)"
-                }
-            ]
-        );
+        await testingTable.drop();
         await testingTable.init();
 
         // check
-        let data = await testingTable.selectTable();
+        let data = await testingTable.select();
         assert.equal(data.length, 0);
     });
     it('should insert into table', async function () {
-        await testingTable.insertIntoTable(
+        await testingTable.insertInto(
         {
             username: "cat",
             password: "bat"
         });
-        await testingTable.insertIntoTable(
+        await testingTable.insertInto(
         {
             username: "cat",
             password: "mat"
         });
 
         // check
-        let data = await testingTable.selectTable();
+        let data = await testingTable.select();
         assert.equal(data.length, 2);
-        assert.equal(data[0].test_id, 1);
+        assert.equal(data[0].testId, 1);
         assert.equal(data[0].username, "cat");
         assert.equal(data[0].password, "bat");
-        assert.equal(data[1].test_id, 2);
+        assert.equal(data[1].testId, 2);
         assert.equal(data[1].username, "cat");
         assert.equal(data[1].password, "mat");
     });
     it('should delete from table', async function () {
-        await testingTable.deleteFromTable(
+        await testingTable.deleteFrom(
             {password: "mat"},
         );
 
         // check
-        let data = await testingTable.selectTable();
+        let data = await testingTable.select();
         assert.equal(data.length, 1);
-        assert.equal(data[0].test_id, 1);
+        assert.equal(data[0].testId, 1);
         assert.equal(data[0].username, "cat");
         assert.equal(data[0].password, "bat");
     });
     it('should update table', async function () {
         //console.log(data);
-        await testingTable.updateTable(
+        await testingTable.update(
             // where...
             {username: "cat"},
             // set entry to...
@@ -90,23 +77,52 @@ describe('Basic Suite', function () {
         );
 
         // check
-        let data = await testingTable.selectTable();
+        let data = await testingTable.select();
         assert.equal(data.length, 1);
-        assert.equal(data[0].test_id, 1);
+        assert.equal(data[0].testId, 1);
         assert.equal(data[0].username, "bat");
         assert.equal(data[0].password, "nat");
     });
 });
 
 describe('Authentication Suite', function () {
-    let a  = 0;
-    it('should create a user', function () {
-        assert.equal(a,0);
-        a = 0;
+    let randomName = Math.random().toString();
+    it('should create a user', async function () {
+        console.log(await Auth.testGetAllUsers());
+        let token = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+
+        let data = await Auth.getUserFromToken(token);
+        let user = data[0];
+        assert.equal(user.username, "test");
+        assert.equal(user.firstName, randomName);
     });
-    it('should not create duplicate users with same username', function () {
-        assert.equal(a,0);
-        a = 2;
+    it('should NOT create duplicate user', async function () {
+        await assert.rejects(
+            async function () { 
+                await Auth.registerUser("test", "password", "test@test.com", "firstname", "lastname");
+            }
+        );
+    });
+    it('should login user', async function () {
+        let token = await Auth.loginUser("test", "password");
+
+        let data = await Auth.getUserFromToken(token);
+        let user = data[0];
+        assert.equal(user.firstName, randomName);
+    });
+    it('should NOT login user with wrong username', async function () {
+        await assert.rejects(
+            async function () { 
+                await Auth.loginUser(`test_${randomName}`, "password");
+            }
+        );
+    });
+    it('should NOT login user with wrong password', async function () {
+        await assert.rejects(
+            async function () { 
+                await Auth.loginUser("test", "wrongPassword");
+            }
+        );
     });
 });
 

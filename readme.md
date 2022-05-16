@@ -12,9 +12,9 @@ $ npm install pm2 express mysql cors
 3. Retype the .PEM file directory in `ssh-server.sh` and `build-server.sh`
 4. Reconfigure the ssh/scp address in the same files.
 5. Reconfigure SQL connection to a MySQL server in `server/server.js`
-6. Install testing framework `npm install mocha`
-7. Run tests `npm test`
-8. Run actual thing `node server.js` or `pm2 server.js --watch`
+6. Install testing framework `$ npm install mocha`
+7. Run tests `$ npm test`
+8. Run actual thing `$ node server.js` or `$ pm2 server.js --watch`
 9. Yay!
 
 Any difficulties please contact chaidhatchaimongkol@gmail.com

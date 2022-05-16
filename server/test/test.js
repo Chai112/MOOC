@@ -1,13 +1,16 @@
 const Db = require('../database');
+const Auth = require('../auth');
 
 var assert = require('assert');
 
-describe('Basic', function () {
+describe('Basic Suite', function () {
     it('should connect to the SQL server', async function () {
         Db.sqlConnect();
     });
-    it('should pass integration testing', async function () {
-        var testingTable = new Db.DatabaseTable("Tests",
+    let testingTable;
+    it('should initialize & clear table', async function () {
+        testingTable = new Db.DatabaseTable("Tests",
+            "test_id",
             [
                 {
                 "name": "username",
@@ -17,10 +20,12 @@ describe('Basic', function () {
                 "name": "password",
                 "type": "varchar(32)"
                 }
-        ]);
-        testingTable.init();
+            ]
+        );
+        await testingTable.init();
         await testingTable.dropTable();
         testingTable = new Db.DatabaseTable("Tests",
+            "test_id",
             [
                 {
                 "name": "username",
@@ -30,8 +35,15 @@ describe('Basic', function () {
                 "name": "password",
                 "type": "varchar(32)"
                 }
-        ]);
-        testingTable.init();
+            ]
+        );
+        await testingTable.init();
+
+        // check
+        let data = await testingTable.selectTable();
+        assert.equal(data.length, 0);
+    });
+    it('should insert into table', async function () {
         await testingTable.insertIntoTable(
         {
             username: "cat",
@@ -42,10 +54,30 @@ describe('Basic', function () {
             username: "cat",
             password: "mat"
         });
+
+        // check
+        let data = await testingTable.selectTable();
+        assert.equal(data.length, 2);
+        assert.equal(data[0].test_id, 1);
+        assert.equal(data[0].username, "cat");
+        assert.equal(data[0].password, "bat");
+        assert.equal(data[1].test_id, 2);
+        assert.equal(data[1].username, "cat");
+        assert.equal(data[1].password, "mat");
+    });
+    it('should delete from table', async function () {
         await testingTable.deleteFromTable(
             {password: "mat"},
         );
+
+        // check
         let data = await testingTable.selectTable();
+        assert.equal(data.length, 1);
+        assert.equal(data[0].test_id, 1);
+        assert.equal(data[0].username, "cat");
+        assert.equal(data[0].password, "bat");
+    });
+    it('should update table', async function () {
         //console.log(data);
         await testingTable.updateTable(
             // where...
@@ -56,11 +88,25 @@ describe('Basic', function () {
                 password: "nat",
             }
         );
-        data = await testingTable.selectTable();
 
+        // check
+        let data = await testingTable.selectTable();
         assert.equal(data.length, 1);
+        assert.equal(data[0].test_id, 1);
         assert.equal(data[0].username, "bat");
         assert.equal(data[0].password, "nat");
+    });
+});
+
+describe('Authentication Suite', function () {
+    let a  = 0;
+    it('should create a user', function () {
+        assert.equal(a,0);
+        a = 0;
+    });
+    it('should not create duplicate users with same username', function () {
+        assert.equal(a,0);
+        a = 2;
     });
 });
 

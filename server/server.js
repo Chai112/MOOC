@@ -12,7 +12,6 @@ app.use(express.json({limit: '10gb'}));
 
 const Db = require('./database');
 
-
 // this is called everytime a request is GET'ted at localhost
 app.get('/', function (request, response) { // call a function where request and response are arguments
 });

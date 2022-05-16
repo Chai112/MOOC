@@ -60,15 +60,34 @@ function santizeSqlValue(input) {
 
 class DatabaseTable {
     tableName;
+    tableKeyName;
     properties;
 
-    constructor(tableName, properties) {
+    constructor(tableName, tablePrivateKeyName, properties) {
         this.tableName = tableName;
+        this.tableKeyName = tablePrivateKeyName;
         this.properties = properties;
+    }
+
+    async getNextKey() {
+        let queryStr = `SELECT MAX(${this.tableKeyName}) AS id_max FROM ${this.tableName}`;
+        let result = await this.query(queryStr);
+        result = result[0]; // get the first result
+
+        // incase if no elements existed previously
+        if (result.id_max === null) {
+            result.id_max = 0;
+        }
+
+        return result.id_max + 1;
     }
 
     async init() {
         let queryStr = `CREATE TABLE IF NOT EXISTS ${this.tableName} (`;
+        // format for table key
+        queryStr += `${this.tableKeyName} int, `;
+
+        // format name:type
         this.properties.forEach((item, index, arr) => {
             queryStr += `${item.name} ${item.type}, `;
         });
@@ -96,14 +115,20 @@ class DatabaseTable {
         await this.query(queryStr);
     }
 
-    async selectTable() {
-        let queryStr = `SELECT  * FROM ${this.tableName};`;
+    async selectTable(where) {
+        let queryStr = `SELECT * FROM ${this.tableName}`;
+        if (where !== undefined) {
+            let whereName = Object.keys(where)[0];
+            let whereValue = `${santizeSqlValue(where[whereName])}`;
+            queryStr += ` WHERE ${whereName} = ${whereValue}`
+        }
+        queryStr += ";";
         return await this.query(queryStr);
     }
 
     async insertIntoTable(entry) {
-        let queryStrCol = "";
-        let queryStrVal = "";
+        let queryStrCol = `${this.tableKeyName}, `;
+        let queryStrVal = `${await this.getNextKey()}, `;
         for (let name in entry) {
             let value = entry[name];
             queryStrCol += `${name}, `;
@@ -138,7 +163,7 @@ class DatabaseTable {
         // remove the , at the end
         queryStrEntries = queryStrEntries.substring(0, queryStrEntries.length - 2);
 
-        let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries}  WHERE ${queryStrWhere};`;
+        let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries} WHERE ${queryStrWhere};`;
         await this.query(queryStr);
     }
 

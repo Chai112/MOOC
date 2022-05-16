@@ -3,7 +3,7 @@ const Auth = require('../auth');
 
 var assert = require('assert');
 
-describe('SQL Suite', function () {
+describe('Database Suite', function () {
     it('should connect to the SQL server', async function () {
         Db.sqlConnect();
     });
@@ -87,9 +87,15 @@ describe('SQL Suite', function () {
 
 describe('Authentication Suite', function () {
     let randomName = Math.random().toString();
+    let token = "";
     it('should create a user', async function () {
-        console.log(await Auth.testGetAllUsers());
-        let token = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+        try {
+            token = await Auth.loginUser("test", "password");
+            await Auth.deleteUser(token);
+        } catch {
+
+        }
+        token = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
 
         let data = await Auth.getUserFromToken(token);
         let user = data[0];
@@ -104,7 +110,7 @@ describe('Authentication Suite', function () {
         );
     });
     it('should login user', async function () {
-        let token = await Auth.loginUser("test", "password");
+        token = await Auth.loginUser("test", "password");
 
         let data = await Auth.getUserFromToken(token);
         let user = data[0];
@@ -117,10 +123,22 @@ describe('Authentication Suite', function () {
             }
         );
     });
-    it('should NOT login user with wrong password', async function () {
+    it('should logout user', async function () {
+        await Auth.logoutUser(token);
+        let data = await Auth.getUserFromToken(token);
+        assert.equal(data.length, "0");
+    });
+    it('should delete user', async function () {
+        token = await Auth.loginUser("test", "password");
+        await Auth.deleteUser(token);
+
+        let data = await Auth.getUserFromToken(token);
+        assert.equal(data.length, "0");
+
+        // login should fail
         await assert.rejects(
             async function () { 
-                await Auth.loginUser("test", "wrongPassword");
+                await Auth.loginUser("test", "password");
             }
         );
     });

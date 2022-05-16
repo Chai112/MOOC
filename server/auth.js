@@ -59,13 +59,6 @@ async function registerUser(username, password, email, firstName, lastName) {
     return await loginUser(username, password);
 }
 
-async function testGetAllUsers() {
-    await users.drop();
-    await users.init();
-
-    return await users.select();
-}
-
 async function loginUser(username, password) {
     // check password
     let data = await users.select({"username": username});
@@ -97,11 +90,28 @@ async function loginUser(username, password) {
     return token;
 }
 
+async function logoutUser(token) {
+    await users.update(
+        {"token": token},
+        {
+            "token": ""
+        },
+    );
+}
+
+async function deleteUser(token) {
+    await users.deleteFrom(
+        {"token": token},
+    );
+}
+
 async function getUserFromToken(token) {
     return await users.select({"token": token});
 }
 
 module.exports.registerUser = registerUser;
 module.exports.loginUser = loginUser;
+module.exports.logoutUser = logoutUser;
+module.exports.deleteUser = deleteUser;
+
 module.exports.getUserFromToken = getUserFromToken;
-module.exports.testGetAllUsers = testGetAllUsers;

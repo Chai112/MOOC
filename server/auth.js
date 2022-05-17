@@ -32,8 +32,20 @@ var users = new Db.DatabaseTable("Users",
         "name": "dateCreated",
         "type": "datetime"
         },
+        {
+        "name": "dateLastLogin",
+        "type": "datetime"
+        },
 ]);
 users.init();
+
+/*
+async function DO_NOT_RUN_FULL_RESET() {
+    await users.drop();
+    await users.init();
+}
+DO_NOT_RUN_FULL_RESET();
+*/
 
 async function registerUser(username, password, email, firstName, lastName) {
     // test if a user already exists with that username
@@ -54,6 +66,7 @@ async function registerUser(username, password, email, firstName, lastName) {
         "firstName": firstName,
         "lastName": lastName,
         "dateCreated": Db.getDatetime(),
+        "dateLastLogin": Db.getDatetime(),
     });
 
     return await loginUser(username, password);
@@ -84,7 +97,8 @@ async function loginUser(username, password) {
     await users.update(
         {"username": username},
         {
-            "token": token
+            "token": token,
+            "dateLastLogin": Db.getDatetime(),
         },
     );
     return token;
@@ -99,9 +113,9 @@ async function logoutUser(token) {
     );
 }
 
-async function deleteUser(token) {
+async function deleteUser(token, password) {
     await users.deleteFrom(
-        {"token": token},
+        {"token": token, "password": password},
     );
 }
 

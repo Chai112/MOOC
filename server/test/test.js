@@ -130,7 +130,7 @@ describe('Authentication Suite', function () {
     });
     it('should delete user', async function () {
         token = await Auth.loginUser("test", "password");
-        await Auth.deleteUser(token);
+        await Auth.deleteUser(token, "password");
 
         let data = await Auth.getUserFromToken(token);
         assert.equal(data.length, "0");
@@ -141,6 +141,11 @@ describe('Authentication Suite', function () {
                 await Auth.loginUser("test", "password");
             }
         );
+    });
+});
+
+describe('Courses Suite', function () {
+    it('', async function () {
     });
 });
 

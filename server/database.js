@@ -8,6 +8,9 @@ const CONNECTION_DETAILS = {
   password : 'nofpAz-zytke6-vycbyz',
 }
 
+const DEBUG_VERBOSE = false;
+const DATETIME = "$$DATETIME$$";
+
 var connection;
 
 // connect to the MySQL server
@@ -51,6 +54,11 @@ function sqlDisconnect() {
 
 // wraps a string around strings
 function santizeSqlValue(input) {
+
+    // special for datetimes
+    if (input === DATETIME)
+        return `CURRENT_TIMESTAMP`;
+
     if (typeof input === "string") {
         // just to be safe!
         return `"${encodeURI(input)}"`;
@@ -60,7 +68,7 @@ function santizeSqlValue(input) {
 }
 
 function getDatetime() {
-    return new Date().toString();
+    return DATETIME;
 }
 
 class DatabaseTable {
@@ -105,7 +113,9 @@ class DatabaseTable {
 
     async query(queryStr) {
         await sqlConnect();
-        //console.log(`DATABASE:  querying ${queryStr}`)
+        if (DEBUG_VERBOSE) {
+            console.log(`DATABASE:  querying ${queryStr}`)
+        }
         return new Promise(resolve => {
             connection.query(queryStr, function (error, results, fields) {
                 if (error) throw error;
@@ -156,16 +166,8 @@ class DatabaseTable {
 
         let queryStrEntries = "";
         for (let name in entry) {
-            let entryName = `${name}`
-            let entryValue = "";
-
             let value = entry[name];
-            if (typeof value === "string") {
-                entryValue = `"${value}"`;
-            } else {
-                entryValue = `${value}`;
-            }
-            queryStrEntries += `${entryName} = ${entryValue}, `;
+            queryStrEntries += `${name} = ${santizeSqlValue(value)}, `;
         }
         // remove the , at the end
         queryStrEntries = queryStrEntries.substring(0, queryStrEntries.length - 2);

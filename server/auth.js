@@ -1,5 +1,6 @@
 const Db = require('./database');
 const sha256 = require('sha256');
+const Token = require('./token');
 
 var users = new Db.DatabaseTable("Users",
     "userId",
@@ -89,10 +90,7 @@ async function loginUser(username, password) {
     }
 
     // create token
-    let token = "";
-    let possible = "0123456789abcdef";
-    for (let i = 0; i < 32; i++)
-        token += possible.charAt(Math.floor(Math.random() * possible.length));
+    let token = Token.generateToken();
 
     await users.update(
         {"username": username},

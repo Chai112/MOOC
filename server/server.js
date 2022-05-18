@@ -19,6 +19,7 @@ const Route = require('./route');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const Token = require('./token');
 
 // this is called everytime a request is GET'ted at localhost
 app.get('/', function (request, response) { // call a function where request and response are arguments
@@ -71,24 +72,42 @@ const videoUpload = multer({
        return cb(new Error('Please upload a video'))
     }
     cb(undefined, true)
-    console.log("downloading");
-    let progress = 0;
-    let fileSize = req.headers['content-length'] ? parseInt(req.headers['content-length']) : 0;
-    req.on('data', (chunk) => {
-        progress += chunk.length;
-        console.log((`${Math.floor((progress * 100) / fileSize)} `));
-        if (progress === fileSize) {
-            console.log('Finished', progress, fileSize)
-        }
-    });
  }
 })
-app.post('/uploadVideo', videoUpload.single('video'), (req, res) => {
-  res.send(req.file)
-  console.log("finish");
-}, (error, req, res, next) => {
-   res.status(400).send({ error: error.message })
-})
+const videoUploadSingle = videoUpload.single('video');
+const videoUploadProgress = new Map();
+
+app.post('/uploadVideo', (req, res) => {
+  let videoId = req.query.videoId;
+  console.log("downloading");
+  let progress = 0;
+  let fileSize = req.headers['content-length'] ? parseInt(req.headers['content-length']) : 0;
+  req.on('data', (chunk) => {
+      progress += chunk.length;
+      progressString = `${Math.floor((progress * 100) / fileSize)}%`;
+      videoUploadProgress.set(videoId, progressString);
+      if (progress === fileSize) {
+          console.log('Finished', progress, fileSize)
+      }
+  });
+  videoUploadSingle(req, res, (err) => {
+    if (err !== undefined)
+      console.log(err);
+    res.send(req.file)
+    console.log("finish");
+    videoUploadProgress.delete(videoId);
+  });
+});
+
+app.get('/getVideoUploadId', (req, res) => {
+  var videoId = Token.generateToken();
+  res.json({videoId: videoId});
+});
+
+app.get('/getVideoUploadProgress', (req, res) => {
+  let videoId = req.query.videoId;
+  res.json({progress: videoUploadProgress.get(videoId)});
+});
 
 // this is called everytime a request is POST'ed at localhost
 app.post('/', function (request, response) { // call a function where request and response are arguments

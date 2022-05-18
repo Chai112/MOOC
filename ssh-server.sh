@@ -1,1 +1,1 @@
-ssh -i "~/Documents/code/docs/mooc/chaidhat.pem" ubuntu@ec2-54-255-233-46.ap-southeast-1.compute.amazonaws.com
+ssh -i "~/Documents/code/docs/mooc/chaidhat.pem" -t ubuntu@ec2-54-255-233-46.ap-southeast-1.compute.amazonaws.com "cd server ; bash --login"

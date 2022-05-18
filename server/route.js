@@ -1,25 +1,38 @@
-const fs = require('fs');
+const VideoData = require("./videoData");
 
-const VideoUpload = require("./videoUpload");
+// TEMPORARY
+// TEMPORARY
+// TEMPORARY
+const Token = require('./token');
 
-function post(action, request, response) {
+function parse(action, request, response) {
     switch (action) {
-        case "upload-video":
-            console.log("videoUpload:   UPLOADING...");
-            var body = '';
-            filePath = __dirname + '/public/nocturne.mp4';
-            request.on('data', function(data) {
-                body += data;
-                //console.log(data);
-            });
+        case "addVideo":
+            let videoName = request.query.videoName;
+            response.json(addVideo(videoName));
+            break;
 
-            request.on('end', function (){
-                fs.writeFile(filePath, body, function() {
-                    response.send("uploaded video successfully");
-                });
-            });
-            //const data = request.body.data; 
-            //let videoDataId = VideoUpload.uploadVideo(data);
+        case "downloadVideo":
+            VideoData.downloadVideo(request, response);
+            break;
+
+        case "uploadVideo":
+            VideoData.uploadVideo(request, response);
+            break;
+
+        case "getVideoUploadProgress":
+            let videoId = request.query.videoId;
+            response.json(VideoData.getVideoUploadProgress(videoId));
+            break;
+
+        default:
+            response.json({"message": "invalid action"});
+            return;
     }
 }
-module.exports.post = post;
+module.exports.parse = parse;
+
+function addVideo (videoName) {
+    var videoId = Token.generateToken();
+    return {videoId: videoId};
+}

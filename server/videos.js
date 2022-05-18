@@ -1,4 +1,5 @@
 const Db = require('./database');
+const Token = require('./token');
 
 var videos = new Db.DatabaseTable("Videos",
     "videoId",
@@ -9,7 +10,7 @@ var videos = new Db.DatabaseTable("Videos",
         },
         {
         "name": "videoDataId",
-        "type": "int"
+        "type": "varchar(16)"
         },
         {
         "name": "elementOrder",
@@ -34,10 +35,27 @@ var videos = new Db.DatabaseTable("Videos",
 ]);
 videos.init();
 
-async function addVideo (token, courseSectionId, videoOptions) {
+async function addVideo (token, videoOptions) {
+    // TODO: auth check token that they can add a course to courseSection
+
+    var videoId = Token.generateToken();
+
+    videos.insertInto({
+        "courseSectionId": videoOptions.courseSectionId,
+        "videoDataId": videoId,
+        "elementOrder": videoOptions.elementOrder,
+        "duration": "?",
+        "videoName": videoOptions.videoName,
+        "videoDescription": videoOptions.videoDescription,
+        "dateCreated": Db.getDatetime(),
+    });
+
+    return {videoId: videoId};
 }
 
 async function removeVideo (token, videoId) {
+    // TODO: auth check token
+    videos.deleteFrom({"videoDataId": videoId});
 }
 
 async function addForm (token, courseSectionId, formOptions) {
@@ -48,3 +66,6 @@ async function removeForm (token, formId) {
 
 async function changeElementOrder (token, element1, element2) {
 }
+
+module.exports.addVideo = addVideo;
+module.exports.removeVideo = removeVideo;

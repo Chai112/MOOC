@@ -16,14 +16,19 @@ const Route = require('./route');
 // this is called everytime a request is GET'ted at localhost
 app.get('/', function (request, response) { // call a function where request and response are arguments
   const action = request.query.action;
-  Route.parse(action, request, response);
+  if (action === undefined)
+    response.json({message: "query 'action' expected in url but not found - specify the action"})
+  let router = new Route.Router(request, response);
+  router.parse(action);
 });
 
 // this is called everytime a request is POST'ed at localhost
 app.post('/', function (request, response) { // call a function where request and response are arguments
   const action = request.query.action;
-  console.log(action);
-  Route.parse(action, request, response);
+  if (action === undefined)
+    response.json({message: "query 'action' expected in url but not found - specify the action"})
+  let router = new Route.Router(request, response);
+  router.parse(action);
 });
 
 app.listen(port, () => {

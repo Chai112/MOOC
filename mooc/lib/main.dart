@@ -46,7 +46,7 @@ class _BumbleBeeRemoteVideoState extends State<_BumbleBeeRemoteVideo> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      'http://ec2-54-255-233-46.ap-southeast-1.compute.amazonaws.com:3000/?action=downloadVideo',
+      'https://sicherthai.com/test/nocturne.mp4', // should not use actual server for testing!
       closedCaptionFile: _loadCaptions(),
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
     );

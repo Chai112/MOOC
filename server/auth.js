@@ -19,7 +19,7 @@ var users = new Db.DatabaseTable("Users",
         },
         {
         "name": "token",
-        "type": "varchar(32)"
+        "type": "varchar(16)"
         },
         {
         "name": "firstName",

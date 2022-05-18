@@ -17,3 +17,11 @@ var courseSections = new Db.DatabaseTable("CourseSections",
         },
 ]);
 courseSections.init();
+
+async function addCourseSection (token, courseSectionName) {
+}
+
+async function removeCourseSection (token, courseSectionId) {
+}
+
+

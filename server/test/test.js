@@ -145,7 +145,21 @@ describe('Authentication Suite', function () {
 });
 
 describe('Courses Suite', function () {
-    it('', async function () {
+    describe('Courses', function () {
+        it('add course', async function () {
+        });
+    });
+    describe('CourseSections', function () {
+        it('add course section', async function () {
+        });
+    });
+    describe('Videos', function () {
+        describe('VideoData', function () {
+            it('upload video', async function () {
+            });
+        });
+        it('add video', async function () {
+        });
     });
 });
 

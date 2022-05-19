@@ -5,32 +5,32 @@ var videos = new Db.DatabaseTable("Videos",
     "videoId",
     [
         {
-        "name": "courseSectionId",
-        "type": "int"
+        name: "courseSectionId",
+        type: "int"
         },
         {
-        "name": "videoDataId",
-        "type": "varchar(16)"
+        name: "videoDataId",
+        type: "varchar(16)"
         },
         {
-        "name": "elementOrder",
-        "type": "int"
+        name: "elementOrder",
+        type: "int"
         },
         {
-        "name": "duration",
-        "type": "int"
+        name: "duration",
+        type: "int"
         },
         {
-        "name": "videoName",
-        "type": "varchar(50)"
+        name: "videoName",
+        type: "varchar(50)"
         },
         {
-        "name": "videoDescription",
-        "type": "varchar(50)"
+        name: "videoDescription",
+        type: "varchar(50)"
         },
         {
-        "name": "dateCreated",
-        "type": "datetime"
+        name: "dateCreated",
+        type: "datetime"
         },
 ]);
 videos.init();
@@ -41,13 +41,13 @@ async function createVideo (token, videoOptions) {
     var videoId = Token.generateToken();
 
     videos.insertInto({
-        "courseSectionId": videoOptions.courseSectionId,
-        "videoDataId": videoId,
-        "elementOrder": videoOptions.elementOrder,
-        "duration": "?",
-        "videoName": videoOptions.videoName,
-        "videoDescription": videoOptions.videoDescription,
-        "dateCreated": Db.getDatetime(),
+        courseSectionId: videoOptions.courseSectionId,
+        videoDataId: videoId,
+        elementOrder: videoOptions.elementOrder,
+        duration: "?",
+        videoName: videoOptions.videoName,
+        videoDescription: videoOptions.videoDescription,
+        dateCreated: Db.getDatetime(),
     });
 
     return {videoId: videoId};

@@ -5,12 +5,12 @@ var organizations = new Db.DatabaseTable("Organizations",
     "organizationId",
     [
         {
-        "name": "organizationName",
-        "type": "varchar(50)"
+        name: "organizationName",
+        type: "varchar(50)"
         },
         {
-        "name": "dateCreated",
-        "type": "datetime"
+        name: "dateCreated",
+        type: "datetime"
         },
 ]);
 organizations.init();
@@ -19,32 +19,32 @@ var organizationPrivileges = new Db.DatabaseTable("OrganizationPrivileges",
     "organizationPrivilegeId",
     [
         {
-        "name": "organizationId",
-        "type": "int"
+        name: "organizationId",
+        type: "int"
         },
         {
-        "name": "userId",
-        "type": "int"
+        name: "userId",
+        type: "int"
         },
         {
-        "name": "canSeeAnalytics",
-        "type": "bit"
+        name: "canSeeAnalytics",
+        type: "bit"
         },
         {
-        "name": "canEditCourses",
-        "type": "bit"
+        name: "canEditCourses",
+        type: "bit"
         },
         {
-        "name": "canAddNewCourse",
-        "type": "bit"
+        name: "canAddNewCourse",
+        type: "bit"
         },
         {
-        "name": "isAdmin",
-        "type": "bit"
+        name: "isAdmin",
+        type: "bit"
         },
         {
-        "name": "isOwner",
-        "type": "bit"
+        name: "isOwner",
+        type: "bit"
         },
 ]);
 organizationPrivileges.init();
@@ -53,28 +53,28 @@ var coursePrivileges = new Db.DatabaseTable("CoursePrivileges",
     "coursePrivilegeId",
     [
         {
-        "name": "organizationPrivilegeId",
-        "type": "int"
+        name: "organizationPrivilegeId",
+        type: "int"
         },
         {
-        "name": "courseId",
-        "type": "int"
+        name: "courseId",
+        type: "int"
         },
         {
-        "name": "canSeeAnalytics",
-        "type": "bit"
+        name: "canSeeAnalytics",
+        type: "bit"
         },
         {
-        "name": "canEditCourse",
-        "type": "bit"
+        name: "canEditCourse",
+        type: "bit"
         },
         {
-        "name": "canGiveFeedback",
-        "type": "bit"
+        name: "canGiveFeedback",
+        type: "bit"
         },
         {
-        "name": "isAdmin",
-        "type": "bit"
+        name: "isAdmin",
+        type: "bit"
         },
 ]);
 coursePrivileges.init();
@@ -106,13 +106,13 @@ async function createOrganization (token, organizationOptions) {
 
     let privilegeOptions = DEFAULT_OWNER_PRIVILEGES;
     let organizationPrivilegeId = await organizationPrivileges.insertInto({
-        "organizationId": organizationId,
-        "userId": username,
-        "canSeeAnalytics": privilegeOptions.canSeeAnalytics,
-        "canEditCourses": privilegeOptions.canEditCourses,
-        "canAddNewCourse": privilegeOptions.canAddNewCourse,
-        "isAdmin": privilegeOptions.isAdmin,
-        "isOwner": privilegeOptions.isOwner,
+        organizationId: organizationId,
+        userId: username,
+        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
+        canEditCourses: privilegeOptions.canEditCourses,
+        canAddNewCourse: privilegeOptions.canAddNewCourse,
+        isAdmin: privilegeOptions.isAdmin,
+        isOwner: privilegeOptions.isOwner,
     });
     return {
         organizationId: organizationId,

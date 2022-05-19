@@ -6,36 +6,36 @@ var users = new Db.DatabaseTable("Users",
     "userId",
     [
         {
-        "name": "username",
-        "type": "varchar(50)"
+        name: "username",
+        type: "varchar(50)"
         },
         {
-        "name": "password",
-        "type": "varchar(64)"
+        name: "password",
+        type: "varchar(64)"
         },
         {
-        "name": "email",
-        "type": "varchar(50)"
+        name: "email",
+        type: "varchar(50)"
         },
         {
-        "name": "token",
-        "type": "varchar(16)"
+        name: "token",
+        type: "varchar(16)"
         },
         {
-        "name": "firstName",
-        "type": "varchar(50)"
+        name: "firstName",
+        type: "varchar(50)"
         },
         {
-        "name": "lastName",
-        "type": "varchar(50)"
+        name: "lastName",
+        type: "varchar(50)"
         },
         {
-        "name": "dateCreated",
-        "type": "datetime"
+        name: "dateCreated",
+        type: "datetime"
         },
         {
-        "name": "dateLastLogin",
-        "type": "datetime"
+        name: "dateLastLogin",
+        type: "datetime"
         },
 ]);
 users.init();
@@ -45,6 +45,7 @@ async function DO_NOT_RUN_FULL_RESET() {
     await users.drop();
     await users.init();
 }
+module.exports.DO_NOT_RUN_FULL_RESET = DO_NOT_RUN_FULL_RESET;
 */
 
 async function registerUser(username, password, email, firstName, lastName) {
@@ -59,22 +60,23 @@ async function registerUser(username, password, email, firstName, lastName) {
     
     // insert new user
     await users.insertInto({
-        "username": username,
-        "password": passwordHash,
-        "email": email,
-        "token": "",
-        "firstName": firstName,
-        "lastName": lastName,
-        "dateCreated": Db.getDatetime(),
-        "dateLastLogin": Db.getDatetime(),
+        username: username,
+        password: passwordHash,
+        email: email,
+        token: "",
+        firstName: firstName,
+        lastName: lastName,
+        dateCreated: Db.getDatetime(),
+        dateLastLogin: Db.getDatetime(),
     });
 
     return await loginUser(username, password);
 }
+module.exports.registerUser = registerUser;
 
 async function loginUser(username, password) {
     // check password
-    let data = await users.select({"username": username});
+    let data = await users.select({username: username});
     if (data.length < 0) {
         throw "no user exists";
     }
@@ -92,47 +94,48 @@ async function loginUser(username, password) {
     let token = Token.generateToken();
 
     await users.update(
-        {"username": username},
+        {username: username},
         {
-            "token": token,
-            "dateLastLogin": Db.getDatetime(),
+            token: token,
+            dateLastLogin: Db.getDatetime(),
         },
     );
     return token;
 }
+module.exports.loginUser = loginUser;
+
 
 async function logoutUser(token) {
     await users.update(
-        {"token": token},
+        {token: token},
         {
-            "token": ""
+            token: ""
         },
     );
 }
+module.exports.logoutUser = logoutUser;
 
 async function deleteUser(token, password) {
+    // hash password
+    let passwordHash = sha256(password);
+
     await users.deleteFrom(
-        {"token": token, "password": password},
+        {token: token, password: passwordHash},
     );
 }
-
-async function getUserFromUsername(username) {
-    return await users.select({"username": username});
-}
-
-async function getUserFromToken(token) {
-    return await users.select({"token": token});
-}
-
-async function getUserFromUserId(userId) {
-    return await users.select({"userId": userId});
-}
-
-module.exports.registerUser = registerUser;
-module.exports.loginUser = loginUser;
-module.exports.logoutUser = logoutUser;
 module.exports.deleteUser = deleteUser;
 
-module.exports.getUserFromToken = getUserFromToken;
+async function getUserFromUsername(username) {
+    return await users.select({username: username});
+}
 module.exports.getUserFromUsername = getUserFromUsername;
+
+async function getUserFromToken(token) {
+    return await users.select({token: token});
+}
+module.exports.getUserFromToken = getUserFromToken;
+
+async function getUserFromUserId(userId) {
+    return await users.select({userId: userId});
+}
 module.exports.getUserFromUserId = getUserFromUserId;

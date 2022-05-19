@@ -15,12 +15,12 @@ describe('Database', function () {
             "testId",
             [
                 {
-                "name": "username",
-                "type": "varchar(50)"
+                name: "username",
+                type: "varchar(50)"
                 },
                 {
-                "name": "password",
-                "type": "varchar(32)"
+                name: "password",
+                type: "varchar(32)"
                 }
             ]
         );
@@ -93,7 +93,7 @@ describe('Authentication', function () {
     it('should create a user', async function () {
         try {
             token = await Auth.loginUser("test", "password");
-            await Auth.deleteUser(token);
+            await Auth.deleteUser(token, "password");
         } catch {
 
         }
@@ -155,7 +155,7 @@ describe('Organizations', function () {
     it('add organization', async function () {
         try {
             tokenA = await Auth.loginUser("test", "password");
-            await Auth.deleteUser(tokenA);
+            await Auth.deleteUser(tokenA, "password");
         } catch {
         }
         tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
@@ -177,7 +177,7 @@ describe('Organizations', function () {
     it('add assign new user to organization', async function () {
         try {
             tokenB = await Auth.loginUser("test2", "password");
-            await Auth.deleteUser(tokenB);
+            await Auth.deleteUser(tokenB, "password");
         } catch {
         }
         tokenB = await Auth.registerUser("test2", "password", "test@test.com", `a_${randomName}`, "lastname");

@@ -4,28 +4,28 @@ var courses = new Db.DatabaseTable("Courses",
     "courseId",
     [
         {
-        "name": "courseName",
-        "type": "varchar(50)"
+        name: "courseName",
+        type: "varchar(50)"
         },
         {
-        "name": "dateCreated",
-        "type": "datetime"
+        name: "dateCreated",
+        type: "datetime"
         },
         {
-        "name": "dateModified",
-        "type": "datetime"
+        name: "dateModified",
+        type: "datetime"
         },
         {
-        "name": "organizationId",
-        "type": "int"
+        name: "organizationId",
+        type: "int"
         },
         {
-        "name": "courseDescription",
-        "type": "varchar(256)"
+        name: "courseDescription",
+        type: "varchar(256)"
         },
         {
-        "name": "isLive",
-        "type": "bit"
+        name: "isLive",
+        type: "bit"
         },
 ]);
 courses.init();
@@ -39,11 +39,11 @@ DO_NOT_RUN_FULL_RESET();
 async function addCourse (token, organizationId, courseOptions) {
     // TODO: check if user CAN add a new course to organization
     courses.insertInto({
-        "courseName": courseOptions.courseName,
-        "dateCreated": Db.getDatetime(),
-        "organizationId": "", // TODO: implement organizationId
-        "courseDescription": courseOptions.courseDescription,
-        "isLive": 0,
+        courseName: courseOptions.courseName,
+        dateCreated: Db.getDatetime(),
+        organizationId: "", // TODO: implement organizationId
+        courseDescription: courseOptions.courseDescription,
+        isLive: 0,
     });
     //courseOptions.courseName;
     //courseOptions.courseDescription;

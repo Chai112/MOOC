@@ -8,7 +8,7 @@ const CONNECTION_DETAILS = {
   password : 'nofpAz-zytke6-vycbyz',
 }
 
-const DEBUG_VERBOSE = false;
+const DEBUG_VERBOSE = true;
 const DATETIME = "$$DATETIME$$";
 
 var connection;
@@ -62,6 +62,12 @@ function santizeSqlValue(input) {
     if (typeof input === "string") {
         // just to be safe!
         return `"${encodeURI(input)}"`;
+    } else if (typeof input === "boolean") {
+        if (input) {
+            return '1';
+        } else {
+            return '0';
+        }
     } else {
         return `${input}`;
     }
@@ -69,6 +75,17 @@ function santizeSqlValue(input) {
 
 function getDatetime() {
     return DATETIME;
+}
+
+function readBool(input) {
+    let output = input.readInt8();
+    if (output === 1) {
+        return true;
+    } else if (output === 0) {
+        return false;
+    } else {
+        throw "not a bool!";
+    }
 }
 
 class DatabaseTable {
@@ -187,5 +204,6 @@ class DatabaseTable {
 module.exports.sqlConnect = sqlConnect;
 module.exports.sqlDisconnect = sqlDisconnect;
 module.exports.getDatetime = getDatetime;
+module.exports.readBool = readBool;
 
 module.exports.DatabaseTable = DatabaseTable;

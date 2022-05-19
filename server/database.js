@@ -53,7 +53,7 @@ function sqlDisconnect() {
 }
 
 // wraps a string around strings
-function santizeSqlValue(input) {
+function sanitizeSqlValue(input) {
 
     // special for datetimes
     if (input === DATETIME)
@@ -150,9 +150,15 @@ class DatabaseTable {
     async select(where) {
         let queryStr = `SELECT * FROM ${this.tableName}`;
         if (where !== undefined) {
-            let whereName = Object.keys(where)[0];
-            let whereValue = `${santizeSqlValue(where[whereName])}`;
-            queryStr += ` WHERE ${whereName} = ${whereValue}`
+            let queryStrWheres = "";
+            for (let name in where) {
+                let value = where[name];
+                queryStrWheres += `${name} = ${sanitizeSqlValue(value)} AND `;
+            }
+            // remove the AND at the end
+            queryStrWheres = queryStrWheres.substring(0, queryStrWheres.length - 5);
+
+            queryStr += ` WHERE ${queryStrWheres}`
         }
         queryStr += ";";
         return await this.query(queryStr);
@@ -165,7 +171,7 @@ class DatabaseTable {
         for (let name in entry) {
             let value = entry[name];
             queryStrCol += `${name}, `;
-            queryStrVal += `${santizeSqlValue(value)}, `
+            queryStrVal += `${sanitizeSqlValue(value)}, `
         }
         // remove the , at the end
         queryStrCol = queryStrCol.substring(0, queryStrCol.length - 2);
@@ -177,25 +183,29 @@ class DatabaseTable {
     }
 
     async update(where, entry) {
-        let whereName = Object.keys(where)[0];
-        let whereValue = `${santizeSqlValue(where[whereName])}`;
-        let queryStrWhere = `${whereName} = ${whereValue}`;
+        let queryStrWheres = "";
+        for (let name in where) {
+            let value = where[name];
+            queryStrWheres += `${name} = ${sanitizeSqlValue(value)} AND `;
+        }
+        // remove the AND at the end
+        queryStrWheres = queryStrWheres.substring(0, queryStrWheres.length - 5);
 
         let queryStrEntries = "";
         for (let name in entry) {
             let value = entry[name];
-            queryStrEntries += `${name} = ${santizeSqlValue(value)}, `;
+            queryStrEntries += `${name} = ${sanitizeSqlValue(value)}, `;
         }
         // remove the , at the end
         queryStrEntries = queryStrEntries.substring(0, queryStrEntries.length - 2);
 
-        let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries} WHERE ${queryStrWhere};`;
+        let queryStr = `UPDATE ${this.tableName} SET ${queryStrEntries} WHERE ${queryStrWheres};`;
         await this.query(queryStr);
     }
 
     async deleteFrom(where) {
         let whereName = Object.keys(where)[0];
-        let whereValue = `${santizeSqlValue(where[whereName])}`;
+        let whereValue = `${sanitizeSqlValue(where[whereName])}`;
         let queryStr = `DELETE FROM ${this.tableName} WHERE ${whereName} = ${whereValue};`;
         await this.query(queryStr);
     }

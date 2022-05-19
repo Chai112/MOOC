@@ -1,9 +1,11 @@
 const Db = require('../database');
 const Auth = require('../auth');
+const Org = require('../organizations');
+const Token = require('../token');
 
 var assert = require('assert');
 
-describe('Database Suite', function () {
+describe('Database', function () {
     it('should connect to the SQL server', async function () {
         Db.sqlConnect();
     });
@@ -85,8 +87,8 @@ describe('Database Suite', function () {
     });
 });
 
-describe('Authentication Suite', function () {
-    let randomName = Math.random().toString();
+describe('Authentication', function () {
+    let randomName = Token.generateToken();
     let token = "";
     it('should create a user', async function () {
         try {
@@ -144,22 +146,51 @@ describe('Authentication Suite', function () {
     });
 });
 
-describe('Courses Suite', function () {
-    describe('Courses', function () {
-        it('add course', async function () {
+describe('Organizations', function () {
+    let randomName = Token.generateToken();
+    let orgId;
+    let orgPrivId;
+    let tokenA;
+    let tokenB;
+    it('add organization', async function () {
+        try {
+            tokenA = await Auth.loginUser("test", "password");
+            await Auth.deleteUser(tokenA);
+        } catch {
+        }
+        tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+        let orgData = await Org.createOrganization(tokenA, {
+            organizationName: `TestOrg${randomName}`
         });
+        orgId = orgData.organizationId;
+        orgPrivId = orgData.organizationPrivilegesId;
+        let data = await Org.getOrganization(orgId);
+        assert.equal(data[0].organizationName, `TestOrg${randomName}`);
     });
-    describe('CourseSections', function () {
-        it('add course section', async function () {
-        });
+    it('add organization adds the creator as owner', async function () {
+        let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
+        assert.equal(dataOrgPriv.length, 1);
+        assert.equal(Db.readBool(dataOrgPriv[0].isOwner), true);
+        let dataOrgPrivUser = await Auth.getUserFromUserId(dataOrgPriv[0].userId);
+        assert.equal(dataOrgPrivUser[0].username, "test");
     });
-    describe('Videos', function () {
-        describe('VideoData', function () {
-            it('upload video', async function () {
-            });
+    it('add assign new user to organization', async function () {
+        try {
+            tokenB = await Auth.loginUser("test2", "password");
+            await Auth.deleteUser(tokenB);
+        } catch {
+        }
+        tokenB = await Auth.registerUser("test2", "password", "test@test.com", `a_${randomName}`, "lastname");
+        orgPrivId = await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
+            canSeeAnalytics: false,
+            canEditCourses: false,
+            canAddNewCourse: true,
+            isAdmin: true,
         });
-        it('add video', async function () {
-        });
+        let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
+        assert.equal(dataOrgPriv.length, 1);
+        assert.equal(Db.readBool(dataOrgPriv[0].isOwner), false);
+
     });
 });
 

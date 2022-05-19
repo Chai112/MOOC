@@ -1,5 +1,15 @@
 {
-    "scripts": {
-        "test": "mocha"
-    }
+  "scripts": {
+    "test": "mocha",
+    "start": "node server.js"
+  },
+  "name": "mooc",
+  "version": "1.0.0",
+  "description": "Massive Open Online Course by Chaidhat Chaimongkol",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC"
 }

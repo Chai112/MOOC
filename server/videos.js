@@ -35,7 +35,7 @@ var videos = new Db.DatabaseTable("Videos",
 ]);
 videos.init();
 
-async function addVideo (token, videoOptions) {
+async function createVideo (token, videoOptions) {
     // TODO: auth check token that they can add a course to courseSection
 
     var videoId = Token.generateToken();
@@ -67,5 +67,5 @@ async function removeForm (token, formId) {
 async function changeElementOrder (token, element1, element2) {
 }
 
-module.exports.addVideo = addVideo;
+module.exports.addVideo = createVideo;
 module.exports.removeVideo = removeVideo;

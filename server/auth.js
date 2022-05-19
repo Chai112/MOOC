@@ -45,7 +45,6 @@ async function DO_NOT_RUN_FULL_RESET() {
     await users.drop();
     await users.init();
 }
-DO_NOT_RUN_FULL_RESET();
 */
 
 async function registerUser(username, password, email, firstName, lastName) {
@@ -117,8 +116,16 @@ async function deleteUser(token, password) {
     );
 }
 
+async function getUserFromUsername(username) {
+    return await users.select({"username": username});
+}
+
 async function getUserFromToken(token) {
     return await users.select({"token": token});
+}
+
+async function getUserFromUserId(userId) {
+    return await users.select({"userId": userId});
 }
 
 module.exports.registerUser = registerUser;
@@ -127,3 +134,5 @@ module.exports.logoutUser = logoutUser;
 module.exports.deleteUser = deleteUser;
 
 module.exports.getUserFromToken = getUserFromToken;
+module.exports.getUserFromUsername = getUserFromUsername;
+module.exports.getUserFromUserId = getUserFromUserId;

@@ -13,8 +13,8 @@ class Router{
 
     parse (action) {
         switch (action) {
-            case "addVideo":
-                this.addVideo();
+            case "createVideo":
+                this.createVideo();
                 break;
             case "removeVideo":
                 this.removeVideo();
@@ -43,7 +43,7 @@ class Router{
             throw "error";
         }
     }
-    addVideo() {
+    createVideo() {
         let token = this._getQuery("token");
         let videoOptions = {};
 
@@ -51,7 +51,7 @@ class Router{
         videoOptions.videoName = this._getQuery("videoName");
         videoOptions.elementOrder = this._getQuery("elementOrder");
         videoOptions.videoName = this._getQuery("videoDescription");
-        this.response.json(Video.addVideo(token, videoOptions));
+        this.response.json(Video.createVideo(token, videoOptions));
     }
     removeVideo() {
         let token = this._getQuery("token");

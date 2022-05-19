@@ -72,10 +72,6 @@ var coursePrivileges = new Db.DatabaseTable("CoursePrivileges",
         name: "canGiveFeedback",
         type: "bit"
         },
-        {
-        name: "isAdmin",
-        type: "bit"
-        },
 ]);
 coursePrivileges.init();
 
@@ -103,18 +99,9 @@ async function createOrganization (token, organizationOptions) {
         "dateCreated": Db.getDatetime(),
     });
     let data = await Auth.getUserFromToken(token);
-    let username = data[0].userId;
+    let username = data[0].username;
 
-    let privilegeOptions = DEFAULT_OWNER_PRIVILEGES;
-    let organizationPrivilegeId = await organizationPrivileges.insertInto({
-        organizationId: organizationId,
-        userId: username,
-        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
-        canEditCourses: privilegeOptions.canEditCourses,
-        canAddNewCourse: privilegeOptions.canAddNewCourse,
-        isAdmin: privilegeOptions.isAdmin,
-        isOwner: privilegeOptions.isOwner,
-    });
+    let organizationPrivilegeId = await assignTeacherToOrganization(token, username, organizationId, DEFAULT_OWNER_PRIVILEGES, true);
     return {
         organizationId: organizationId,
         organizationPrivilegesId: organizationPrivilegeId,
@@ -124,7 +111,7 @@ async function createOrganization (token, organizationOptions) {
 module.exports.deleteOrganization = deleteOrganization;
 async function deleteOrganization (token, organizationId) {
     // check assigner has privileges
-    let assignerPrivileges = await _getTeacherPrivilege(token, organizationId);
+    let assignerPrivileges = await getTeacherPrivilege(token, organizationId);
     let assignerIsOwner = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsOwner) {
         throw "assigner has insufficient permission to delete organization (must be admin)";
@@ -141,7 +128,8 @@ async function deleteOrganization (token, organizationId) {
     })
 }
 
-async function _getTeacherPrivilege(assignerToken, organizationId) {
+module.exports.getTeacherPrivilege = getTeacherPrivilege;
+async function getTeacherPrivilege(assignerToken, organizationId) {
     let assignerUserId = await Auth.getUserFromToken(assignerToken);
     assignerUserId = assignerUserId[0].userId;
     let assignerOrganizationPrivilege = await organizationPrivileges.select({
@@ -152,12 +140,14 @@ async function _getTeacherPrivilege(assignerToken, organizationId) {
 }
 
 module.exports.assignTeacherToOrganization = assignTeacherToOrganization;
-async function assignTeacherToOrganization (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
-    // check assigner has privileges
-    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
-    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
-    if (!assignerIsAdmin) {
-        throw "assigner has insufficient permission to assign teacher to organization (must be admin)";
+async function assignTeacherToOrganization (assignerToken, assigneeUsername, organizationId, privilegeOptions, overrideSafety = false) {
+    if (!overrideSafety) {
+        // check assigner has privileges
+        let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
+        let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
+        if (!assignerIsAdmin) {
+            throw "assigner has insufficient permission to assign teacher to organization (must be admin)";
+        }
     }
 
     // get assignee userid from username
@@ -181,7 +171,7 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
         canEditCourses: privilegeOptions.canEditCourses,
         canAddNewCourse: privilegeOptions.canAddNewCourse,
         isAdmin: privilegeOptions.isAdmin,
-        isOwner: false,
+        isOwner: privilegeOptions.isOwner && overrideSafety,
     });
     return organizationPrivilegeId;
 }
@@ -189,7 +179,7 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
 module.exports.changeTeacherOrganizationPrivilege = changeTeacherOrganizationPrivilege;
 async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
     // check assigner has privileges
-    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
+    let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
     let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsAdmin) {
         throw "assigner has insufficient permission to change teacher's permission from organization (must be admin)";
@@ -216,7 +206,7 @@ async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUserna
 module.exports.deassignTeacherFromOrganization = deassignTeacherFromOrganization;
 async function deassignTeacherFromOrganization (assignerToken, assigneeUsername, organizationId) {
     // check assigner has privileges
-    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
+    let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
     let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsAdmin) {
         throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
@@ -237,7 +227,23 @@ async function deassignTeacherFromOrganization (assignerToken, assigneeUsername,
 
 
 module.exports.assignTeacherToCourse = assignTeacherToCourse;
-async function assignTeacherToCourse (assignerToken, assigneeUsername, courseId, privilegeOptions) {
+async function assignTeacherToCourse (organizationPrivilegeId, courseId, privilegeOptions) {
+    // check assigner has privileges
+    let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
+    if (!assignerIsAdmin) {
+        throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
+    }
+
+    // add the user privileges
+    let coursePrivilegeId = await coursePrivileges.insertInto({
+        organizationPrivilegeId: organizationPrivilegeId,
+        courseId: courseId,
+        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
+        canEditCourse: privilegeOptions.canEditCourse,
+        canGiveFeedback: privilegeOptions.canGiveFeedback,
+    });
+    return coursePrivilegeId;
 }
 
 module.exports.changeTeacherCoursePrivilege = changeTeacherCoursePrivilege;

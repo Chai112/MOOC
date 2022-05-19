@@ -1,4 +1,5 @@
 const Db = require('./database');
+const Org = require('./organizations');
 
 var courses = new Db.DatabaseTable("Courses",
     "courseId",
@@ -36,29 +37,42 @@ async function DO_NOT_RUN_FULL_RESET() {
 }
 DO_NOT_RUN_FULL_RESET();
 
+module.exports.addCourse = addCourse;
 async function addCourse (token, organizationId, courseOptions) {
-    // TODO: check if user CAN add a new course to organization
-    courses.insertInto({
+    // check assigner has privileges
+    let assignerPrivileges = await Org.getTeacherPrivilege(token, organizationId);
+    let assignerHasPerms = Db.readBool(assignerPrivileges.canAddNewCourse);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
+    if (!(assignerHasPerms || assignerIsAdmin)) {
+        throw "assigner has insufficient permission";
+    }
+
+    let courseId = await courses.insertInto({
         courseName: courseOptions.courseName,
         dateCreated: Db.getDatetime(),
-        organizationId: "", // TODO: implement organizationId
+        organizationId: organizationId, // TODO: implement organizationId
         courseDescription: courseOptions.courseDescription,
         isLive: 0,
     });
-    //courseOptions.courseName;
-    //courseOptions.courseDescription;
+    return courseId;
 }
 
-async function changeCourseName (token, courseId, courseName) {
+module.exports.getCourse = getCourse;
+async function getCourse (courseId) {
+    return await courses.select({courseId: courseId});
 }
 
-async function changeCourseDescription (token, courseId, courseDescription) {
-}
-
-async function changeCourseLiveness (token, courseId, isLive) {
+async function changeCourseOptions (token, courseId, courseName) {
 }
 
 async function removeCourse (token, courseId, courseOptions) {
-    //courseOptions.courseName;
-    //courseOptions.courseDescription;
+    // check assigner has privileges
+    let assignerPrivileges = await Org.getTeacherPrivilege(token, organizationId);
+    let assignerHasPerms = Db.readBool(assignerPrivileges.isAdmin);
+    if (!assignerHasPerms) {
+        throw "assigner has insufficient permission to remove course (must be admin)";
+    }
+
+    // remove all privileges
+    // remove course
 }

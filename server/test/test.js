@@ -1,6 +1,8 @@
 const Db = require('../database');
 const Auth = require('../auth');
 const Org = require('../organizations');
+const Courses = require('../courses');
+
 const Token = require('../token');
 
 var assert = require('assert');
@@ -188,6 +190,7 @@ describe('Organizations', function () {
             canEditCourses: false,
             canAddNewCourse: true,
             isAdmin: false,
+            isOwner: false,
         });
         let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
         assert.equal(dataOrgPriv.length, 1);
@@ -202,6 +205,7 @@ describe('Organizations', function () {
                     canEditCourses: false,
                     canAddNewCourse: true,
                     isAdmin: true,
+                    isOwner: false,
                 });
             }
         );
@@ -215,6 +219,7 @@ describe('Organizations', function () {
                     canEditCourses: false,
                     canAddNewCourse: true,
                     isAdmin: true,
+                    isOwner: true,
                 });
             }
         );
@@ -225,6 +230,7 @@ describe('Organizations', function () {
             canEditCourses: false,
             canAddNewCourse: true,
             isAdmin: true,
+            isOwner: false,
         });
         let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
         assert.equal(dataOrgPriv.length, 1);
@@ -248,6 +254,65 @@ describe('Organizations', function () {
         assert.equal(data.length, 0);
     });
     it('cleanup', async function () {
+        Auth.deleteUser(tokenA, "password");
+        Auth.deleteUser(tokenB, "password");
+    });
+});
+
+describe('Courses', function () {
+    let randomName = Token.generateToken();
+    let orgId;
+    let orgPrivId;
+    let tokenA;
+    let tokenB;
+    let courseId;
+    it('init', async function () {
+        // create users
+        try {
+            tokenA = await Auth.loginUser("test", "password");
+            await Auth.deleteUser(tokenA, "password");
+        } catch {
+        }
+        tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+        try {
+            tokenB = await Auth.loginUser("test2", "password");
+            await Auth.deleteUser(tokenB, "password");
+        } catch {
+        }
+        tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastname");
+
+        // create organizations
+        let orgData = await Org.createOrganization(tokenA, {
+            organizationName: `TestOrg${randomName}`
+        });
+        orgId = orgData.organizationId;
+        orgPrivId = orgData.organizationPrivilegesId;
+    });
+    it('should add new course', async function () {
+        courseId = await Courses.addCourse(tokenA, orgId, {
+            courseName: `test_course_${randomName}`,
+            courseDescription: "wow",
+        });
+        let data = await Courses.getCourse(courseId);
+        assert.equal(data.length, 1);
+    });
+    it('should NOT add new course if not allowed', async function () {
+        await assert.rejects(
+            async function () {
+                courseId = await Courses.addCourse(tokenB, orgId, {
+                    courseName: `test_course_${randomName}`,
+                    courseDescription: "wow",
+                });
+            }
+        );
+    });
+    it('should assign others to course', async function () {
+        Courses.assign
+    });
+    it('cleanup', async function () {
+        await Org.deleteOrganization(tokenA, orgId);
+        let data = await Org.getOrganization(orgId);
+        assert.equal(data.length, 0);
         Auth.deleteUser(tokenA, "password");
         Auth.deleteUser(tokenB, "password");
     });

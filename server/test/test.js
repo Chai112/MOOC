@@ -152,13 +152,15 @@ describe('Organizations', function () {
     let orgPrivId;
     let tokenA;
     let tokenB;
-    it('add organization', async function () {
+    it('init', async function () {
         try {
             tokenA = await Auth.loginUser("test", "password");
             await Auth.deleteUser(tokenA, "password");
         } catch {
         }
         tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+    });
+    it('should add organization', async function () {
         let orgData = await Org.createOrganization(tokenA, {
             organizationName: `TestOrg${randomName}`
         });
@@ -167,14 +169,14 @@ describe('Organizations', function () {
         let data = await Org.getOrganization(orgId);
         assert.equal(data[0].organizationName, `TestOrg${randomName}`);
     });
-    it('add organization adds the creator as owner', async function () {
+    it('should adds the creator as owner when adding organization', async function () {
         let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
         assert.equal(dataOrgPriv.length, 1);
         assert.equal(Db.readBool(dataOrgPriv[0].isOwner), true);
         let dataOrgPrivUser = await Auth.getUserFromUserId(dataOrgPriv[0].userId);
         assert.equal(dataOrgPrivUser[0].username, "test");
     });
-    it('add assign new user to organization', async function () {
+    it('should assign new user to organization', async function () {
         try {
             tokenB = await Auth.loginUser("test2", "password");
             await Auth.deleteUser(tokenB, "password");
@@ -185,12 +187,57 @@ describe('Organizations', function () {
             canSeeAnalytics: false,
             canEditCourses: false,
             canAddNewCourse: true,
-            isAdmin: true,
+            isAdmin: false,
         });
         let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
         assert.equal(dataOrgPriv.length, 1);
         assert.equal(Db.readBool(dataOrgPriv[0].isOwner), false);
-
+    });
+    it('should NOT add duplicate user to organization', async function () {
+        // should fail
+        await assert.rejects(
+            async function () { 
+                await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
+                    canSeeAnalytics: false,
+                    canEditCourses: false,
+                    canAddNewCourse: true,
+                    isAdmin: true,
+                });
+            }
+        );
+    });
+    it('should NOT allow non-admins to edit other org users', async function () {
+        // should fail
+        await assert.rejects(
+            async function () { 
+                await Org.assignTeacherToOrganization(tokenB, "test", orgId, {
+                    canSeeAnalytics: false,
+                    canEditCourses: false,
+                    canAddNewCourse: true,
+                    isAdmin: true,
+                });
+            }
+        );
+    });
+    it('should change teacher organization privilege', async function () {
+        await Org.changeTeacherOrganizationPrivilege(tokenA, "test2", orgId, {
+            canSeeAnalytics: false,
+            canEditCourses: false,
+            canAddNewCourse: true,
+            isAdmin: true,
+        });
+        let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
+        assert.equal(dataOrgPriv.length, 1);
+        assert.equal(Db.readBool(dataOrgPriv[0].isAdmin), true);
+    });
+    it('should deassign teacher from organization', async function () {
+        await Org.deassignTeacherFromOrganization(tokenA, "test2", orgId);
+        let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
+        assert.equal(dataOrgPriv.length, 0);
+    });
+    it('cleanup', async function () {
+        Auth.deleteUser(tokenA, "password");
+        Auth.deleteUser(tokenB, "password");
     });
 });
 

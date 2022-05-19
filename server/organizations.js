@@ -96,6 +96,7 @@ async function DO_NOT_RUN_FULL_RESET() {
     await coursePrivileges.init();
 }
 
+module.exports.createOrganization = createOrganization;
 async function createOrganization (token, organizationOptions) {
     let organizationId = await organizations.insertInto({
         "organizationName": organizationOptions.organizationName,
@@ -121,18 +122,25 @@ async function createOrganization (token, organizationOptions) {
 }
 
 async function deleteOrganization (token, password, organizationId) {
+    // delete all associated organization privileges as well!
 }
 
-async function assignTeacherToOrganization (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
-    // check assigner has privileges
+async function _checkUserIsAdminOfOrganization(assignerToken, organizationId) {
     let assignerUserId = await Auth.getUserFromToken(assignerToken);
     assignerUserId = assignerUserId[0].userId;
     let assignerOrganizationPrivilege = await organizationPrivileges.select({
         organizationId: organizationId,
         userId: assignerUserId,
     });
-    if (!assignerOrganizationPrivilege[0].isAdmin) {
-        return {message: "assigner does not have permission to assign teacher to organization (must be admin)"};
+    return Db.readBool(assignerOrganizationPrivilege[0].isAdmin);
+}
+
+module.exports.assignTeacherToOrganization = assignTeacherToOrganization;
+async function assignTeacherToOrganization (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
+    // check assigner has privileges
+    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    if (!assignerIsAdmin) {
+        throw "assigner does not have permission to assign teacher to organization (must be admin)";
     }
 
     // get assignee userid from username
@@ -145,7 +153,7 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
         userId: assigneeUserId,
     });
     if (assigneeOrganizaionPrivilege.length > 0) {
-        return {message: "assignee already is assigned. Cannot have more than one assignation"};
+        throw "assignee already is assigned. Cannot have more than one assignation";
     }
 
     // add the user privileges
@@ -160,12 +168,51 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
     });
     return organizationPrivilegeId;
 }
-module.exports.assignTeacherToOrganization = assignTeacherToOrganization;
 
-async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUsername, privilegeOptions) {
+module.exports.changeTeacherOrganizationPrivilege = changeTeacherOrganizationPrivilege;
+async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
+    // check assigner has privileges
+    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    if (!assignerIsAdmin) {
+        throw "assigner does not have permission to assign teacher to organization (must be admin)";
+    }
+
+    // get assignee userid from username
+    let assigneeUserId = await Auth.getUserFromUsername(assigneeUsername);
+    assigneeUserId = assigneeUserId[0].userId;
+
+    // add the user privileges
+    await organizationPrivileges.update(
+    {
+        organizationId: organizationId,
+        userId: assigneeUserId,
+    },
+    {
+        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
+        canEditCourses: privilegeOptions.canEditCourses,
+        canAddNewCourse: privilegeOptions.canAddNewCourse,
+        isAdmin: privilegeOptions.isAdmin,
+    });
 }
 
+module.exports.deassignTeacherFromOrganization = deassignTeacherFromOrganization;
 async function deassignTeacherFromOrganization (assignerToken, assigneeUsername, organizationId) {
+    // check assigner has privileges
+    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    if (!assignerIsAdmin) {
+        throw "assigner does not have permission to assign teacher to organization (must be admin)";
+    }
+
+    // get assignee userid from username
+    let assigneeUserId = await Auth.getUserFromUsername(assigneeUsername);
+    assigneeUserId = assigneeUserId[0].userId;
+
+    // add the user privileges
+    await organizationPrivileges.deleteFrom(
+    {
+        organizationId: organizationId,
+        userId: assigneeUserId,
+    });
 }
 
 
@@ -181,14 +228,13 @@ async function deassignTeacherFromCourse (assignerToken, assigneeUsername, cours
 
 
 
+module.exports.getOrganization = getOrganization;
 async function getOrganization(organizationId) {
     return await organizations.select({"organizationId": organizationId});
 }
 
+module.exports.getOrganizationPrivileges = getOrganizationPrivileges;
 async function getOrganizationPrivileges(organizationPrivilegeId) {
     return await organizationPrivileges.select({"organizationPrivilegeId": organizationPrivilegeId});
 }
 
-module.exports.createOrganization = createOrganization;
-module.exports.getOrganization = getOrganization;
-module.exports.getOrganizationPrivileges = getOrganizationPrivileges;

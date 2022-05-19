@@ -121,26 +121,43 @@ async function createOrganization (token, organizationOptions) {
     };
 }
 
-async function deleteOrganization (token, password, organizationId) {
-    // delete all associated organization privileges as well!
+module.exports.deleteOrganization = deleteOrganization;
+async function deleteOrganization (token, organizationId) {
+    // check assigner has privileges
+    let assignerPrivileges = await _getTeacherPrivilege(token, organizationId);
+    let assignerIsOwner = Db.readBool(assignerPrivileges.isAdmin);
+    if (!assignerIsOwner) {
+        throw "assigner has insufficient permission to delete organization (must be admin)";
+    }
+
+    // delete the user privileges
+    await organizationPrivileges.deleteFrom(
+    {
+        organizationId: organizationId,
+    });
+    // delete the organization
+    await organizations.deleteFrom({
+        organizationId: organizationId,
+    })
 }
 
-async function _checkUserIsAdminOfOrganization(assignerToken, organizationId) {
+async function _getTeacherPrivilege(assignerToken, organizationId) {
     let assignerUserId = await Auth.getUserFromToken(assignerToken);
     assignerUserId = assignerUserId[0].userId;
     let assignerOrganizationPrivilege = await organizationPrivileges.select({
         organizationId: organizationId,
         userId: assignerUserId,
     });
-    return Db.readBool(assignerOrganizationPrivilege[0].isAdmin);
+    return assignerOrganizationPrivilege[0];
 }
 
 module.exports.assignTeacherToOrganization = assignTeacherToOrganization;
 async function assignTeacherToOrganization (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
     // check assigner has privileges
-    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsAdmin) {
-        throw "assigner does not have permission to assign teacher to organization (must be admin)";
+        throw "assigner has insufficient permission to assign teacher to organization (must be admin)";
     }
 
     // get assignee userid from username
@@ -172,9 +189,10 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
 module.exports.changeTeacherOrganizationPrivilege = changeTeacherOrganizationPrivilege;
 async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUsername, organizationId, privilegeOptions) {
     // check assigner has privileges
-    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsAdmin) {
-        throw "assigner does not have permission to assign teacher to organization (must be admin)";
+        throw "assigner has insufficient permission to change teacher's permission from organization (must be admin)";
     }
 
     // get assignee userid from username
@@ -198,16 +216,17 @@ async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUserna
 module.exports.deassignTeacherFromOrganization = deassignTeacherFromOrganization;
 async function deassignTeacherFromOrganization (assignerToken, assigneeUsername, organizationId) {
     // check assigner has privileges
-    let assignerIsAdmin = await _checkUserIsAdminOfOrganization(assignerToken, organizationId);
+    let assignerPrivileges = await _getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
     if (!assignerIsAdmin) {
-        throw "assigner does not have permission to assign teacher to organization (must be admin)";
+        throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
     }
 
     // get assignee userid from username
     let assigneeUserId = await Auth.getUserFromUsername(assigneeUsername);
     assigneeUserId = assigneeUserId[0].userId;
 
-    // add the user privileges
+    // delete the user privileges
     await organizationPrivileges.deleteFrom(
     {
         organizationId: organizationId,
@@ -217,12 +236,15 @@ async function deassignTeacherFromOrganization (assignerToken, assigneeUsername,
 
 
 
+module.exports.assignTeacherToCourse = assignTeacherToCourse;
 async function assignTeacherToCourse (assignerToken, assigneeUsername, courseId, privilegeOptions) {
 }
 
+module.exports.changeTeacherCoursePrivilege = changeTeacherCoursePrivilege;
 async function changeTeacherCoursePrivilege (assignerToken, assigneeUsername, courseId, privilegeOptions) {
 }
 
+module.exports.deassignTeacherFromCourse = deassignTeacherFromCourse;
 async function deassignTeacherFromCourse (assignerToken, assigneeUsername, courseId) {
 }
 

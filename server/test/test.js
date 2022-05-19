@@ -235,6 +235,18 @@ describe('Organizations', function () {
         let dataOrgPriv = await Org.getOrganizationPrivileges(orgPrivId);
         assert.equal(dataOrgPriv.length, 0);
     });
+    it('should NOT allow non-owners to delete their organization', async function () {
+        await assert.rejects(
+            async function () { 
+                await Org.deleteOrganization(tokenB, orgId);
+            }
+        );
+    });
+    it('should delete organization', async function () {
+        await Org.deleteOrganization(tokenA, orgId);
+        let data = await Org.getOrganization(orgId);
+        assert.equal(data.length, 0);
+    });
     it('cleanup', async function () {
         Auth.deleteUser(tokenA, "password");
         Auth.deleteUser(tokenB, "password");

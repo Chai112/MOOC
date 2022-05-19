@@ -48,6 +48,7 @@ async function DO_NOT_RUN_FULL_RESET() {
 module.exports.DO_NOT_RUN_FULL_RESET = DO_NOT_RUN_FULL_RESET;
 */
 
+module.exports.registerUser = registerUser;
 async function registerUser(username, password, email, firstName, lastName) {
     // test if a user already exists with that username
     let data = await users.select({"username": username});
@@ -72,8 +73,8 @@ async function registerUser(username, password, email, firstName, lastName) {
 
     return await loginUser(username, password);
 }
-module.exports.registerUser = registerUser;
 
+module.exports.loginUser = loginUser;
 async function loginUser(username, password) {
     // check password
     let data = await users.select({username: username});
@@ -102,9 +103,8 @@ async function loginUser(username, password) {
     );
     return token;
 }
-module.exports.loginUser = loginUser;
 
-
+module.exports.logoutUser = logoutUser;
 async function logoutUser(token) {
     await users.update(
         {token: token},
@@ -113,8 +113,8 @@ async function logoutUser(token) {
         },
     );
 }
-module.exports.logoutUser = logoutUser;
 
+module.exports.deleteUser = deleteUser;
 async function deleteUser(token, password) {
     // hash password
     let passwordHash = sha256(password);
@@ -123,19 +123,18 @@ async function deleteUser(token, password) {
         {token: token, password: passwordHash},
     );
 }
-module.exports.deleteUser = deleteUser;
 
+module.exports.getUserFromUsername = getUserFromUsername;
 async function getUserFromUsername(username) {
     return await users.select({username: username});
 }
-module.exports.getUserFromUsername = getUserFromUsername;
 
+module.exports.getUserFromToken = getUserFromToken;
 async function getUserFromToken(token) {
     return await users.select({token: token});
 }
-module.exports.getUserFromToken = getUserFromToken;
 
+module.exports.getUserFromUserId = getUserFromUserId;
 async function getUserFromUserId(userId) {
     return await users.select({userId: userId});
 }
-module.exports.getUserFromUserId = getUserFromUserId;

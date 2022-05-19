@@ -204,9 +204,14 @@ class DatabaseTable {
     }
 
     async deleteFrom(where) {
-        let whereName = Object.keys(where)[0];
-        let whereValue = `${sanitizeSqlValue(where[whereName])}`;
-        let queryStr = `DELETE FROM ${this.tableName} WHERE ${whereName} = ${whereValue};`;
+        let queryStrWheres = "";
+        for (let name in where) {
+            let value = where[name];
+            queryStrWheres += `${name} = ${sanitizeSqlValue(value)} AND `;
+        }
+        // remove the AND at the end
+        queryStrWheres = queryStrWheres.substring(0, queryStrWheres.length - 5);
+        let queryStr = `DELETE FROM ${this.tableName} WHERE ${queryStrWheres}`;
         await this.query(queryStr);
     }
 }

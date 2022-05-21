@@ -148,7 +148,7 @@ describe('Authentication', function () {
     });
 });
 
-describe('Organizations', function () {
+describe('Organizations & Privileges', function () {
     let randomName = Token.generateToken();
     let orgId;
     let orgPrivId;
@@ -186,9 +186,10 @@ describe('Organizations', function () {
         }
         tokenB = await Auth.registerUser("test2", "password", "test@test.com", `a_${randomName}`, "lastname");
         orgPrivId = await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
-            canSeeAnalytics: false,
-            canEditCourses: false,
+            canSeeAllAnalytics: false,
+            canEditAllCourses: false,
             canAddNewCourse: true,
+            canChangeCourseLiveness: true,
             isAdmin: false,
             isOwner: false,
         });
@@ -201,9 +202,10 @@ describe('Organizations', function () {
         await assert.rejects(
             async function () { 
                 await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
-                    canSeeAnalytics: false,
-                    canEditCourses: false,
+                    canSeeAllAnalytics: false,
+                    canEditAllCourses: false,
                     canAddNewCourse: true,
+                    canChangeCourseLiveness: true,
                     isAdmin: true,
                     isOwner: false,
                 });
@@ -215,9 +217,10 @@ describe('Organizations', function () {
         await assert.rejects(
             async function () { 
                 await Org.assignTeacherToOrganization(tokenB, "test", orgId, {
-                    canSeeAnalytics: false,
-                    canEditCourses: false,
+                    canSeeAllAnalytics: false,
+                    canEditAllCourses: false,
                     canAddNewCourse: true,
+                    canChangeCourseLiveness: true,
                     isAdmin: true,
                     isOwner: true,
                 });
@@ -226,8 +229,8 @@ describe('Organizations', function () {
     });
     it('should change teacher organization privilege', async function () {
         await Org.changeTeacherOrganizationPrivilege(tokenA, "test2", orgId, {
-            canSeeAnalytics: false,
-            canEditCourses: false,
+            canSeeAllAnalytics: false,
+            canEditAllCourses: false,
             canAddNewCourse: true,
             isAdmin: true,
             isOwner: false,
@@ -259,13 +262,14 @@ describe('Organizations', function () {
     });
 });
 
-describe('Courses', function () {
+describe('Courses & Privileges', function () {
     let randomName = Token.generateToken();
     let orgId;
     let orgPrivId;
     let tokenA;
     let tokenB;
     let courseId;
+    let coursePrivId;
     it('init', async function () {
         // create users
         try {
@@ -289,11 +293,20 @@ describe('Courses', function () {
         orgPrivId = orgData.organizationPrivilegesId;
     });
     it('should add new course', async function () {
-        courseId = await Courses.addCourse(tokenA, orgId, {
+        let courseData = await Courses.addCourse(tokenA, orgId, {
             courseName: `test_course_${randomName}`,
             courseDescription: "wow",
         });
+        courseId = courseData.courseId;
+        coursePrivId = courseData.coursePrivilegeId;
         let data = await Courses.getCourse(courseId);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].courseName, `test_course_${randomName}`);
+        assert.equal(data[0].organizationId, orgId);
+        data = await Org.getCoursePrivilege(coursePrivId);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].organizationPrivilegeId, orgPrivId);
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
         assert.equal(data.length, 1);
     });
     it('should NOT add new course if not allowed', async function () {
@@ -306,8 +319,88 @@ describe('Courses', function () {
             }
         );
     });
+    it('should NOT assign non-organization members to course', async function () {
+        await assert.rejects(
+            async function () {
+                coursePrivId = await Org.assignTeacherToCourse(tokenA, "test2", courseId, {
+                    canSeeAnalytics: true,
+                    canEditCourse: true,
+                    canGiveFeedback: true,
+                });
+            }
+        );
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 1);
+    });
     it('should assign others to course', async function () {
-        Courses.assign
+        // assign test2 to organization
+        orgPrivId = await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
+            canSeeAllAnalytics: false,
+            canEditAllCourses: false,
+            canAddNewCourse: true,
+            canChangeCourseLiveness: false,
+            isAdmin: false,
+            isOwner: false,
+        });
+
+        // now test it
+        coursePrivId = await Org.assignTeacherToCourse(tokenA, "test2", courseId, {
+            canSeeAnalytics: true,
+            canEditCourse: true,
+            canGiveFeedback: true,
+        });
+
+        // checks
+        data = await Org.getCoursePrivilege(coursePrivId);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].organizationPrivilegeId, orgPrivId);
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 2);
+    });
+    it('should change teacher course privilege', async function () {
+        data = await Org.getCoursePrivilege(coursePrivId);
+        assert.equal(data.length, 1);
+        assert.equal(Db.readBool(data[0].canEditCourse), true);
+
+        await Org.changeTeacherCoursePrivilege(tokenA, "test2", courseId, {
+            canSeeAnalytics: true,
+            canEditCourse: false,
+            canGiveFeedback: true,
+        });
+
+        data = await Org.getCoursePrivilege(coursePrivId);
+        assert.equal(data.length, 1);
+        assert.equal(Db.readBool(data[0].canEditCourse), false);
+    });
+    it('should change course options', async function () {
+        data = await Courses.getCourse(courseId);
+        assert.equal(data[0].courseName, `test_course_${randomName}`);
+        await Courses.changeCourseOptions(tokenA, courseId,
+        {
+            courseName:`test_course_2_${randomName}`,
+            courseDescription:"test course"
+        }
+        );
+        data = await Courses.getCourse(courseId);
+        assert.equal(data[0].courseName, `test_course_2_${randomName}`);
+    });
+    it('should change course liveness', async function () {
+        data = await Courses.getCourse(courseId);
+        assert.equal(Db.readBool(data[0].isLive), false);
+        await Courses.changeCourseLiveness(tokenA, courseId, true);
+        data = await Courses.getCourse(courseId);
+        assert.equal(Db.readBool(data[0].isLive), true);
+    });
+    it('should NOT change course liveness for underprivileged users', async function () {
+        data = await Courses.getCourse(courseId);
+        assert.equal(Db.readBool(data[0].isLive), true);
+        await assert.rejects(
+            async function () {
+                await Courses.changeCourseLiveness(tokenB, courseId, false);
+            }
+        );
+        data = await Courses.getCourse(courseId);
+        assert.equal(Db.readBool(data[0].isLive), true);
     });
     it('cleanup', async function () {
         await Org.deleteOrganization(tokenA, orgId);

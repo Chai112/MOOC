@@ -1,5 +1,6 @@
 const Db = require('./database');
 const Auth = require('./auth');
+const Courses = require('./courses');
 
 var organizations = new Db.DatabaseTable("Organizations",
     "organizationId",
@@ -27,15 +28,19 @@ var organizationPrivileges = new Db.DatabaseTable("OrganizationPrivileges",
         type: "int"
         },
         {
-        name: "canSeeAnalytics",
+        name: "canSeeAllAnalytics",
         type: "bit"
         },
         {
-        name: "canEditCourses",
+        name: "canEditAllCourses",
         type: "bit"
         },
         {
         name: "canAddNewCourse",
+        type: "bit"
+        },
+        {
+        name: "canChangeCourseLiveness",
         type: "bit"
         },
         {
@@ -75,14 +80,16 @@ var coursePrivileges = new Db.DatabaseTable("CoursePrivileges",
 ]);
 coursePrivileges.init();
 
-const DEFAULT_OWNER_PRIVILEGES = {
-    canSeeAnalytics: true,
-    canEditCourses: true,
+const DEFAULT_ORGANIZATION_OWNER_PRIVILEGES = {
+    canSeeAllAnalytics: true,
+    canEditAllCourses: true,
     canAddNewCourse: true,
+    canChangeCourseLiveness: true,
     isAdmin: true,
     isOwner: true,
-}
+};
 
+//module.exports.DO_NOT_RUN_FULL_RESET = DO_NOT_RUN_FULL_RESET;
 async function DO_NOT_RUN_FULL_RESET() {
     await organizations.drop();
     await organizations.init();
@@ -98,10 +105,11 @@ async function createOrganization (token, organizationOptions) {
         "organizationName": organizationOptions.organizationName,
         "dateCreated": Db.getDatetime(),
     });
+
     let data = await Auth.getUserFromToken(token);
     let username = data[0].username;
 
-    let organizationPrivilegeId = await assignTeacherToOrganization(token, username, organizationId, DEFAULT_OWNER_PRIVILEGES, true);
+    let organizationPrivilegeId = await assignTeacherToOrganization(token, username, organizationId, DEFAULT_ORGANIZATION_OWNER_PRIVILEGES, true);
     return {
         organizationId: organizationId,
         organizationPrivilegesId: organizationPrivilegeId,
@@ -167,9 +175,10 @@ async function assignTeacherToOrganization (assignerToken, assigneeUsername, org
     let organizationPrivilegeId = await organizationPrivileges.insertInto({
         organizationId: organizationId,
         userId: assigneeUserId,
-        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
-        canEditCourses: privilegeOptions.canEditCourses,
+        canSeeAllAnalytics: privilegeOptions.canSeeAllAnalytics,
+        canEditAllCourses: privilegeOptions.canEditAllCourses,
         canAddNewCourse: privilegeOptions.canAddNewCourse,
+        canChangeCourseLiveness: privilegeOptions.canChangeCourseLiveness,
         isAdmin: privilegeOptions.isAdmin,
         isOwner: privilegeOptions.isOwner && overrideSafety,
     });
@@ -196,8 +205,8 @@ async function changeTeacherOrganizationPrivilege (assignerToken, assigneeUserna
         userId: assigneeUserId,
     },
     {
-        canSeeAnalytics: privilegeOptions.canSeeAnalytics,
-        canEditCourses: privilegeOptions.canEditCourses,
+        canSeeAllAnalytics: privilegeOptions.canSeeAllAnalytics,
+        canEditAllCourses: privilegeOptions.canEditAllCourses,
         canAddNewCourse: privilegeOptions.canAddNewCourse,
         isAdmin: privilegeOptions.isAdmin,
     });
@@ -216,7 +225,16 @@ async function deassignTeacherFromOrganization (assignerToken, assigneeUsername,
     let assigneeUserId = await Auth.getUserFromUsername(assigneeUsername);
     assigneeUserId = assigneeUserId[0].userId;
 
-    // delete the user privileges
+    // revoke the user's course privileges
+    let organizationPrivilege = await organizationPrivileges.select({
+        organizationId: organizationId
+    });
+    let organizationPrivilegeId = organizationPrivilege[0].organizationPrivilegeId;
+    await coursePrivileges.deleteFrom({
+        organizationPrivilegeId: organizationPrivilegeId
+    });
+
+    // delete the user's privileges
     await organizationPrivileges.deleteFrom(
     {
         organizationId: organizationId,
@@ -227,17 +245,33 @@ async function deassignTeacherFromOrganization (assignerToken, assigneeUsername,
 
 
 module.exports.assignTeacherToCourse = assignTeacherToCourse;
-async function assignTeacherToCourse (organizationPrivilegeId, courseId, privilegeOptions) {
+async function assignTeacherToCourse (assignerToken, assigneeUsername, courseId, privilegeOptions, overrideSafety = false) {
+    // firstly, we must get organizationId from courseId
+    let courseData = await Courses.getCourse(courseId);
+    let organizationId = courseData[0].organizationId;
+
     // check assigner has privileges
     let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
     let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
-    if (!assignerIsAdmin) {
+    if (!(assignerIsAdmin || overrideSafety)) {
         throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
     }
 
+    // get assignee's organizationPrivilegeId
+    let assigneeUser = await Auth.getUserFromUsername(assigneeUsername);
+    assigneeUserId = assigneeUser[0].userId;
+    let assigneeOrganizationPrivilege = await organizationPrivileges.select({
+        organizationId: organizationId,
+        userId: assigneeUserId,
+    });
+    if (assigneeOrganizationPrivilege.length === 0) {
+        throw "assignee must be a part of the organization to be assigned to a course!";
+    }
+    let assigneeOrganizationPrivilegeId = assigneeOrganizationPrivilege[0].organizationPrivilegeId;
+
     // add the user privileges
     let coursePrivilegeId = await coursePrivileges.insertInto({
-        organizationPrivilegeId: organizationPrivilegeId,
+        organizationPrivilegeId: assigneeOrganizationPrivilegeId,
         courseId: courseId,
         canSeeAnalytics: privilegeOptions.canSeeAnalytics,
         canEditCourse: privilegeOptions.canEditCourse,
@@ -248,6 +282,38 @@ async function assignTeacherToCourse (organizationPrivilegeId, courseId, privile
 
 module.exports.changeTeacherCoursePrivilege = changeTeacherCoursePrivilege;
 async function changeTeacherCoursePrivilege (assignerToken, assigneeUsername, courseId, privilegeOptions) {
+    // firstly, we must get organizationId from courseId
+    let courseData = await Courses.getCourse(courseId);
+    let organizationId = courseData[0].organizationId;
+     
+    // check assigner has privileges
+    let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
+    if (!assignerIsAdmin) {
+        throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
+    }
+
+    // get assignee's organizationPrivilegeId
+    let assigneeUser = await Auth.getUserFromUsername(assigneeUsername);
+    assigneeUserId = assigneeUser[0].userId;
+    let assigneeOrganizationPrivilege = await organizationPrivileges.select({
+        organizationId: organizationId,
+        userId: assigneeUserId,
+    });
+    let assigneeOrganizationPrivilegeId = assigneeOrganizationPrivilege[0].organizationPrivilegeId;
+
+
+    await coursePrivileges.update(
+        {
+            organizationPrivilegeId: assigneeOrganizationPrivilegeId,
+            courseId: courseId,
+        },
+        {
+            canSeeAnalytics: privilegeOptions.canSeeAnalytics,
+            canEditCourse: privilegeOptions.canEditCourse,
+            canGiveFeedback: privilegeOptions.canGiveFeedback,
+        }
+    );
 }
 
 module.exports.deassignTeacherFromCourse = deassignTeacherFromCourse;
@@ -266,3 +332,34 @@ async function getOrganizationPrivileges(organizationPrivilegeId) {
     return await organizationPrivileges.select({"organizationPrivilegeId": organizationPrivilegeId});
 }
 
+module.exports.getCoursePrivilege = getCoursePrivilege;
+async function getCoursePrivilege(coursePrivilegeId) {
+    return await coursePrivileges.select({coursePrivilegeId: coursePrivilegeId});
+}
+
+module.exports.getCoursePrivilegesForCourseAndUser = getCoursePrivilegesForCourseAndUser;
+async function getCoursePrivilegesForCourseAndUser(courseId, organizationId, userId) {
+    let organizationPrivilege = await organizationPrivileges.select({
+        userId: userId,
+        organizationId: organizationId,
+    });
+    let organizationPrivilegeId = organizationPrivilege[0].organizationPrivilegeId;
+
+    let data = await coursePrivileges.select({
+        courseId: courseId,
+        organizationPrivilegeId: organizationPrivilegeId,
+    });
+    return data[0];
+}
+
+module.exports.getAllCoursePrivilegesForOrganization = getAllCoursePrivilegesForOrganization;
+async function getAllCoursePrivilegesForOrganization(organizationId) {
+    let coursePrivilegesOutput = [];
+    let data = await organizationPrivileges.select({organizationId: organizationId});
+    for (var i = 0; i < data.length; i++) {
+        coursePrivilegesOutput.push(await coursePrivileges.select({
+            organizationPrivilegeId: data[i].organizationPrivilegeId,
+        }));
+    }
+    return coursePrivilegesOutput;
+}

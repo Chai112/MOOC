@@ -8,7 +8,7 @@ const CONNECTION_DETAILS = {
   password : 'nofpAz-zytke6-vycbyz',
 }
 
-const DEBUG_VERBOSE = false;
+const DEBUG_VERBOSE = true;
 const DATETIME = "$$DATETIME$$";
 
 var connection;

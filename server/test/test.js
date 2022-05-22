@@ -402,6 +402,13 @@ describe('Courses & Privileges', function () {
         data = await Courses.getCourse(courseId);
         assert.equal(Db.readBool(data[0].isLive), true);
     });
+    it('should deassign teacher from course', async function () {
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 2);
+        await Org.deassignTeacherFromCourse(tokenA, "test2", courseId);
+        let data4 = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data4.length, 1);
+    });
     it('cleanup', async function () {
         await Org.deleteOrganization(tokenA, orgId);
         let data = await Org.getOrganization(orgId);

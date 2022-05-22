@@ -318,6 +318,33 @@ async function changeTeacherCoursePrivilege (assignerToken, assigneeUsername, co
 
 module.exports.deassignTeacherFromCourse = deassignTeacherFromCourse;
 async function deassignTeacherFromCourse (assignerToken, assigneeUsername, courseId) {
+    // firstly, we must get organizationId from courseId
+    let courseData = await Courses.getCourse(courseId);
+    let organizationId = courseData[0].organizationId;
+     
+    // check assigner has privileges
+    let assignerPrivileges = await getTeacherPrivilege(assignerToken, organizationId);
+    let assignerIsAdmin = Db.readBool(assignerPrivileges.isAdmin);
+    if (!assignerIsAdmin) {
+        throw "assigner has insufficient permission to deassign teacher from organization (must be admin)";
+    }
+
+    // get assignee's organizationPrivilegeId
+    let assigneeUser = await Auth.getUserFromUsername(assigneeUsername);
+    assigneeUserId = assigneeUser[0].userId;
+    let assigneeOrganizationPrivilege = await organizationPrivileges.select({
+        organizationId: organizationId,
+        userId: assigneeUserId,
+    });
+    let assigneeOrganizationPrivilegeId = assigneeOrganizationPrivilege[0].organizationPrivilegeId;
+
+    // delete course privileges
+    await coursePrivileges.deleteFrom(
+        {
+            organizationPrivilegeId: assigneeOrganizationPrivilegeId,
+            courseId: courseId,
+        }
+    );
 }
 
 
@@ -357,9 +384,12 @@ async function getAllCoursePrivilegesForOrganization(organizationId) {
     let coursePrivilegesOutput = [];
     let data = await organizationPrivileges.select({organizationId: organizationId});
     for (var i = 0; i < data.length; i++) {
-        coursePrivilegesOutput.push(await coursePrivileges.select({
+        data2 = await coursePrivileges.select({
             organizationPrivilegeId: data[i].organizationPrivilegeId,
-        }));
+        });
+        if (data2.length !== 0) {
+            coursePrivilegesOutput.push(data2);
+        }
     }
     return coursePrivilegesOutput;
 }

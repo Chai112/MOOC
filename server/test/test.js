@@ -534,6 +534,51 @@ describe('Course Development Tests', function () {
             Auth.deleteUser(tokenA, "password");
         });
     });
+    describe('Videos & Forms', function () {
+        let randomName = Token.generateToken();
+        let orgId;
+        let orgPrivId;
+        let tokenA;
+        let tokenB;
+        let courseId;
+        let coursePrivId;
+        let courseSectionId;
+        it('init', async function () {
+            // create users
+            try {
+                tokenA = await Auth.loginUser("test", "password");
+                await Auth.deleteUser(tokenA, "password");
+            } catch {
+            }
+            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+            try {
+                tokenB = await Auth.loginUser("test2", "password");
+                await Auth.deleteUser(tokenB, "password");
+            } catch {
+            }
+            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastname");
+            // create organization
+            let orgData = await Org.createOrganization(tokenA, {
+                organizationName: `TestOrg${randomName}`
+            });
+            orgId = orgData.organizationId;
+            orgPrivId = orgData.organizationPrivilegesId;
+            // create course
+            let courseData = await Courses.addCourse(tokenA, orgId, {
+                courseName: `test_course_${randomName}`,
+                courseDescription: "wow",
+            });
+            courseId = courseData.courseId;
+            coursePrivId = courseData.coursePrivilegeId;
+            courseSectionId = await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_1" }
+            );
+        });
+        it('cleanup', async function () {
+            await Org.deleteOrganization(tokenA, orgId);
+            Auth.deleteUser(tokenA, "password");
+        });
+    });
 });
 
 describe('Template', function () {

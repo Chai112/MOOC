@@ -1,6 +1,7 @@
 const Db = require('./database');
 const Auth = require('./auth');
 const Org = require('./organizations');
+const CourseSections = require('./courseSections');
 
 var courses = new Db.DatabaseTable("Courses",
     "courseId",
@@ -159,5 +160,10 @@ async function removeCourse (token, courseId) {
 
 module.exports.deleteAllCoursesFromOrganization = deleteAllCoursesFromOrganization;
 async function deleteAllCoursesFromOrganization(organizationId) {
+    // clean all course sections
+    let data = await courses.select({ organizationId: organizationId });
+    for (var i = 0; i < data.length; i++) {
+        await CourseSections.removeAllCourseSectionsFromCourse(data[i].courseId);
+    }
     await courses.deleteFrom({ organizationId: organizationId });
 }

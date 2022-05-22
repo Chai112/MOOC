@@ -48,9 +48,7 @@ async function addCourseSection (token, courseId, courseSectionOptions) {
 module.exports.changeCourseSection = changeCourseSection;
 async function changeCourseSection (token, courseSectionId, courseSectionOptions) {
     // check auth
-    let courseSection = await courseSections.select({ courseSectionId: courseSectionId });
-    let courseId = courseSection[0].courseId;
-    await assertUserCanEditCourse(token, courseId);
+    await assertUserCanEditCourseSection(token, courseSectionId);
 
     await courseSections.update(
         { courseSectionId: courseSectionId, },
@@ -61,11 +59,14 @@ async function changeCourseSection (token, courseSectionId, courseSectionOptions
 module.exports.removeCourseSection = removeCourseSection;
 async function removeCourseSection (token, courseSectionId) {
     // check auth
-    let courseSection = await courseSections.select({ courseSectionId: courseSectionId });
-    let courseId = courseSection[0].courseId;
-    await assertUserCanEditCourse(token, courseId);
+    await assertUserCanEditCourseSection(token, courseSectionId);
 
     courseSections.deleteFrom({ courseSectionId: courseSectionId, });
+}
+
+module.exports.removeAllCourseSectionsFromCourse = removeAllCourseSectionsFromCourse;
+async function removeAllCourseSectionsFromCourse(courseId) {
+    await courseSections.deleteFrom({ courseId: courseId, });
 }
 
 module.exports.getAllCourseSectionsFromCourse = getAllCourseSectionsFromCourse;
@@ -75,6 +76,13 @@ async function getAllCourseSectionsFromCourse(courseId) {
 module.exports.getCourseSection = getCourseSection;
 async function getCourseSection(courseSectionId) {
     return await courseSections.select({ courseSectionId: courseSectionId });
+}
+
+module.exports.assertUserCanEditCourseSection = assertUserCanEditCourseSection;
+async function assertUserCanEditCourseSection(token, courseSectionId) {
+    let courseSection = await courseSections.select({ courseSectionId: courseSectionId });
+    let courseId = courseSection[0].courseId;
+    await assertUserCanEditCourse(token, courseId);
 }
 
 async function assertUserCanEditCourse(token, courseId) {

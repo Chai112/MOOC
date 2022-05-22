@@ -134,7 +134,7 @@ async function deleteOrganization (token, organizationId) {
     }
 
     // delete courses
-    Courses.deleteAllCoursesFromOrganization(organizationId);
+    await Courses.deleteAllCoursesFromOrganization(organizationId);
 
     // delete the user privileges
     await organizationPrivileges.deleteFrom(

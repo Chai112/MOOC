@@ -106,6 +106,7 @@ async function changeCourseOptions (token, courseId, courseOptions) {
         {
             courseName: courseOptions.courseName,
             courseDescription: courseOptions.courseDescription,
+            dateModified: Db.getDatetime(),
         }
     );
 }
@@ -129,6 +130,7 @@ async function changeCourseLiveness (token, courseId, courseLiveness) {
         { courseId: courseId },
         {
             isLive: courseLiveness,
+            dateModified: Db.getDatetime(),
         }
     );
 }

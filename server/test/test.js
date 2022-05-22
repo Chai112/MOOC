@@ -422,8 +422,6 @@ describe('Courses & Privileges', function () {
     });
     it('cleanup', async function () {
         await Org.deleteOrganization(tokenA, orgId);
-        let data = await Org.getOrganization(orgId);
-        assert.equal(data.length, 0);
         Auth.deleteUser(tokenA, "password");
         Auth.deleteUser(tokenB, "password");
     });

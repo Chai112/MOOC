@@ -82,6 +82,7 @@ async function getCourse (courseId) {
 
 module.exports.changeCourseOptions = changeCourseOptions;
 async function changeCourseOptions (token, courseId, courseOptions) {
+    // get organizationId
     let courseData = await courses.select({courseId: courseId});
     let organizationId = courseData[0].organizationId;
 
@@ -111,6 +112,7 @@ async function changeCourseOptions (token, courseId, courseOptions) {
 
 module.exports.changeCourseLiveness = changeCourseLiveness;
 async function changeCourseLiveness (token, courseId, courseLiveness) {
+    // get organizationId
     let courseData = await courses.select({courseId: courseId});
     let organizationId = courseData[0].organizationId;
 
@@ -131,7 +133,12 @@ async function changeCourseLiveness (token, courseId, courseLiveness) {
     );
 }
 
-async function removeCourse (token, courseId, courseOptions) {
+module.exports.removeCourse = removeCourse;
+async function removeCourse (token, courseId) {
+    // get organizationId
+    let courseData = await courses.select({courseId: courseId});
+    let organizationId = courseData[0].organizationId;
+
     // check assigner has privileges
     let assignerPrivileges = await Org.getTeacherPrivilege(token, organizationId);
     let assignerHasPerms = Db.readBool(assignerPrivileges.isAdmin);
@@ -140,5 +147,10 @@ async function removeCourse (token, courseId, courseOptions) {
     }
 
     // remove all privileges
+    await Org.deassignAllTeachersFromCourse(courseId);
+
+    // remove all subscriptions
+
     // remove course
+    await courses.deleteFrom({ courseId: courseId });
 }

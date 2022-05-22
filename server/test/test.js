@@ -406,8 +406,19 @@ describe('Courses & Privileges', function () {
         data = await Org.getAllCoursePrivilegesForOrganization(orgId);
         assert.equal(data.length, 2);
         await Org.deassignTeacherFromCourse(tokenA, "test2", courseId);
-        let data4 = await Org.getAllCoursePrivilegesForOrganization(orgId);
-        assert.equal(data4.length, 1);
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 1);
+    });
+    it('should remove course', async function () {
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 1);
+        data = await Courses.getCourse(courseId);
+        assert.equal(data.length, 1);
+        await Courses.removeCourse(tokenA, courseId);
+        data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+        assert.equal(data.length, 0);
+        data = await Courses.getCourse(courseId);
+        assert.equal(data.length, 0);
     });
     it('cleanup', async function () {
         await Org.deleteOrganization(tokenA, orgId);

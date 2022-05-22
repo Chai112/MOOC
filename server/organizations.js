@@ -347,6 +347,13 @@ async function deassignTeacherFromCourse (assignerToken, assigneeUsername, cours
     );
 }
 
+// used only for when course is being deleted
+module.exports.deassignAllTeachersFromCourse = deassignAllTeachersFromCourse;
+async function deassignAllTeachersFromCourse (courseId) {
+    // delete course privileges
+    await coursePrivileges.deleteFrom({ courseId: courseId, });
+}
+
 
 
 module.exports.getOrganization = getOrganization;

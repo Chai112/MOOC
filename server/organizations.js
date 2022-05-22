@@ -125,11 +125,23 @@ async function deleteOrganization (token, organizationId) {
         throw "assigner has insufficient permission to delete organization (must be admin)";
     }
 
+    // delete course privileges
+    let data = await organizationPrivileges.select({organizationId: organizationId});
+    for (var i = 0; i < data.length; i++) {
+        data2 = await coursePrivileges.deleteFrom({
+            organizationPrivilegeId: data[i].organizationPrivilegeId,
+        });
+    }
+
+    // delete courses
+    Courses.deleteAllCoursesFromOrganization(organizationId);
+
     // delete the user privileges
     await organizationPrivileges.deleteFrom(
     {
         organizationId: organizationId,
     });
+
     // delete the organization
     await organizations.deleteFrom({
         organizationId: organizationId,
@@ -265,7 +277,7 @@ async function assignTeacherToCourse (assignerToken, assigneeUsername, courseId,
         userId: assigneeUserId,
     });
     if (assigneeOrganizationPrivilege.length === 0) {
-        throw "assignee must be a part of the organization to be assigned to a course!";
+        throw "assignee must be a part of the organization to be assigned to a course";
     }
     let assigneeOrganizationPrivilegeId = assigneeOrganizationPrivilege[0].organizationPrivilegeId;
 
@@ -377,13 +389,19 @@ async function getCoursePrivilegesForCourseAndUser(courseId, organizationId, use
         userId: userId,
         organizationId: organizationId,
     });
+    if (organizationPrivilege.length === 0) {
+        throw "assignee must be a part of the organization";
+    }
     let organizationPrivilegeId = organizationPrivilege[0].organizationPrivilegeId;
 
-    let data = await coursePrivileges.select({
+    let coursePrivilege = await coursePrivileges.select({
         courseId: courseId,
         organizationPrivilegeId: organizationPrivilegeId,
     });
-    return data[0];
+    if (coursePrivilege.length === 0) {
+        throw "assignee must be a part of the course";
+    }
+    return coursePrivilege[0];
 }
 
 module.exports.getAllCoursePrivilegesForOrganization = getAllCoursePrivilegesForOrganization;

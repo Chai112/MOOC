@@ -42,7 +42,6 @@ async function DO_NOT_RUN_FULL_RESET() {
     await courses.drop();
     await courses.init();
 }
-DO_NOT_RUN_FULL_RESET();
 
 module.exports.addCourse = addCourse;
 async function addCourse (token, organizationId, courseOptions) {
@@ -58,6 +57,7 @@ async function addCourse (token, organizationId, courseOptions) {
     let courseId = await courses.insertInto({
         courseName: courseOptions.courseName,
         dateCreated: Db.getDatetime(),
+        dateModified: Db.getDatetime(),
         organizationId: organizationId, // TODO: implement organizationId
         courseDescription: courseOptions.courseDescription,
         isLive: 0,
@@ -155,4 +155,9 @@ async function removeCourse (token, courseId) {
 
     // remove course
     await courses.deleteFrom({ courseId: courseId });
+}
+
+module.exports.deleteAllCoursesFromOrganization = deleteAllCoursesFromOrganization;
+async function deleteAllCoursesFromOrganization(organizationId) {
+    await courses.deleteFrom({ organizationId: organizationId });
 }

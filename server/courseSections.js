@@ -22,6 +22,10 @@ var courseSections = new Db.DatabaseTable("CourseSections",
         "name": "dateModified",
         "type": "datetime"
         },
+        {
+        "name": "elementOrder",
+        "type": "int"
+        },
 ]);
 courseSections.init();
 
@@ -36,11 +40,15 @@ async function addCourseSection (token, courseId, courseSectionOptions) {
     // check auth
     await assertUserCanEditCourse(token, courseId);
 
+    // find element order
+    let elementOrder = 0;
+
     let courseSectionId = await courseSections.insertInto({
         courseId: courseId,
         courseSectionName: courseSectionOptions.courseSectionName,
         dateCreated: Db.getDatetime(),
         dateModified: Db.getDatetime(),
+        elementOrder: elementOrder,
     });
     return courseSectionId;
 }
@@ -69,10 +77,26 @@ async function removeAllCourseSectionsFromCourse(courseId) {
     await courseSections.deleteFrom({ courseId: courseId, });
 }
 
+module.exports.moveCourseSection = moveCourseSection;
+// 0: [ Alice ]
+// 1: [ Bob ]
+// 2: [ Charlie ]
+// 3: [ Derek ]
+// move alice to index 2 (move index [alice + 1] to [place alice will go to] down by one)
+// 0: [ Bob ]
+// 1: [ Charlie ]
+// 2: [ Alice ]
+// 3: [ Derek ]
+
+async function moveCourseSection(courseSectionId, toElementOrder) {
+    throw "not yet implemented";
+}
+
 module.exports.getAllCourseSectionsFromCourse = getAllCourseSectionsFromCourse;
 async function getAllCourseSectionsFromCourse(courseId) {
     return await courseSections.select({ courseId: courseId });
 }
+
 module.exports.getCourseSection = getCourseSection;
 async function getCourseSection(courseSectionId) {
     return await courseSections.select({ courseSectionId: courseSectionId });

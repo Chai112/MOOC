@@ -1,6 +1,6 @@
 const Db = require('./database');
 const Token = require('./token');
-const CourseSections = require('../courseSections');
+const CourseSections = require('./courseSections');
 
 var videos = new Db.DatabaseTable("Videos",
     "videoId",
@@ -36,19 +36,26 @@ var videos = new Db.DatabaseTable("Videos",
 ]);
 videos.init();
 
+module.exports.DO_NOT_RUN_FULL_RESET = DO_NOT_RUN_FULL_RESET;
+async function DO_NOT_RUN_FULL_RESET() {
+    await videos.drop();
+    await videos.init();
+}
+
+module.exports.createVideo = createVideo;
 async function createVideo (token, courseSectionId, videoOptions) {
     // check auth
-    CourseSection.assertUserCanEditCourseSection(token, courseSectionId);
+    CourseSections.assertUserCanEditCourseSection(token, courseSectionId);
 
     // determine next element order
     let elementOrder = 0;
 
     // create video
-    var videoId = Token.generateToken();
+    var videoDataId = Token.generateToken();
 
     let videoId = videos.insertInto({
         courseSectionId: courseSectionId,
-        videoDataId: videoId,
+        videoDataId: videoDataId,
         elementOrder: elementOrder,
         duration: "?",
         videoName: videoOptions.videoName,
@@ -74,6 +81,20 @@ async function removeForm (token, formId) {
 }
 
 async function swapElementOrder (token, element1, element2) {
+}
+
+module.exports.getAllElementsFromCourseSection = getAllElementsFromCourseSection;
+async function getAllElementsFromCourseSection(courseSectionId) {
+    let videoOutput = await videos.select({ courseSectionId: courseSectionId });
+    let formOutput = [] //await forms.select({ courseSectionId: courseSectionId });
+    let output = [];
+    for (let i = 0; i < videoOutput.length; i++) {
+        output.push(videoOutput[i]);
+    }
+    for (let i = 0; i < formOutput.length; i++) {
+        output.push(formOutput[i]);
+    }
+    return output;
 }
 
 module.exports.addVideo = createVideo;

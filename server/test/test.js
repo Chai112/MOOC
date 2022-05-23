@@ -3,6 +3,7 @@ const Auth = require('../auth');
 const Org = require('../organizations');
 const Courses = require('../courses');
 const CourseSections = require('../courseSections');
+const CourseElements = require('../courseElements');
 
 const Token = require('../token');
 
@@ -573,6 +574,18 @@ describe('Course Development Tests', function () {
             courseSectionId = await CourseSections.addCourseSection(tokenA, courseId, 
                 { courseSectionName: "section_1" }
             );
+        });
+        it('should add video', async function () {
+            await CourseElements.DO_NOT_RUN_FULL_RESET();
+            let data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 0);
+            await CourseElements.createVideo(tokenA, courseSectionId, {
+                videoName: "bob",
+                videoDescription: "this is a description",
+            });
+            data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 1);
+            assert.equal(data[0].videoName, "bob");
         });
         it('cleanup', async function () {
             await Org.deleteOrganization(tokenA, orgId);

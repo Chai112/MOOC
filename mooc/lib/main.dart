@@ -11,11 +11,20 @@ import 'package:flutter/material.dart';
 
 import 'package:video_player/video_player.dart';
 import 'widgets/video_player/video_progress_indicator.dart';
+import 'route.dart';
 
 void main() {
   runApp(
     MaterialApp(
-      home: _App(),
+      debugShowCheckedModeBanner: false,
+      title: 'Smart Safety',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      initialRoute: '/',
+      onGenerateRoute: RouteGenerator.generateRoute,
+      //home: _App(),
     ),
   );
 }

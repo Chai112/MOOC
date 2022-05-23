@@ -59,7 +59,7 @@ class _MyVideoProgressIndicatorState extends State<MyVideoProgressIndicator> {
             alignment: Alignment.bottomCenter,
             child: Container(
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(maxHeight: 50),
+              constraints: const BoxConstraints(maxHeight: 50),
               child: MouseRegion(
                 onEnter: (PointerEnterEvent _) {
                   setState(() {

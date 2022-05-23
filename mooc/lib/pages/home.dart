@@ -1,47 +1,34 @@
 import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+// myPage class which creates a state on call
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _State createState() => _State();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+// myPage state
+class _State extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // main build function
+  @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("Chai MOOC"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      body: Container(),
     );
   }
 }

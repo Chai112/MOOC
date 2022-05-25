@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/widgets/scholarly_text_field.dart';
 import 'package:mooc/style/widgets/scholarly_tile.dart';
 
 // myPage class which creates a state on call
@@ -43,11 +44,13 @@ class _State extends State<AuthPage> {
                 height: 70,
                 child: Image(
                     fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-            const SizedBox(height: 200),
-            ScholarlyTile(
-              width: 500,
-              height: 300,
-            )
+            const SizedBox(height: 100),
+            const ScholarlyTile(
+                width: 500,
+                height: 300,
+                child: ScholarlyTextField(
+                  label: "username",
+                ))
           ],
         ),
       ),

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 // myPage class which creates a state on call
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class AuthPage extends StatefulWidget {
+  const AuthPage({Key? key}) : super(key: key);
 
   @override
   _State createState() => _State();
 }
 
 // myPage state
-class _State extends State<HomePage> {
+class _State extends State<AuthPage> {
   @override
   void initState() {
     super.initState();

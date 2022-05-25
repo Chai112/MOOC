@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/colors.dart' as scholarly_color;
 
 // Copyright 2013 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,16 +11,21 @@ import 'package:flutter/material.dart';
 /// video.
 
 import 'package:video_player/video_player.dart';
-import 'widgets/video_player/video_progress_indicator.dart';
+import 'style/widgets/video_player/video_progress_indicator.dart';
 import 'route.dart';
+import 'style/colors.dart';
 
 void main() {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Smart Safety',
+      title: 'Scholarly', // name decided on 23/05/2022
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        backgroundColor: scholarly_color.backgroundGrey,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: scholarlyBlue,
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',

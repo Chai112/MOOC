@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mooc/style/colors.dart' as scholarly_color;
 
 // Copyright 2013 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -11,9 +10,9 @@ import 'package:mooc/style/colors.dart' as scholarly_color;
 /// video.
 
 import 'package:video_player/video_player.dart';
-import 'style/widgets/video_player/video_progress_indicator.dart';
-import 'route.dart';
-import 'style/colors.dart';
+import 'package:mooc/style/widgets/video_player/video_progress_indicator.dart';
+import 'package:mooc/route.dart';
+import 'package:mooc/style/colors.dart' as scholarly_color;
 
 void main() {
   runApp(
@@ -24,7 +23,7 @@ void main() {
         backgroundColor: scholarly_color.backgroundGrey,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
-          foregroundColor: scholarlyBlue,
+          foregroundColor: scholarly_color.scholarlyBlue,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),

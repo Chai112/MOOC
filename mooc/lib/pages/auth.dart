@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/widgets/scholarly_tile.dart';
 
 // myPage class which creates a state on call
 class AuthPage extends StatefulWidget {
@@ -33,16 +34,22 @@ class _State extends State<AuthPage> {
                 Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
       ),
       */
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 200),
-          const SizedBox(
-              height: 70,
-              child: Image(
-                  fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-          Container(),
-        ],
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 200),
+            const SizedBox(
+                height: 70,
+                child: Image(
+                    fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
+            const SizedBox(height: 200),
+            ScholarlyTile(
+              width: 500,
+              height: 300,
+            )
+          ],
+        ),
       ),
     );
   }

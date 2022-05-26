@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class Wrapper extends StatelessWidget {
-  var goToPage;
-  bool needsAuthentication;
-  Wrapper(var goToPage, {this.needsAuthentication = false}) {
-    this.goToPage = goToPage;
-  }
+  final StatefulWidget goToPage;
+  final bool needsAuthentication;
+  const Wrapper(this.goToPage, {Key? key, this.needsAuthentication = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return goToPage;
+    /*
     Future<bool> _getData() async {
       print("going");
       // load the application side assets
@@ -29,5 +29,6 @@ class Wrapper extends StatelessWidget {
       }
       */
     }
+    */
   }
 }

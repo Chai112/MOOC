@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
 import 'package:mooc/style/widgets/scholarly_tile.dart';
+import 'package:mooc/style/widgets/scholarly_text.dart';
 
 // myPage class which creates a state on call
 class AuthPage extends StatefulWidget {
@@ -44,12 +46,31 @@ class _State extends State<AuthPage> {
                 height: 70,
                 child: Image(
                     fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-            const SizedBox(height: 100),
-            const ScholarlyTile(
-                width: 500,
-                height: 300,
-                child: ScholarlyTextField(
-                  label: "username",
+            const SizedBox(height: 10),
+            const ScholarlyTextH2("Developer Console"),
+            const SizedBox(height: 70),
+            ScholarlyTile(
+                width: 470,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 50),
+                    const ScholarlyTextField(
+                      label: "Username",
+                    ),
+                    const ScholarlyTextField(
+                      label: "Password",
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        ScholarlyButton("Login", invertedColor: true),
+                        ScholarlyButton("Create an Account"),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
+                  ],
                 ))
           ],
         ),

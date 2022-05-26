@@ -20,6 +20,9 @@ void main() {
       debugShowCheckedModeBanner: false,
       title: 'Scholarly', // name decided on 23/05/2022
       theme: ThemeData(
+        fontFamily: "Avenir Next",
+        primarySwatch:
+            scholarly_color.createMaterialColor(scholarly_color.scholarlyBlue),
         backgroundColor: scholarly_color.backgroundGrey,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,

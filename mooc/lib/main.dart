@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// An example of using the plugin, controlling lifecycle and playback of the
 /// video.
 
-import 'package:video_player/video_player.dart';
-import 'package:mooc/style/widgets/video_player/video_progress_indicator.dart';
+//import 'package:video_player/video_player.dart';
+//import 'package:mooc/style/widgets/video_player/video_progress_indicator.dart';
 import 'package:mooc/route.dart';
 import 'package:mooc/style/colors.dart' as scholarly_color;
 
@@ -22,11 +22,11 @@ void main() {
       theme: ThemeData(
         fontFamily: "Avenir Next",
         primarySwatch:
-            scholarly_color.createMaterialColor(scholarly_color.scholarlyBlue),
+            scholarly_color.createMaterialColor(scholarly_color.scholarlyRed),
         backgroundColor: scholarly_color.backgroundGrey,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
-          foregroundColor: scholarly_color.scholarlyBlue,
+          foregroundColor: scholarly_color.scholarlyRed,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),

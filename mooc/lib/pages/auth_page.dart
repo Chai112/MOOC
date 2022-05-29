@@ -4,6 +4,9 @@ import 'package:mooc/style/widgets/scholarly_text_field.dart';
 import 'package:mooc/style/widgets/scholarly_tile.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
+import 'package:mooc/services/auth_service.dart' as auth_service;
+import 'package:mooc/services/networking_service.dart' as networking_service;
+
 // myPage class which creates a state on call
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -14,6 +17,9 @@ class AuthPage extends StatefulWidget {
 
 // myPage state
 class _State extends State<AuthPage> {
+  String? _usernameFieldErrorText;
+  String? _passwordFieldErrorText;
+
   @override
   void initState() {
     super.initState();
@@ -54,19 +60,51 @@ class _State extends State<AuthPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 50),
-                    const ScholarlyTextField(
+                    ScholarlyTextField(
                       label: "Username",
+                      errorText: _usernameFieldErrorText,
                     ),
-                    const ScholarlyTextField(
+                    ScholarlyTextField(
                       label: "Password",
+                      errorText: _passwordFieldErrorText,
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        ScholarlyButton("Login", invertedColor: true),
-                        ScholarlyButton("Create an Account"),
+                      children: [
+                        ScholarlyButton("Login", onPressed: () async {
+                          try {
+                            await auth_service.AuthUser().login(
+                              username: "a",
+                              password: "b",
+                            );
+                          } on networking_service
+                              .NetworkingException catch (err) {
+                            switch (err.message) {
+                              case "no user exists":
+                                setState(() {
+                                  _usernameFieldErrorText = "No user exists.";
+                                });
+                                break;
+                              case "passwords do not match":
+                                setState(() {
+                                  _passwordFieldErrorText = "No user exists.";
+                                });
+                                break;
+                              default:
+                                setState(() {
+                                  _usernameFieldErrorText =
+                                      "Something went wrong with the server.";
+                                });
+                                break;
+                            }
+                          }
+                        }, invertedColor: true),
+                        ScholarlyButton(
+                          "Create an Account",
+                          onPressed: () {},
+                        ),
                       ],
                     ),
                     const SizedBox(height: 50),

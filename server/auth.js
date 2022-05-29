@@ -78,7 +78,7 @@ module.exports.loginUser = loginUser;
 async function loginUser(username, password) {
     // check password
     let data = await users.select({username: username});
-    if (data.length < 0) {
+    if (data.length === 0) {
         throw "no user exists";
     }
 

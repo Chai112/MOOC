@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'wrapper.dart';
-import 'pages/home.dart';
-import 'pages/auth.dart';
+import 'package:mooc/pages/home_page.dart';
+import 'package:mooc/pages/auth_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(settings) {
     // Handle '/'
     if (settings.name == '/') {
       return MaterialPageRoute(
-          settings: settings, builder: (context) => Wrapper(const AuthPage()));
+          settings: settings, builder: (context) => const Wrapper(AuthPage()));
       //Wrapper(AuthenticationPage(), needsAuthentication: false));
     }
 
     if (settings.name == '/dashboard') {
       return MaterialPageRoute(
-          settings: settings, builder: (context) => Wrapper(const HomePage()));
+          settings: settings, builder: (context) => const Wrapper(HomePage()));
     }
 
     //var uri = Uri.parse(settings.name);
@@ -33,6 +33,6 @@ class RouteGenerator {
     }
 
     */
-    return MaterialPageRoute(builder: (context) => Wrapper(const HomePage()));
+    return MaterialPageRoute(builder: (context) => const Wrapper(HomePage()));
   }
 }

@@ -4,10 +4,12 @@ import 'package:mooc/style/colors.dart' as scholarly_color;
 class ScholarlyButton extends StatelessWidget {
   // members of MyWidget
   final String text;
+  final Function() onPressed;
   final bool invertedColor;
 
   // constructor
-  const ScholarlyButton(this.text, {Key? key, this.invertedColor = false})
+  const ScholarlyButton(this.text,
+      {Key? key, required this.onPressed, this.invertedColor = false})
       : super(key: key);
 
   // main build function
@@ -16,12 +18,12 @@ class ScholarlyButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: OutlinedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: OutlinedButton.styleFrom(
             backgroundColor:
-                !invertedColor ? Colors.white : scholarly_color.scholarlyBlue,
+                !invertedColor ? Colors.white : scholarly_color.scholarlyRed,
             primary:
-                !invertedColor ? scholarly_color.scholarlyBlue : Colors.white,
+                !invertedColor ? scholarly_color.scholarlyRed : Colors.white,
             elevation: 0,
           ),
           child: Padding(
@@ -32,7 +34,7 @@ class ScholarlyButton extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 16,
                     color: !invertedColor
-                        ? scholarly_color.scholarlyBlue
+                        ? scholarly_color.scholarlyRed
                         : Colors.white),
               ))),
     );

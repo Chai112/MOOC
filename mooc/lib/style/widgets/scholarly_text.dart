@@ -18,3 +18,22 @@ class ScholarlyTextH2 extends StatelessWidget {
         ));
   }
 }
+
+class ScholarlyTextH3 extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+
+  // constructor
+  const ScholarlyTextH3(this.text, {Key? key}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: const TextStyle(
+          fontSize: 18,
+          color: scholarly_color.scholarlyRed,
+          fontWeight: FontWeight.bold,
+        ));
+  }
+}

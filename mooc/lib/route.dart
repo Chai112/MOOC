@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'wrapper.dart';
 import 'package:mooc/pages/home_page.dart';
 import 'package:mooc/pages/auth_page.dart';
+import 'package:mooc/pages/auth_register_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(settings) {
@@ -9,7 +10,12 @@ class RouteGenerator {
     if (settings.name == '/') {
       return MaterialPageRoute(
           settings: settings, builder: (context) => const Wrapper(AuthPage()));
-      //Wrapper(AuthenticationPage(), needsAuthentication: false));
+    }
+
+    if (settings.name == '/register') {
+      return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => const Wrapper(AuthRegisterPage()));
     }
 
     if (settings.name == '/dashboard') {

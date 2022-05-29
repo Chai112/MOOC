@@ -22,7 +22,10 @@ class ScholarlyTile extends StatelessWidget {
           color: Colors.white,
           boxShadow: const [scholarly_color.shadow],
         ),
-        child: child,
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: child,
+        ),
       ),
     );
   }

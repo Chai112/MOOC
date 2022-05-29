@@ -76,7 +76,25 @@ class Router{
         this.response.status(200);
         this.response.json({"token": token});
     }
-    register() {
+    async register() {
+        let username = this._getQuery("username");
+        let password = this._getQuery("password");
+        let email = this._getQuery("email");
+        let firstname = this._getQuery("firstname");
+        let lastname = this._getQuery("lastname");
+        let token = "";
+        try {
+            token = await Auth.registerUser(username, password, email,firstname, lastname);
+        } catch (err) {
+            switch (err) {
+                case "user already exists":
+                    this.response.status(403);
+                    this.response.json({message: err});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({"token": token});
     }
     /*
     createVideo() {

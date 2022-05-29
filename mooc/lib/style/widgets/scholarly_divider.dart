@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart'; // Flutter
-import 'package:mooc/style/colors.dart' as scholarly_color;
 
 class ScholarlyDivider extends StatelessWidget {
   // constructor

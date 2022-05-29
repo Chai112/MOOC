@@ -4,6 +4,9 @@ import 'dart:math' as maths;
 
 class ScholarlyTextFieldController extends TextEditingController {
   String? errorText;
+  void clearError() {
+    errorText = null;
+  }
 }
 
 class ScholarlyTextField extends StatelessWidget {

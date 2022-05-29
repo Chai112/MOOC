@@ -20,6 +20,7 @@ class AuthRegisterPage extends StatefulWidget {
 class _State extends State<AuthRegisterPage> {
   final _usernameController = ScholarlyTextFieldController();
   final _passwordController = ScholarlyTextFieldController();
+  final _retypePasswordController = ScholarlyTextFieldController();
   final _emailController = ScholarlyTextFieldController();
   final _firstnameController = ScholarlyTextFieldController();
   final _lastnameController = ScholarlyTextFieldController();
@@ -36,7 +37,75 @@ class _State extends State<AuthRegisterPage> {
     super.dispose();
   }
 
-  void register() async {}
+  void register() async {
+    setState(() {
+      _usernameController.clearError();
+      _passwordController.clearError();
+      _retypePasswordController.clearError();
+      _emailController.clearError();
+      _firstnameController.clearError();
+      _lastnameController.clearError();
+    });
+    if (_usernameController.text == "") {
+      setState(() {
+        _usernameController.errorText = "Please enter a username.";
+      });
+      return;
+    }
+    if (_passwordController.text == "") {
+      setState(() {
+        _passwordController.errorText = "Please enter a password.";
+      });
+      return;
+    }
+    if (_retypePasswordController.text == "") {
+      setState(() {
+        _retypePasswordController.errorText =
+            "Please retype the same password as above.";
+      });
+      return;
+    }
+    if (_passwordController.text != _retypePasswordController.text) {
+      setState(() {
+        _retypePasswordController.errorText =
+            "This does not match the password above.";
+      });
+      return;
+    }
+    bool emailValid = RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(_emailController.text);
+    if (_emailController.text != "" && !emailValid) {
+      setState(() {
+        _emailController.errorText = "This email is not valid";
+      });
+      return;
+    }
+    try {
+      await auth_service.AuthUser().register(
+        username: _usernameController.text,
+        password: _passwordController.text,
+        email: _emailController.text,
+        firstname: _firstnameController.text,
+        lastname: _firstnameController.text,
+      );
+    } on networking_service.NetworkingException catch (err) {
+      switch (err.message) {
+        case "user already exists":
+          setState(() {
+            _usernameController.errorText =
+                "Username already exists - please choose another one.";
+          });
+          break;
+        default:
+          setState(() {
+            _usernameController.errorText =
+                "Something went wrong with the server.";
+          });
+          break;
+      }
+    }
+  }
 
   // main build function
   @override
@@ -47,14 +116,14 @@ class _State extends State<AuthRegisterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 90),
+            const SizedBox(height: 60),
             const SizedBox(
                 height: 30,
                 child: Image(
                     fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
             const SizedBox(height: 10),
             const ScholarlyTextH2("Developer Console"),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
             ScholarlyTile(
                 width: 470,
                 child: Column(
@@ -67,7 +136,7 @@ class _State extends State<AuthRegisterPage> {
                         icon: const Icon(Icons.arrow_back_rounded)),
                     const SizedBox(height: 20),
                     const ScholarlyTextH3("Login Information"),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 5),
                     ScholarlyTextField(
                       label: "Username",
                       controller: _usernameController,
@@ -79,37 +148,45 @@ class _State extends State<AuthRegisterPage> {
                       isPragmaticField: true,
                       isPasswordField: true,
                     ),
+                    ScholarlyTextField(
+                      label: "Retype Password",
+                      controller: _retypePasswordController,
+                      isPragmaticField: true,
+                      isPasswordField: true,
+                    ),
                     const ScholarlyDivider(),
-                    const ScholarlyTextH3("Contact Information"),
+                    const ScholarlyTextH3("Contact Information",
+                        bracketText: "(*Optional)"),
                     const SizedBox(height: 20),
                     ScholarlyTextField(
-                      label: "Email",
+                      label: "Email*",
                       controller: _emailController,
                       isPragmaticField: true,
-                      isPasswordField: true,
-                    ),
-                    ScholarlyTextField(
-                      label: "First Name",
-                      controller: _firstnameController,
-                      isPragmaticField: true,
-                      isPasswordField: true,
-                    ),
-                    ScholarlyTextField(
-                      label: "Last Name",
-                      controller: _lastnameController,
-                      isPragmaticField: true,
-                      isPasswordField: true,
                     ),
                     const SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        ScholarlyButton("Register",
-                            onPressed: register, invertedColor: true),
+                        Expanded(
+                          child: ScholarlyTextField(
+                            label: "First Name*",
+                            controller: _firstnameController,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ScholarlyTextField(
+                            label: "Last Name*",
+                            controller: _lastnameController,
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    Center(
+                      child: ScholarlyButton("Register",
+                          onPressed: register, invertedColor: true),
+                    ),
                   ],
                 ))
           ],

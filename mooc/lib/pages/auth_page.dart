@@ -36,8 +36,8 @@ class _State extends State<AuthPage> {
     String username = _usernameController.text;
     String password = _passwordController.text;
     setState(() {
-      _usernameController.errorText = null;
-      _passwordController.errorText = null;
+      _usernameController.clearError();
+      _passwordController.clearError();
     });
     if (username == "") {
       setState(() {
@@ -53,8 +53,8 @@ class _State extends State<AuthPage> {
     }
     try {
       await auth_service.AuthUser().login(
-        username: "a",
-        password: "b",
+        username: username,
+        password: password,
       );
     } on networking_service.NetworkingException catch (err) {
       switch (err.message) {

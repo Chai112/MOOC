@@ -11,7 +11,29 @@ class AuthUser {
     try {
       // Await the http get response, then decode the json-formatted response.
       Map<String, dynamic> response = await networking_service
-          .getServer("login", {"username": "username", "password": "password"});
+          .getServer("login", {"username": username, "password": password});
+      return Token(response["message"]);
+    } catch (_) {
+      rethrow;
+    }
+  }
+
+  Future<Token> register(
+      {required String username,
+      required String password,
+      required String email,
+      required String firstname,
+      required String lastname}) async {
+    try {
+      // Await the http get response, then decode the json-formatted response.
+      Map<String, dynamic> response =
+          await networking_service.getServer("register", {
+        "username": username,
+        "password": password,
+        "email": email,
+        "firstname": firstname,
+        "lastname": lastname,
+      });
       return Token(response["message"]);
     } catch (_) {
       rethrow;

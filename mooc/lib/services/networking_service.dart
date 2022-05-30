@@ -7,7 +7,10 @@ const int uriPort = 3000;
 
 class NetworkingException implements Exception {
   String message;
-  NetworkingException(this.message);
+  String? description;
+  bool expandError;
+  NetworkingException(this.message,
+      {this.description, this.expandError = true});
 }
 
 Future<Map<String, dynamic>> getServer(
@@ -22,7 +25,14 @@ Future<Map<String, dynamic>> getServer(
     queryParameters: queryParameters,
   );
   // request query
-  http.Response response = await http.get(requestUri);
+  http.Response? response;
+  try {
+    response = await http.get(requestUri);
+  } catch (err) {
+    throw NetworkingException("something went wrong",
+        description:
+            "Cannot connect to the server, the server may not be started (check AWS and NodeJS)");
+  }
   print(response.statusCode);
   switch (response.statusCode) {
     case 200: // OK
@@ -31,14 +41,18 @@ Future<Map<String, dynamic>> getServer(
       Map<String, dynamic> resBodyJson = jsonDecode(resBodyStr);
       return resBodyJson;
     case 400: // bad request  (client error)
-      throw NetworkingException("something went wrong");
+      throw NetworkingException("something went wrong",
+          description: "400: Bad request, client error");
     case 403: // forbidden    (user error)
       String resBodyStr = response.body;
       Map<String, dynamic> resBodyJson = jsonDecode(resBodyStr);
-      throw NetworkingException(resBodyJson["message"]);
+      throw NetworkingException(resBodyJson["message"], expandError: false);
     case 500: // server error (server error)
-      throw NetworkingException("something went wrong");
+      throw NetworkingException("something went wrong",
+          description: "500: Bad request, server error");
     default: // anything could happen
-      throw NetworkingException("something went wrong");
+      throw NetworkingException("something went wrong",
+          description:
+              "can connect to server but recieved an unknown status code");
   }
 }

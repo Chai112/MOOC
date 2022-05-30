@@ -1,42 +1,50 @@
 import 'package:mooc/services/networking_service.dart' as networking_service;
 
 class Token {
-  String token;
-  Token(this.token);
+  final String token;
+  bool isInitialized = false;
+  Token({this.token = ""}) {
+    isInitialized = token != "";
+    print("created token ${token} and is init? ${isInitialized}");
+  }
 }
 
-class AuthUser {
-  Future<Token> login(
-      {required String username, required String password}) async {
-    try {
-      // Await the http get response, then decode the json-formatted response.
-      Map<String, dynamic> response = await networking_service
-          .getServer("login", {"username": username, "password": password});
-      return Token(response["message"]);
-    } catch (_) {
-      rethrow;
-    }
-  }
+Token globalToken = Token();
 
-  Future<Token> register(
-      {required String username,
-      required String password,
-      required String email,
-      required String firstname,
-      required String lastname}) async {
-    try {
-      // Await the http get response, then decode the json-formatted response.
-      Map<String, dynamic> response =
-          await networking_service.getServer("register", {
-        "username": username,
-        "password": password,
-        "email": email,
-        "firstname": firstname,
-        "lastname": lastname,
-      });
-      return Token(response["message"]);
-    } catch (_) {
-      rethrow;
-    }
+bool isLoggedIn() {
+  return globalToken.isInitialized;
+}
+
+Future<void> login({required String username, required String password}) async {
+  username = username;
+  password = password;
+  try {
+    // Await the http get response, then decode the json-formatted response.
+    Map<String, dynamic> response = await networking_service
+        .getServer("login", {"username": username, "password": password});
+    globalToken = Token(token: response["token"]);
+  } catch (_) {
+    rethrow;
+  }
+}
+
+Future<void> register(
+    {required String username,
+    required String password,
+    required String email,
+    required String firstname,
+    required String lastname}) async {
+  try {
+    // Await the http get response, then decode the json-formatted response.
+    Map<String, dynamic> response =
+        await networking_service.getServer("register", {
+      "username": username,
+      "password": password,
+      "email": email,
+      "firstname": firstname,
+      "lastname": lastname,
+    });
+  } catch (_) {
+    rethrow;
   }
 }

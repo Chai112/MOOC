@@ -6,6 +6,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
+import 'package:mooc/services/error_service.dart' as error_service;
 
 // myPage class which creates a state on call
 class AuthPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _State extends State<AuthPage> {
     super.dispose();
   }
 
-  void login() async {
+  Future<void> login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
     setState(() {
@@ -52,10 +53,11 @@ class _State extends State<AuthPage> {
       return;
     }
     try {
-      await auth_service.AuthUser().login(
+      await auth_service.login(
         username: username,
         password: password,
       );
+      Navigator.pushNamed(context, '/');
     } on networking_service.NetworkingException catch (err) {
       switch (err.message) {
         case "no user exists":
@@ -75,19 +77,19 @@ class _State extends State<AuthPage> {
           });
           break;
       }
+      rethrow;
     }
   }
 
   // main build function
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
     return Scaffold(
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 200),
             const SizedBox(
                 height: 50,
                 child: Image(
@@ -99,6 +101,7 @@ class _State extends State<AuthPage> {
                 width: 470,
                 child: Column(
                   children: [
+                    const SizedBox(height: 10),
                     ScholarlyTextField(
                       label: "Username",
                       controller: _usernameController,
@@ -115,8 +118,14 @@ class _State extends State<AuthPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        ScholarlyButton("Login",
-                            onPressed: login, invertedColor: true),
+                        ScholarlyButton("Login", onPressed: () async {
+                          try {
+                            await login();
+                          } on networking_service
+                              .NetworkingException catch (error) {
+                            error_service.reportError(error, context);
+                          }
+                        }, invertedColor: true),
                         ScholarlyButton(
                           "Create an Account",
                           onPressed: () {

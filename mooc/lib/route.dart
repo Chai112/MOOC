@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
-import 'wrapper.dart';
+import 'package:mooc/wrapper.dart';
 import 'package:mooc/pages/home_page.dart';
 import 'package:mooc/pages/auth_page.dart';
 import 'package:mooc/pages/auth_register_page.dart';
+import 'package:mooc/pages/organization_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(settings) {
     // Handle '/'
     if (settings.name == '/') {
+      return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => const Wrapper(
+                OrganizationPage(),
+                needsAuthentication: true,
+              ));
+    }
+
+    if (settings.name == '/login') {
       return MaterialPageRoute(
           settings: settings, builder: (context) => const Wrapper(AuthPage()));
     }

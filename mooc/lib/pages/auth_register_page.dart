@@ -7,6 +7,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
+import 'package:mooc/services/error_service.dart' as error_service;
 
 // myPage class which creates a state on call
 class AuthRegisterPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _State extends State<AuthRegisterPage> {
     super.dispose();
   }
 
-  void register() async {
+  Future<void> register() async {
     setState(() {
       _usernameController.clearError();
       _passwordController.clearError();
@@ -82,13 +83,14 @@ class _State extends State<AuthRegisterPage> {
       return;
     }
     try {
-      await auth_service.AuthUser().register(
+      await auth_service.register(
         username: _usernameController.text,
         password: _passwordController.text,
         email: _emailController.text,
         firstname: _firstnameController.text,
         lastname: _firstnameController.text,
       );
+      Navigator.pushNamed(context, '/');
     } on networking_service.NetworkingException catch (err) {
       switch (err.message) {
         case "user already exists":
@@ -114,11 +116,11 @@ class _State extends State<AuthRegisterPage> {
     return Scaffold(
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 60),
             const SizedBox(
-                height: 30,
+                height: 50,
                 child: Image(
                     fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
             const SizedBox(height: 10),
@@ -155,7 +157,7 @@ class _State extends State<AuthRegisterPage> {
                       isPasswordField: true,
                     ),
                     const ScholarlyDivider(),
-                    const ScholarlyTextH3("Contact Information",
+                    const ScholarlyTextH3("Profile Information",
                         bracketText: "(*Optional)"),
                     const SizedBox(height: 20),
                     ScholarlyTextField(
@@ -184,8 +186,14 @@ class _State extends State<AuthRegisterPage> {
                       ],
                     ),
                     Center(
-                      child: ScholarlyButton("Register",
-                          onPressed: register, invertedColor: true),
+                      child: ScholarlyButton("Register", onPressed: () async {
+                        try {
+                          await register();
+                        } on networking_service
+                            .NetworkingException catch (error) {
+                          error_service.reportError(error, context);
+                        }
+                      }, invertedColor: true),
                     ),
                   ],
                 ))

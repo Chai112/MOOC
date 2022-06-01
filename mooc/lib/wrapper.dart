@@ -27,7 +27,7 @@ class _State extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.needsAuthentication && !auth_service.isLoggedIn()) {
+    if (widget.needsAuthentication && !auth_service.globalUser.isLoggedIn()) {
       // if not logged in, wait until page loads and then go to login page
       SchedulerBinding.instance?.addPostFrameCallback((_) {
         Navigator.of(context).pushNamed("/login");

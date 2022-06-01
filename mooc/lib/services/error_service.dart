@@ -9,7 +9,6 @@ void reportError(
     builder: (BuildContext context) => AlertDialog(
       title: Text(error.message),
       content: SizedBox(
-          height: 250,
           width: 250,
           child: Text(error.description ?? "No description given.")),
       actions: <Widget>[

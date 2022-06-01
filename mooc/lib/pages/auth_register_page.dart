@@ -23,8 +23,8 @@ class _State extends State<AuthRegisterPage> {
   final _passwordController = ScholarlyTextFieldController();
   final _retypePasswordController = ScholarlyTextFieldController();
   final _emailController = ScholarlyTextFieldController();
-  final _firstnameController = ScholarlyTextFieldController();
-  final _lastnameController = ScholarlyTextFieldController();
+  final _firstNameController = ScholarlyTextFieldController();
+  final _lastNameController = ScholarlyTextFieldController();
 
   @override
   void initState() {
@@ -44,8 +44,8 @@ class _State extends State<AuthRegisterPage> {
       _passwordController.clearError();
       _retypePasswordController.clearError();
       _emailController.clearError();
-      _firstnameController.clearError();
-      _lastnameController.clearError();
+      _firstNameController.clearError();
+      _lastNameController.clearError();
     });
     if (_usernameController.text == "") {
       setState(() {
@@ -83,12 +83,12 @@ class _State extends State<AuthRegisterPage> {
       return;
     }
     try {
-      await auth_service.register(
+      await auth_service.globalUser.register(
         username: _usernameController.text,
         password: _passwordController.text,
         email: _emailController.text,
-        firstname: _firstnameController.text,
-        lastname: _firstnameController.text,
+        firstName: _firstNameController.text,
+        lastName: _firstNameController.text,
       );
       Navigator.pushNamed(context, '/');
     } on networking_service.NetworkingException catch (err) {
@@ -102,7 +102,7 @@ class _State extends State<AuthRegisterPage> {
         default:
           setState(() {
             _usernameController.errorText =
-                "Something went wrong with the server.";
+                "Something went wrong while trying to register.";
           });
           break;
       }
@@ -173,14 +173,14 @@ class _State extends State<AuthRegisterPage> {
                         Expanded(
                           child: ScholarlyTextField(
                             label: "First Name*",
-                            controller: _firstnameController,
+                            controller: _firstNameController,
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: ScholarlyTextField(
                             label: "Last Name*",
-                            controller: _lastnameController,
+                            controller: _lastNameController,
                           ),
                         ),
                       ],

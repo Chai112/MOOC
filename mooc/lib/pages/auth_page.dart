@@ -53,7 +53,7 @@ class _State extends State<AuthPage> {
       return;
     }
     try {
-      await auth_service.login(
+      await auth_service.globalUser.login(
         username: username,
         password: password,
       );
@@ -73,7 +73,7 @@ class _State extends State<AuthPage> {
         default:
           setState(() {
             _usernameController.errorText =
-                "Something went wrong with the server.";
+                "Something went wrong while trying to login.";
           });
           break;
       }

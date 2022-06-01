@@ -32,15 +32,28 @@ class _State extends State<OrganizationPage> {
             child:
                 Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Row(
         children: [
-          const SizedBox(height: 200),
-          const SizedBox(
-              height: 70,
-              child: Image(
-                  fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-          Container(),
+          SizedBox(
+            width: 300,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                    child: Container(
+                  decoration: BoxDecoration(color: Colors.red),
+                )),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 200),
+              Text("Welcome back, "),
+              Container(),
+            ],
+          ),
         ],
       ),
     );

@@ -17,6 +17,9 @@ class Router{
 
     parse (action) {
         switch (action) {
+            case "getUserFromToken":
+                this.getUserFromToken();
+                break;
             case "login":
                 this.login();
                 break;
@@ -55,6 +58,24 @@ class Router{
             throw "error";
         }
     }
+    async getUserFromToken() {
+        let token = this._getQuery("token");
+        let userData = {};
+        let data = await Auth.getUserFromToken(token);
+        if (data.length < 0) { // no token found
+            this.response.status(403);
+            this.response.json({message: "no token found"});
+            return;
+        }
+        userData = data[0];
+        this.response.status(200);
+        this.response.json({
+            "username": userData.username,
+            "email": userData.email,
+            "firstName": userData.firstName,
+            "lastName": userData.lastName,
+        });
+    }
     async login() {
         let username = this._getQuery("username");
         let password = this._getQuery("password");
@@ -71,6 +92,10 @@ class Router{
                     this.response.status(403);
                     this.response.json({message: err});
                     return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
             }
         }
         this.response.status(200);
@@ -80,11 +105,11 @@ class Router{
         let username = this._getQuery("username");
         let password = this._getQuery("password");
         let email = this._getQuery("email");
-        let firstname = this._getQuery("firstname");
-        let lastname = this._getQuery("lastname");
+        let firstName = this._getQuery("firstName");
+        let lastName = this._getQuery("lastName");
         let token = "";
         try {
-            token = await Auth.registerUser(username, password, email,firstname, lastname);
+            token = await Auth.registerUser(username, password, email,firstName, lastName);
         } catch (err) {
             switch (err) {
                 case "user already exists":

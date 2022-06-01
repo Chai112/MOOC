@@ -100,7 +100,7 @@ describe('Authentication', function () {
         } catch {
 
         }
-        token = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+        token = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastName");
 
         let data = await Auth.getUserFromToken(token);
         let user = data[0];
@@ -110,7 +110,7 @@ describe('Authentication', function () {
     it('should NOT create duplicate user', async function () {
         await assert.rejects(
             async function () { 
-                await Auth.registerUser("test", "password", "test@test.com", "firstname", "lastname");
+                await Auth.registerUser("test", "password", "test@test.com", "firstName", "lastName");
             }
         );
     });
@@ -163,7 +163,7 @@ describe('Privilege Structure Tests', function () {
                 await Auth.deleteUser(tokenA, "password");
             } catch {
             }
-            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastName");
         });
         it('should add organization', async function () {
             let orgData = await Org.createOrganization(tokenA, {
@@ -187,7 +187,7 @@ describe('Privilege Structure Tests', function () {
                 await Auth.deleteUser(tokenB, "password");
             } catch {
             }
-            tokenB = await Auth.registerUser("test2", "password", "test@test.com", `a_${randomName}`, "lastname");
+            tokenB = await Auth.registerUser("test2", "password", "test@test.com", `a_${randomName}`, "lastName");
             orgPrivId = await Org.assignTeacherToOrganization(tokenA, "test2", orgId, {
                 canSeeAllAnalytics: false,
                 canEditAllCourses: false,
@@ -280,13 +280,13 @@ describe('Privilege Structure Tests', function () {
                 await Auth.deleteUser(tokenA, "password");
             } catch {
             }
-            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastName");
             try {
                 tokenB = await Auth.loginUser("test2", "password");
                 await Auth.deleteUser(tokenB, "password");
             } catch {
             }
-            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastname");
+            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastName");
 
             // create organizations
             let orgData = await Org.createOrganization(tokenA, {
@@ -470,13 +470,13 @@ describe('Course Development Tests', function () {
                 await Auth.deleteUser(tokenA, "password");
             } catch {
             }
-            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastName");
             try {
                 tokenB = await Auth.loginUser("test2", "password");
                 await Auth.deleteUser(tokenB, "password");
             } catch {
             }
-            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastname");
+            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastName");
             // create organization
             let orgData = await Org.createOrganization(tokenA, {
                 organizationName: `TestOrg${randomName}`
@@ -551,13 +551,13 @@ describe('Course Development Tests', function () {
                 await Auth.deleteUser(tokenA, "password");
             } catch {
             }
-            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastname");
+            tokenA = await Auth.registerUser("test", "password", "test@test.com", randomName, "lastName");
             try {
                 tokenB = await Auth.loginUser("test2", "password");
                 await Auth.deleteUser(tokenB, "password");
             } catch {
             }
-            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastname");
+            tokenB = await Auth.registerUser("test2", "password", "test@test.com", randomName, "lastName");
             // create organization
             let orgData = await Org.createOrganization(tokenA, {
                 organizationName: `TestOrg${randomName}`

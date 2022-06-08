@@ -41,7 +41,7 @@ class _State extends State<OrganizationPage> {
               children: [
                 Expanded(
                     child: Container(
-                  decoration: BoxDecoration(color: Colors.red),
+                  decoration: BoxDecoration(color: Colors.white),
                 )),
               ],
             ),

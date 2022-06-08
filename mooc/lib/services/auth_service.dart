@@ -1,4 +1,5 @@
 import 'package:mooc/services/networking_service.dart' as networking_service;
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
 final Storage _localStorage = window.localStorage;
@@ -14,19 +15,17 @@ class AuthUser {
   String? username, email, firstName, lastName;
   AuthUser({this.token});
 
-  Future<bool> init() async {
+  Future<void> tryLogin() async {
     // load the token and other data via local cookies.
     // if success
-    String? authTokenSaved = _localStorage['token'];
-    print("pulled from local");
-    if (_localStorage['token'] != null) {
-      if (authTokenSaved != "") {
-        token = Token(_localStorage['token'] ?? "");
-        await _getUserFromToken();
-        return true;
-      }
-    }
-    return false;
+
+    // pull token from local
+    String authTokenSaved = _localStorage['token'] ?? "";
+    if (authTokenSaved != "") {
+      token =
+          Token(authTokenSaved); // recieve the token (user is now logged in)
+      await _getUserFromToken(); // get other info from token
+    } else {}
   }
 
   void _saveToLocal() {
@@ -34,12 +33,6 @@ class AuthUser {
   }
 
   Future<void> _getUserFromToken() async {
-    if (!isLoggedIn()) {
-      username = "";
-      email = "";
-      firstName = "";
-      lastName = "";
-    }
     Map<String, dynamic> response = await networking_service
         .getServer("getUserFromToken", {"token": token!.token});
     if (response != {}) {

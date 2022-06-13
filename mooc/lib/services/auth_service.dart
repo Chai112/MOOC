@@ -24,8 +24,12 @@ class AuthUser {
     if (authTokenSaved != "") {
       token =
           Token(authTokenSaved); // recieve the token (user is now logged in)
-      await _getUserFromToken(); // get other info from token
-    } else {}
+      try {
+        await _getUserFromToken(); // get other info from token
+      } catch (_) {
+        rethrow;
+      }
+    }
   }
 
   void _saveToLocal() {
@@ -33,13 +37,17 @@ class AuthUser {
   }
 
   Future<void> _getUserFromToken() async {
-    Map<String, dynamic> response = await networking_service
-        .getServer("getUserFromToken", {"token": token!.token});
-    if (response != {}) {
-      username = response["username"];
-      email = response["email"];
-      firstName = response["firstName"];
-      lastName = response["lastName"];
+    try {
+      Map<String, dynamic> response = await networking_service
+          .getServer("getUserFromToken", {"token": token!.token});
+      if (response != {}) {
+        username = response["username"];
+        email = response["email"];
+        firstName = response["firstName"];
+        lastName = response["lastName"];
+      }
+    } catch (_) {
+      rethrow;
     }
   }
 

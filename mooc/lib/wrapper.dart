@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mooc/pages/loading_page.dart';
 import 'package:mooc/services/auth_service.dart' as auth_service;
+import 'package:mooc/services/networking_service.dart' as networking_service;
+import 'package:mooc/services/error_service.dart' as error_service;
 
 // myPage class which creates a state on call
 class Wrapper extends StatefulWidget {
@@ -31,7 +33,11 @@ class _State extends State<Wrapper> {
       return true;
     }
     // try to log in based on token from localStorage
-    await auth_service.globalUser.tryLogin();
+    try {
+      await auth_service.globalUser.tryLogin();
+    } on networking_service.NetworkingException catch (error) {
+      error_service.reportError(error, context);
+    }
 
     // is the token valid?
     if (auth_service.globalUser.isLoggedIn()) {

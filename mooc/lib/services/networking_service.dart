@@ -30,8 +30,7 @@ Future<Map<String, dynamic>> getServer(
     response = await http.get(requestUri);
   } catch (err) {
     throw NetworkingException("something went wrong",
-        description:
-            "Cannot connect to the server, the server may not be started (check AWS and NodeJS)");
+        description: "Cannot connect to the server.");
   }
   print(response.statusCode);
   switch (response.statusCode) {

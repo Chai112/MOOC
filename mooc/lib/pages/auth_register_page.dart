@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_divider.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
-import 'package:mooc/style/widgets/scholarly_tile.dart';
+import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/services/auth_service.dart' as auth_service;
@@ -128,74 +128,77 @@ class _State extends State<AuthRegisterPage> {
             const SizedBox(height: 30),
             ScholarlyTile(
                 width: 470,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/');
-                        },
-                        icon: const Icon(Icons.arrow_back_rounded)),
-                    const SizedBox(height: 20),
-                    const ScholarlyTextH3("Login Information"),
-                    const SizedBox(height: 5),
-                    ScholarlyTextField(
-                      label: "Username",
-                      controller: _usernameController,
-                      isPragmaticField: true,
-                    ),
-                    ScholarlyTextField(
-                      label: "Password",
-                      controller: _passwordController,
-                      isPragmaticField: true,
-                      isPasswordField: true,
-                    ),
-                    ScholarlyTextField(
-                      label: "Retype Password",
-                      controller: _retypePasswordController,
-                      isPragmaticField: true,
-                      isPasswordField: true,
-                    ),
-                    const ScholarlyDivider(),
-                    const ScholarlyTextH3("Profile Information",
-                        bracketText: "(*Optional)"),
-                    const SizedBox(height: 20),
-                    ScholarlyTextField(
-                      label: "Email*",
-                      controller: _emailController,
-                      isPragmaticField: true,
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: ScholarlyTextField(
-                            label: "First Name*",
-                            controller: _firstNameController,
+                child: ScholarlyPadding(
+                  thick: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/');
+                          },
+                          icon: const Icon(Icons.arrow_back_rounded)),
+                      const SizedBox(height: 20),
+                      const ScholarlyTextH3("Login Information"),
+                      const SizedBox(height: 5),
+                      ScholarlyTextField(
+                        label: "Username",
+                        controller: _usernameController,
+                        isPragmaticField: true,
+                      ),
+                      ScholarlyTextField(
+                        label: "Password",
+                        controller: _passwordController,
+                        isPragmaticField: true,
+                        isPasswordField: true,
+                      ),
+                      ScholarlyTextField(
+                        label: "Retype Password",
+                        controller: _retypePasswordController,
+                        isPragmaticField: true,
+                        isPasswordField: true,
+                      ),
+                      const ScholarlyDivider(),
+                      const ScholarlyTextH3("Profile Information",
+                          bracketText: "(*Optional)"),
+                      const SizedBox(height: 20),
+                      ScholarlyTextField(
+                        label: "Email*",
+                        controller: _emailController,
+                        isPragmaticField: true,
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: ScholarlyTextField(
+                              label: "First Name*",
+                              controller: _firstNameController,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ScholarlyTextField(
-                            label: "Last Name*",
-                            controller: _lastNameController,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: ScholarlyTextField(
+                              label: "Last Name*",
+                              controller: _lastNameController,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Center(
-                      child: ScholarlyButton("Register", onPressed: () async {
-                        try {
-                          await register();
-                        } on networking_service
-                            .NetworkingException catch (error) {
-                          error_service.reportError(error, context);
-                        }
-                      }, invertedColor: true),
-                    ),
-                  ],
+                        ],
+                      ),
+                      Center(
+                        child: ScholarlyButton("Register", onPressed: () async {
+                          try {
+                            await register();
+                          } on networking_service
+                              .NetworkingException catch (error) {
+                            error_service.reportError(error, context);
+                          }
+                        }, invertedColor: true),
+                      ),
+                    ],
+                  ),
                 ))
           ],
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
-import 'package:mooc/style/widgets/scholarly_tile.dart';
+import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/services/auth_service.dart' as auth_service;
@@ -98,43 +98,47 @@ class _State extends State<AuthPage> {
             const ScholarlyTextH2("Developer Console"),
             const SizedBox(height: 70),
             ScholarlyTile(
+                hasShadows: true,
                 width: 470,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    ScholarlyTextField(
-                      label: "Username",
-                      controller: _usernameController,
-                      isPragmaticField: true,
-                    ),
-                    ScholarlyTextField(
-                      label: "Password",
-                      controller: _passwordController,
-                      isPragmaticField: true,
-                      isPasswordField: true,
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ScholarlyButton("Login", onPressed: () async {
-                          try {
-                            await login();
-                          } on networking_service
-                              .NetworkingException catch (error) {
-                            error_service.reportError(error, context);
-                          }
-                        }, invertedColor: true),
-                        ScholarlyButton(
-                          "Create an Account",
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+                child: ScholarlyPadding(
+                  thick: true,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      ScholarlyTextField(
+                        label: "Username",
+                        controller: _usernameController,
+                        isPragmaticField: true,
+                      ),
+                      ScholarlyTextField(
+                        label: "Password",
+                        controller: _passwordController,
+                        isPragmaticField: true,
+                        isPasswordField: true,
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ScholarlyButton("Login", onPressed: () async {
+                            try {
+                              await login();
+                            } on networking_service
+                                .NetworkingException catch (error) {
+                              error_service.reportError(error, context);
+                            }
+                          }, invertedColor: true),
+                          ScholarlyButton(
+                            "Create an Account",
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/register');
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ))
           ],
         ),

@@ -15,6 +15,7 @@ describe('Database', function () {
     });
     let testingTable;
     it('should initialize & clear table', async function () {
+
         testingTable = new Db.DatabaseTable("Tests",
             "testId",
             [
@@ -310,6 +311,10 @@ describe('Privilege Structure Tests', function () {
             assert.equal(data.length, 1);
             assert.equal(data[0].organizationPrivilegeId, orgPrivId);
             data = await Org.getAllCoursePrivilegesForOrganization(orgId);
+            assert.equal(data.length, 1);
+        });
+        it('should get courses from organization', async function () {
+            data = await Courses.getCoursesForOrganization(tokenA, orgId);
             assert.equal(data.length, 1);
         });
         it('should NOT add new course if not allowed', async function () {

@@ -32,7 +32,6 @@ class _State extends State<Wrapper> {
     }
     // try to log in based on token from localStorage
     await auth_service.globalUser.tryLogin();
-    await Future.delayed(Duration(seconds: 2));
 
     // is the token valid?
     if (auth_service.globalUser.isLoggedIn()) {

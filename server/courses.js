@@ -81,6 +81,17 @@ async function getCourse (courseId) {
     return await courses.select({courseId: courseId});
 }
 
+module.exports.getCoursesForOrganization = getCoursesForOrganization
+async function getCoursesForOrganization(token, organizationId) {
+    // check assigner has privileges
+    let assignerPrivileges = await Org.getTeacherPrivilege(token, organizationId);
+    if (assignerPrivileges === null) {
+        throw "assigner has insufficient permission";
+    } else {
+        return courses.select({organizationId: organizationId});
+    }
+}
+
 module.exports.changeCourseOptions = changeCourseOptions;
 async function changeCourseOptions (token, courseId, courseOptions) {
     // get organizationId

@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 //import 'package:video_player/video_player.dart';
 //import 'package:mooc/style/widgets/video_player/video_progress_indicator.dart';
 import 'package:mooc/route.dart';
-import 'package:mooc/style/colors.dart' as scholarly_color;
+import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 
 void main() {
   runApp(

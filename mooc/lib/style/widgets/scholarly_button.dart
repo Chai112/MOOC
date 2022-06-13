@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart'; // Flutter
-import 'package:mooc/style/colors.dart' as scholarly_color;
+import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 
 class ScholarlyButton extends StatelessWidget {
   // members of MyWidget

@@ -26,6 +26,8 @@ class Router{
             case "register":
                 this.register();
                 break;
+            case "getCoursesFromOrganization":
+                this.getCoursesFromOrganization();
             case "createVideo":
                 this.createVideo();
                 break;
@@ -120,6 +122,22 @@ class Router{
         }
         this.response.status(200);
         this.response.json({"token": token});
+    }
+    async getCoursesFromOrganization() {
+        let token = this._getQuery("token");
+        let organizationId = this._getQuery("organizationId");
+        try {
+            data = await Courses.getCoursesForOrganization(token, organizationId);
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(403);
+                    this.response.json({message: err});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({"data": data});
     }
     /*
     createVideo() {

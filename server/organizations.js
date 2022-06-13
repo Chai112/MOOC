@@ -156,6 +156,9 @@ async function getTeacherPrivilege(assignerToken, organizationId) {
         organizationId: organizationId,
         userId: assignerUserId,
     });
+    if (assignerOrganizationPrivilege.length === 0) {
+        throw "assigner not part of organization";
+    }
     return assignerOrganizationPrivilege[0];
 }
 

@@ -4,7 +4,6 @@ import 'package:mooc/pages/home_page.dart';
 import 'package:mooc/pages/auth_page.dart';
 import 'package:mooc/pages/auth_register_page.dart';
 import 'package:mooc/pages/organization_page.dart';
-import 'package:mooc/pages/loading_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(settings) {

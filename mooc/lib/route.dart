@@ -38,11 +38,6 @@ class RouteGenerator {
               ));
     }
 
-    if (settings.name == '/dashboard') {
-      return MaterialPageRoute(
-          settings: settings, builder: (context) => const Wrapper(HomePage()));
-    }
-
     //var uri = Uri.parse(settings.name);
 
     // Handle '/incidents/:reportId'

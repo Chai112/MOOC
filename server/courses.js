@@ -88,7 +88,7 @@ async function getCoursesForOrganization(token, organizationId) {
     if (assignerPrivileges === null) {
         throw "assigner has insufficient permission";
     } else {
-        return courses.select({organizationId: organizationId});
+        return await courses.select({organizationId: organizationId});
     }
 }
 

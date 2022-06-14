@@ -50,3 +50,22 @@ class ScholarlyTextH3 extends StatelessWidget {
     );
   }
 }
+
+class ScholarlyTextP extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+  final TextAlign? textAlign;
+
+  // constructor
+  const ScholarlyTextP(this.text, {Key? key, this.textAlign}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        textAlign: textAlign,
+        style: const TextStyle(
+          fontSize: 15,
+        ));
+  }
+}

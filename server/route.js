@@ -16,6 +16,7 @@ class Router{
     }
 
     parse (action) {
+        console.log(`parsing action: ${action}`);
         switch (action) {
             case "getUserFromToken":
                 this.getUserFromToken();
@@ -28,6 +29,13 @@ class Router{
                 break;
             case "getCoursesFromOrganization":
                 this.getCoursesFromOrganization();
+                break;
+            case "getOrganizationsFromUser":
+                this.getOrganizationsFromUser();
+                break;
+            case "createOrganization":
+                this.createOrganization();
+                break;
             case "createVideo":
                 this.createVideo();
                 break;
@@ -118,6 +126,10 @@ class Router{
                     this.response.status(403);
                     this.response.json({message: err});
                     return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
             }
         }
         this.response.status(200);
@@ -126,6 +138,7 @@ class Router{
     async getCoursesFromOrganization() {
         let token = this._getQuery("token");
         let organizationId = this._getQuery("organizationId");
+        let data;
         try {
             data = await Courses.getCoursesForOrganization(token, organizationId);
         } catch (err) {
@@ -134,10 +147,47 @@ class Router{
                     this.response.status(403);
                     this.response.json({message: err});
                     return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
             }
         }
         this.response.status(200);
         this.response.json({"data": data});
+    }
+    async getOrganizationsFromUser() {
+        let token = this._getQuery("token");
+        let data;
+        try {
+            data = await Org.getOrganizationsForUser(token);
+        } catch (err) {
+            this.response.status(500);
+            this.response.json({message: "unreachable"});
+            return;
+        }
+        this.response.status(200);
+        this.response.json({"data": data});
+    }
+
+    async createOrganization() {
+        let token = this._getQuery("token");
+        let organizationName = this._getQuery("organizationName");
+        let orgData;
+        try {
+            orgData = await Org.createOrganization(token, {
+                organizationName: organizationName,
+            });
+        } catch (err) {
+            this.response.status(500);
+            this.response.json({message: "unreachable"});
+            return;
+        }
+        this.response.status(200);
+        this.response.json({
+            "organizationId": orgData.organizationId,
+            "organizationPrivilegeId": orgData.organizationPrivilegesId,
+        });
     }
     /*
     createVideo() {

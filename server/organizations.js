@@ -421,3 +421,24 @@ async function getAllCoursePrivilegesForOrganization(organizationId) {
     }
     return coursePrivilegesOutput;
 }
+
+module.exports.getOrganizationsForUser = getOrganizationsForUser;
+async function getOrganizationsForUser(token) {
+    let user = await Auth.getUserFromToken(token);
+    let userId = user[0].userId;
+
+    let organizationPrivilegesOfUser = await organizationPrivileges.select({
+        userId: userId,
+    });
+    let organizationIds = [];
+    for (var i = 0; i < organizationPrivilegesOfUser.length; i++) {
+        let organizationId = organizationPrivilegesOfUser[i].organizationId;
+        let organization = await organizations.select({organizationId: organizationId});
+
+        organizationIds.push({
+            organizationId: organizationId,
+            organizationName: organization[0].organizationName,
+        });
+    }
+    return organizationIds;
+}

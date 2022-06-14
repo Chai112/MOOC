@@ -16,6 +16,8 @@ class OrganizationPage extends StatefulWidget {
 
 // myPage state
 class _State extends State<OrganizationPage> {
+  String _orgName = "";
+
   @override
   void initState() {
     super.initState();
@@ -28,14 +30,25 @@ class _State extends State<OrganizationPage> {
 
   Future<bool> loadCourses() async {
     String token = auth_service.globalUser.token!.token;
-    String organizationId = "";
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getCoursesFromOrganization", {
+        await networking_service.getServer("getOrganizationsFromUser", {
       "token": token,
-      "organizationId": organizationId,
     });
-    print(response);
+    // bring to create a new organization
+    if (response["data"].length == 0) {
+      // user does not have any organizations
+      Navigator.of(context).pushNamed("/organization-register");
+    } else {
+      _orgName = response["data"][0]["organizationName"];
+      print(_orgName);
+      String organizationId = response["data"][0]["organizationId"].toString();
+      Map<String, dynamic> response2 =
+          await networking_service.getServer("getCoursesFromOrganization", {
+        "token": token,
+        "organizationId": organizationId,
+      });
+    }
     return false;
   }
 
@@ -61,19 +74,23 @@ class _State extends State<OrganizationPage> {
                   color: Colors.white,
                   boxShadow: [scholarly_color.shadow],
                 ),
-                child: ScholarlyPadding(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const ScholarlyPadding(
-                          verticalOnly: true,
-                          child: ScholarlyTextH3("Select a course:")),
-                      Expanded(
-                        child: FutureBuilder(
-                            future: loadCourses(),
-                            builder: (context, AsyncSnapshot<bool> snapshot) {
-                              if (snapshot.hasData) {
-                                return ListView.builder(
+                child: FutureBuilder(
+                    future: loadCourses(),
+                    builder: (context, AsyncSnapshot<bool> snapshot) {
+                      if (snapshot.hasData) {
+                        return ScholarlyPadding(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ScholarlyPadding(
+                                  verticalOnly: true,
+                                  child: ScholarlyTextH2(_orgName)),
+                              ScholarlyPadding(
+                                  verticalOnly: true,
+                                  child: const ScholarlyTextH3(
+                                      "Select a course:")),
+                              Expanded(
+                                child: ListView.builder(
                                     itemCount: 5,
                                     itemBuilder:
                                         (BuildContext context, int index) {
@@ -88,15 +105,15 @@ class _State extends State<OrganizationPage> {
                                                       "Course A")),
                                             )),
                                       );
-                                    });
-                              } else {
-                                return const LinearProgressIndicator();
-                              }
-                            }),
-                      )
-                    ],
-                  ),
-                )),
+                                    }),
+                              )
+                            ],
+                          ),
+                        );
+                      } else {
+                        return LinearProgressIndicator();
+                      }
+                    })),
           ),
           Row(
             children: [

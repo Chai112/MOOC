@@ -201,6 +201,11 @@ describe('Privilege Structure Tests', function () {
             assert.equal(dataOrgPriv.length, 1);
             assert.equal(Db.readBool(dataOrgPriv[0].isOwner), false);
         });
+        it('should show that user B has access to that organization', async function () {
+            let data = await Org.getOrganizationsForUser(tokenB);
+            assert.equal(data.length, 1);
+            assert.equal(data[0], orgId);
+        });
         it('should NOT add duplicate user to organization', async function () {
             // should fail
             await assert.rejects(
@@ -315,6 +320,7 @@ describe('Privilege Structure Tests', function () {
         });
         it('should get courses from organization', async function () {
             data = await Courses.getCoursesForOrganization(tokenA, orgId);
+            assert.equal(data.length, 1);
             assert.equal(data.length, 1);
         });
         it('should NOT add new course if not allowed', async function () {

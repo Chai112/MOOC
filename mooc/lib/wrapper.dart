@@ -36,7 +36,10 @@ class _State extends State<Wrapper> {
     try {
       await auth_service.globalUser.tryLogin();
     } on networking_service.NetworkingException catch (error) {
-      error_service.reportError(error, context);
+      SchedulerBinding.instance?.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamed("/login");
+        error_service.reportError(error, context);
+      });
     }
 
     // is the token valid?

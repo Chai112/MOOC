@@ -4,6 +4,7 @@ import 'package:mooc/pages/home_page.dart';
 import 'package:mooc/pages/auth_page.dart';
 import 'package:mooc/pages/auth_register_page.dart';
 import 'package:mooc/pages/organization_page.dart';
+import 'package:mooc/pages/organization_register_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(settings) {
@@ -26,6 +27,15 @@ class RouteGenerator {
       return MaterialPageRoute(
           settings: settings,
           builder: (context) => const Wrapper(AuthRegisterPage()));
+    }
+
+    if (settings.name == '/organization-register') {
+      return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => const Wrapper(
+                OrganizationRegisterPage(),
+                needsAuthentication: true,
+              ));
     }
 
     if (settings.name == '/dashboard') {

@@ -7,6 +7,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
 import 'package:mooc/services/error_service.dart' as error_service;
+import 'package:mooc/services/course_service.dart' as course_service;
 
 // myPage class which creates a state on call
 class AuthPage extends StatefulWidget {
@@ -33,7 +34,7 @@ class _State extends State<AuthPage> {
     super.dispose();
   }
 
-  Future<void> login() async {
+  Future<bool> login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
     setState(() {
@@ -44,20 +45,20 @@ class _State extends State<AuthPage> {
       setState(() {
         _usernameController.errorText = "Please enter a username.";
       });
-      return;
+      return false;
     }
     if (password == "") {
       setState(() {
         _passwordController.errorText = "Please enter a password.";
       });
-      return;
+      return false;
     }
     try {
       await auth_service.globalUser.login(
         username: username,
         password: password,
       );
-      Navigator.pushNamed(context, '/');
+      return true;
     } on networking_service.NetworkingException catch (err) {
       switch (err.message) {
         case "no user exists":
@@ -123,7 +124,10 @@ class _State extends State<AuthPage> {
                         children: [
                           ScholarlyButton("Login", onPressed: () async {
                             try {
-                              await login();
+                              bool success = await login();
+                              if (success) {
+                                course_service.sendToOrgPage(context);
+                              }
                             } on networking_service
                                 .NetworkingException catch (error) {
                               error_service.reportError(error, context);

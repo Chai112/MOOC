@@ -33,8 +33,14 @@ class Router{
             case "getOrganizationsFromUser":
                 this.getOrganizationsFromUser();
                 break;
+            case "getOrganization":
+                this.getOrganization();
+                break;
             case "createOrganization":
                 this.createOrganization();
+                break;
+            case "createCourse":
+                this.createCourse();
                 break;
             case "createVideo":
                 this.createVideo();
@@ -144,7 +150,7 @@ class Router{
         } catch (err) {
             switch (err) {
                 case "assigner not part of organization":
-                    this.response.status(403);
+                    this.response.status(400);
                     this.response.json({message: err});
                     return;
                 default:
@@ -169,7 +175,23 @@ class Router{
         this.response.status(200);
         this.response.json({"data": data});
     }
-
+    async getOrganization() {
+        let token = this._getQuery("token");
+        let organizationId = this._getQuery("organizationId");
+        let orgData;
+        try {
+            // TODO: there should be an authentication check
+            orgData = await Org.getOrganization(organizationId);
+        } catch (err) {
+            this.response.status(500);
+            this.response.json({message: "unreachable"});
+            return;
+        }
+        this.response.status(200);
+        this.response.json({
+            "data": orgData[0],
+        });
+    }
     async createOrganization() {
         let token = this._getQuery("token");
         let organizationName = this._getQuery("organizationName");
@@ -187,6 +209,38 @@ class Router{
         this.response.json({
             "organizationId": orgData.organizationId,
             "organizationPrivilegeId": orgData.organizationPrivilegesId,
+        });
+    }
+    async createCourse() {
+        let token = this._getQuery("token");
+        let organizationId = this._getQuery("organizationId");
+        let courseName = this._getQuery("courseName");
+        let courseData;
+        try {
+            courseData = await Courses.addCourse(token, organizationId, {
+                courseName: courseName,
+                courseDescription: "",
+            });
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner has insuficient permission":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({
+            "courseId": courseData.courseId,
+            "coursePrivilegeId": courseData.coursePrivilegeId,
         });
     }
     /*

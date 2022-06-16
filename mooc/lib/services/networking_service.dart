@@ -5,6 +5,7 @@ const String uriScheme = "http";
 const String uriHost = "ec2-54-255-233-46.ap-southeast-1.compute.amazonaws.com";
 const int uriPort = 3000;
 
+//TODO: maybe put this in error_service instead
 class NetworkingException implements Exception {
   String message;
   String? description;

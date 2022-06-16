@@ -8,6 +8,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
 import 'package:mooc/services/error_service.dart' as error_service;
+import 'package:mooc/services/course_service.dart' as course_service;
 
 // myPage class which creates a state on call
 class AuthRegisterPage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _State extends State<AuthRegisterPage> {
     super.dispose();
   }
 
-  Future<void> register() async {
+  Future<bool> register() async {
     setState(() {
       _usernameController.clearError();
       _passwordController.clearError();
@@ -51,27 +52,27 @@ class _State extends State<AuthRegisterPage> {
       setState(() {
         _usernameController.errorText = "Please enter a username.";
       });
-      return;
+      return false;
     }
     if (_passwordController.text == "") {
       setState(() {
         _passwordController.errorText = "Please enter a password.";
       });
-      return;
+      return false;
     }
     if (_retypePasswordController.text == "") {
       setState(() {
         _retypePasswordController.errorText =
             "Please retype the same password as above.";
       });
-      return;
+      return false;
     }
     if (_passwordController.text != _retypePasswordController.text) {
       setState(() {
         _retypePasswordController.errorText =
             "This does not match the password above.";
       });
-      return;
+      return false;
     }
     bool emailValid = RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -80,7 +81,7 @@ class _State extends State<AuthRegisterPage> {
       setState(() {
         _emailController.errorText = "This email is not valid";
       });
-      return;
+      return false;
     }
     try {
       await auth_service.globalUser.register(
@@ -90,7 +91,7 @@ class _State extends State<AuthRegisterPage> {
         firstName: _firstNameController.text,
         lastName: _firstNameController.text,
       );
-      Navigator.pushNamed(context, '/');
+      return true;
     } on networking_service.NetworkingException catch (err) {
       switch (err.message) {
         case "user already exists":
@@ -106,6 +107,7 @@ class _State extends State<AuthRegisterPage> {
           });
           break;
       }
+      rethrow;
     }
   }
 
@@ -190,7 +192,10 @@ class _State extends State<AuthRegisterPage> {
                       Center(
                         child: ScholarlyButton("Register", onPressed: () async {
                           try {
-                            await register();
+                            bool success = await register();
+                            if (success) {
+                              course_service.sendToOrgPage(context);
+                            }
                           } on networking_service
                               .NetworkingException catch (error) {
                             error_service.reportError(error, context);

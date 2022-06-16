@@ -5,6 +5,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
+import 'package:mooc/services/course_service.dart' as course_service;
 
 // myPage class which creates a state on call
 class OrganizationRegisterPage extends StatefulWidget {
@@ -55,6 +56,7 @@ class _State extends State<OrganizationRegisterPage> {
                       "token": token,
                       "organizationName": "s organization"
                     });
+                    course_service.sendToOrgPage(context);
                   }),
                   ScholarlyButton("Join an existing organization",
                       onPressed: () {}),

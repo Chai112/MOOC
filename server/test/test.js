@@ -204,7 +204,7 @@ describe('Privilege Structure Tests', function () {
         it('should show that user B has access to that organization', async function () {
             let data = await Org.getOrganizationsForUser(tokenB);
             assert.equal(data.length, 1);
-            assert.equal(data[0], orgId);
+            assert.equal(data[0].organizationId, orgId);
         });
         it('should NOT add duplicate user to organization', async function () {
             // should fail

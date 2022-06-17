@@ -39,8 +39,17 @@ class Router{
             case "createOrganization":
                 this.createOrganization();
                 break;
+            case "getCourse":
+                this.getCourse();
+                break;
             case "createCourse":
                 this.createCourse();
+                break;
+            case "changeCourseOptions":
+                this.changeCourseOptions();
+                break;
+            case "removeCourse":
+                this.removeCourse();
                 break;
             case "createVideo":
                 this.createVideo();
@@ -211,6 +220,23 @@ class Router{
             "organizationPrivilegeId": orgData.organizationPrivilegesId,
         });
     }
+    async getCourse() {
+        let token = this._getQuery("token");
+        let courseId = this._getQuery("courseId");
+        let courseData;
+        try {
+            // TODO: there should be an authentication check
+            courseData = await Courses.getCourse(courseId);
+        } catch (err) {
+            this.response.status(500);
+            this.response.json({message: "unreachable"});
+            return;
+        }
+        this.response.status(200);
+        this.response.json({
+            "data": courseData[0],
+        });
+    }
     async createCourse() {
         let token = this._getQuery("token");
         let organizationId = this._getQuery("organizationId");
@@ -242,6 +268,62 @@ class Router{
             "courseId": courseData.courseId,
             "coursePrivilegeId": courseData.coursePrivilegeId,
         });
+    }
+    async changeCourseOptions() {
+        let token = this._getQuery("token");
+        let courseId = this._getQuery("courseId");
+        let courseName = this._getQuery("courseName");
+        let courseDescription = this._getQuery("courseDescription");
+        try {
+            await Courses.changeCourseOptions(token, courseId,
+            {
+                courseName: courseName,
+                courseDescription: courseDescription,
+            });
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner has insuficient permission":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({});
+    }
+
+    async removeCourse() {
+        let token = this._getQuery("token");
+        let courseId = this._getQuery("courseId");
+
+        try {
+            await Courses.removeCourse(token, courseId);
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner has insuficient permission":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({});
     }
     /*
     createVideo() {

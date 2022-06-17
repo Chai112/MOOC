@@ -15,9 +15,10 @@ class ScholarlyTextField extends StatelessWidget {
   final bool isPragmaticField;
   final bool isPasswordField;
   final ScholarlyTextFieldController? controller;
+  FocusNode? focusNode;
 
   // constructor
-  const ScholarlyTextField(
+  ScholarlyTextField(
       {Key? key,
       required this.label,
       this.isPragmaticField = false,
@@ -37,6 +38,8 @@ class ScholarlyTextField extends StatelessWidget {
           children: [
             TextFormField(
               controller: controller,
+              focusNode: focusNode,
+              autofocus: true,
               autocorrect: !isPragmaticField,
               enableSuggestions: !isPragmaticField,
               obscureText: isPasswordField,
@@ -80,5 +83,65 @@ class ScholarlyTextField extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// myPage class which creates a state on call
+class SwappableTextField extends StatefulWidget {
+  final Widget textWidget;
+  final ScholarlyTextField textFieldWidget;
+  final Function onSubmit;
+  const SwappableTextField(
+      {Key? key,
+      required this.textWidget,
+      required this.textFieldWidget,
+      required this.onSubmit})
+      : super(key: key);
+
+  @override
+  _State createState() => _State();
+}
+
+// myPage state
+class _State extends State<SwappableTextField> {
+  bool editMode = false;
+  FocusNode _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (!_focus.hasFocus) {
+      widget.onSubmit();
+      setState(() {
+        editMode = false;
+      });
+    }
+  }
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    if (editMode) {
+      return InkWell(child: widget.textFieldWidget);
+    } else {
+      return InkWell(
+          onTap: () {
+            setState(() {
+              editMode = true;
+              widget.textFieldWidget.focusNode = _focus;
+            });
+          },
+          child: widget.textWidget);
+    }
+    // ignore: unused_local_variable
   }
 }

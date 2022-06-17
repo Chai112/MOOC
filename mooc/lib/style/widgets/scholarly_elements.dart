@@ -20,7 +20,7 @@ class ScholarlyTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: scholarly_color.highlightGrey, width: 1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           color: Colors.white,
           boxShadow: hasShadows ? const [scholarly_color.shadow] : const [],
         ),

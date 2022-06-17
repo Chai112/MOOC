@@ -99,7 +99,7 @@ class _State extends State<AuthPage> {
             const ScholarlyTextH2("Developer Console"),
             const SizedBox(height: 70),
             ScholarlyTile(
-                hasShadows: true,
+                hasShadows: false,
                 width: 470,
                 child: ScholarlyPadding(
                   thick: true,

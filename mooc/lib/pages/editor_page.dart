@@ -4,6 +4,11 @@ import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
+import 'package:mooc/services/networking_service.dart' as networking_service;
+import 'package:mooc/services/auth_service.dart' as auth_service;
+import 'package:mooc/services/course_service.dart' as course_service;
+import 'package:mooc/style/widgets/scholarly_text_field.dart';
+
 // myPage class which creates a state on call
 class EditorPage extends StatefulWidget {
   final int courseId;
@@ -15,8 +20,8 @@ class EditorPage extends StatefulWidget {
 
 // myPage state
 class _State extends State<EditorPage> {
-  String _orgName = "";
-  List<Map<String, dynamic>> _courses = [];
+  String _courseName = "";
+  final _courseNameController = ScholarlyTextFieldController();
 
   @override
   void initState() {
@@ -28,19 +33,63 @@ class _State extends State<EditorPage> {
     super.dispose();
   }
 
+  Future<bool> loadData() async {
+    String token = auth_service.globalUser.token!.token;
+
+    Map<String, dynamic> response =
+        await networking_service.getServer("getCourse", {
+      "token": token,
+      "courseId": widget.courseId.toString(),
+    });
+    _courseName = Uri.decodeComponent(response["data"]["courseName"]);
+    _courseNameController.text = _courseName;
+    return true;
+  }
+
+  void changeCourseName() async {
+    String token = auth_service.globalUser.token!.token;
+    await networking_service.getServer("changeCourseOptions", {
+      "token": token,
+      "courseId": widget.courseId.toString(),
+      "courseName": _courseNameController.text,
+      "courseDescription": "", // TODO: support course desc changing
+    });
+
+    setState(() {
+      _courseName = _courseNameController.text;
+    });
+  }
+
+  void removeCourse() async {
+    String token = auth_service.globalUser.token!.token;
+    await networking_service.getServer("removeCourse", {
+      "token": token,
+      "courseId": widget.courseId.toString(),
+    });
+    course_service.sendToOrgPage(context);
+  }
+
   // main build function
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     return Scaffold(
-      /*
       appBar: AppBar(
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+                bottom:
+                    BorderSide(color: scholarly_color.highlightGrey, width: 1)),
+            //boxShadow: [scholarly_color.shadow],
+          ),
+        ),
         title: Container(
             height: 20,
-          child:
+            child:
                 Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
       ),
-      */
       body: Stack(
         children: [
           SizedBox(
@@ -48,17 +97,35 @@ class _State extends State<EditorPage> {
             child: Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
-                boxShadow: [scholarly_color.shadow],
+                border: Border(
+                    right: BorderSide(
+                        color: scholarly_color.highlightGrey, width: 1)),
+                //boxShadow: [scholarly_color.shadow],
               ),
-              child: ScholarlyPadding(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ScholarlyButton("Create Course",
-                        invertedColor: true, onPressed: () {}),
-                  ],
-                ),
-              ),
+              child: FutureBuilder(
+                  future: loadData(),
+                  builder: (context, AsyncSnapshot<bool> snapshot) {
+                    if (snapshot.hasData) {
+                      return ScholarlyPadding(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SwappableTextField(
+                              textWidget: ScholarlyTextH2(_courseName),
+                              textFieldWidget: ScholarlyTextField(
+                                  label: "course name",
+                                  controller: _courseNameController),
+                              onSubmit: changeCourseName,
+                            ),
+                            ScholarlyButton("Delete Course",
+                                onPressed: removeCourse)
+                          ],
+                        ),
+                      );
+                    } else {
+                      return const LinearProgressIndicator();
+                    }
+                  }),
             ),
           ),
           Row(

@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/networking_service.dart' as networking_service;
 
-void createNewCourse(int organizationId) async {
-  String token = auth_service.globalUser.token!.token;
-}
-
 Future<int?> getFirstOrganizationId() async {
   String token = auth_service.globalUser.token!.token;
 
@@ -60,8 +56,7 @@ void sendToCoursePage(BuildContext context,
       "organizationId": organizationId.toString(),
       "courseName": "Untitled",
     });
-    print(response);
-    courseId = response["data"]["courseId"];
+    courseId = response["courseId"];
     // create new course
   }
   Navigator.of(context).pushNamed("/editor?id=$courseId");

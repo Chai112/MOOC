@@ -51,8 +51,7 @@ class _State extends State<OrganizationPage> {
     for (int i = 0; i < response2["data"].length; i++) {
       _courses.add(response2["data"][i]);
     }
-    print(_courses);
-    return false;
+    return true;
   }
 
   // main build function
@@ -75,7 +74,10 @@ class _State extends State<OrganizationPage> {
             child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [scholarly_color.shadow],
+                  border: Border(
+                      right: BorderSide(
+                          color: scholarly_color.highlightGrey, width: 1)),
+                  //boxShadow: [scholarly_color.shadow],
                 ),
                 child: FutureBuilder(
                     future: loadCourses(),
@@ -96,18 +98,23 @@ class _State extends State<OrganizationPage> {
                                     itemCount: _courses.length,
                                     itemBuilder: (BuildContext context, int i) {
                                       return InkWell(
-                                          onTap: () {},
-                                          highlightColor: Colors.black,
+                                          onTap: () {
+                                            course_service.sendToCoursePage(
+                                                context,
+                                                courseId: _courses[i]
+                                                    ["courseId"]);
+                                          },
                                           child: ScholarlyPadding(
                                             verticalOnly: true,
                                             child: ScholarlyTile(
                                                 hasShadows: false,
                                                 child: ScholarlyPadding(
                                                   child: SizedBox(
-                                                      height: 100,
+                                                      height: 70,
                                                       child: ScholarlyTextH3(
-                                                          _courses[i]
-                                                              ["courseName"])),
+                                                          Uri.decodeComponent(
+                                                              _courses[i][
+                                                                  "courseName"]))),
                                                 )),
                                           ));
                                     }),

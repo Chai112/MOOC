@@ -78,7 +78,7 @@ class _State extends State<EditorPage> {
       hasAppbar: true,
       sideBar: [
         ScholarlyButton("Delete Course", onPressed: removeCourse),
-        ScholarlyTextH2("A")
+        ScholarlyTextH3("A")
       ],
       body: [
         FutureBuilder(

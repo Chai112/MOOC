@@ -84,20 +84,35 @@ class ScholarlyScaffold extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           sideBar != null
-                              ? SizedBox(
+                              ? Container(
                                   width: 350,
-                                  child: ScholarlyPadding(
+                                  constraints: BoxConstraints(
+                                      minHeight:
+                                          MediaQuery.of(context).size.height),
+                                  child: ScholarlyHolder(
                                       child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: sideBar!)))
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: sideBar!,
+                                  )))
                               : Container(),
                           Expanded(
-                            child: Center(
-                              child: ScholarlyHolder(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: bottom!,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                    left: BorderSide(
+                                        color: scholarly_color.highlightGrey,
+                                        width: 1)),
+                                //boxShadow: [scholarly_color.shadow],
+                              ),
+                              child: Center(
+                                child: ScholarlyHolder(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: bottom!,
+                                  ),
                                 ),
                               ),
                             ),

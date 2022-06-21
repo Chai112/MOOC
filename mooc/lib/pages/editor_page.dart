@@ -105,7 +105,6 @@ class _State extends State<EditorPage> {
             }),
       ],
       bottom: [
-        const SizedBox(height: 200),
         ScholarlyTextH2("Course Editor"),
         ScholarlyTextH2("Course Editor"),
         ScholarlyTextH2("Course Editor"),

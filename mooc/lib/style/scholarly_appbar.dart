@@ -98,14 +98,17 @@ class ScholarlyScaffold extends StatelessWidget {
                               : Container(),
                           Expanded(
                             child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                border: Border(
-                                    left: BorderSide(
-                                        color: scholarly_color.highlightGrey,
-                                        width: 1)),
-                                //boxShadow: [scholarly_color.shadow],
-                              ),
+                              decoration: sideBar != null
+                                  ? const BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border(
+                                          left: BorderSide(
+                                              color:
+                                                  scholarly_color.highlightGrey,
+                                              width: 1)),
+                                      //boxShadow: [scholarly_color.shadow],
+                                    )
+                                  : null,
                               child: Center(
                                 child: ScholarlyHolder(
                                   child: Column(

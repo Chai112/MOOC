@@ -43,7 +43,7 @@ class ScholarlyHolder extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 740),
+        constraints: const BoxConstraints(maxWidth: 900),
         child: child,
       ),
     );

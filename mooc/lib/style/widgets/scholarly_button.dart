@@ -6,17 +6,22 @@ class ScholarlyButton extends StatelessWidget {
   final String text;
   final Function() onPressed;
   final bool invertedColor;
+  final bool verticalOnlyPadding;
 
   // constructor
   const ScholarlyButton(this.text,
-      {Key? key, required this.onPressed, this.invertedColor = false})
+      {Key? key,
+      required this.onPressed,
+      this.invertedColor = false,
+      this.verticalOnlyPadding = false})
       : super(key: key);
 
   // main build function
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(
+          vertical: 8.0, horizontal: (verticalOnlyPadding ? 0.0 : 8.0)),
       child: OutlinedButton(
           onPressed: onPressed,
           style: OutlinedButton.styleFrom(

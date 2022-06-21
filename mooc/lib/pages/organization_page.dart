@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
@@ -33,7 +34,7 @@ class _State extends State<OrganizationPage> {
     super.dispose();
   }
 
-  Future<bool> loadCourses() async {
+  Future<bool> _loadName() async {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
@@ -42,6 +43,11 @@ class _State extends State<OrganizationPage> {
       "organizationId": widget.organizationId.toString(),
     });
     _orgName = Uri.decodeComponent(response["data"]["organizationName"]);
+    return true;
+  }
+
+  Future<bool> _loadCourses() async {
+    String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response2 =
         await networking_service.getServer("getCoursesFromOrganization", {
@@ -57,99 +63,62 @@ class _State extends State<OrganizationPage> {
   // main build function
   @override
   Widget build(BuildContext context) {
+    print("loading");
     // ignore: unused_local_variable
-    return Scaffold(
-      /*
-      appBar: AppBar(
-        title: Container(
-            height: 20,
-          child:
-                Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-      ),
-      */
-      body: Stack(
-        children: [
-          SizedBox(
-            width: 350,
-            child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                      right: BorderSide(
-                          color: scholarly_color.highlightGrey, width: 1)),
-                  //boxShadow: [scholarly_color.shadow],
-                ),
-                child: FutureBuilder(
-                    future: loadCourses(),
-                    builder: (context, AsyncSnapshot<bool> snapshot) {
-                      if (snapshot.hasData) {
-                        return ScholarlyPadding(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ScholarlyPadding(
-                                  verticalOnly: true,
-                                  child: ScholarlyTextH2(_orgName)),
-                              const ScholarlyPadding(
-                                  verticalOnly: true,
-                                  child: ScholarlyTextH3("Select a course:")),
-                              Expanded(
-                                child: ListView.builder(
-                                    itemCount: _courses.length,
-                                    itemBuilder: (BuildContext context, int i) {
-                                      return InkWell(
-                                          onTap: () {
-                                            course_service.sendToCoursePage(
-                                                context,
-                                                courseId: _courses[i]
-                                                    ["courseId"]);
-                                          },
-                                          child: ScholarlyPadding(
-                                            verticalOnly: true,
-                                            child: ScholarlyTile(
-                                                hasShadows: false,
-                                                child: ScholarlyPadding(
-                                                  child: SizedBox(
-                                                      height: 70,
-                                                      child: ScholarlyTextH3(
-                                                          Uri.decodeComponent(
-                                                              _courses[i][
-                                                                  "courseName"]))),
-                                                )),
-                                          ));
-                                    }),
-                              ),
-                              ScholarlyButton("Create Course",
-                                  invertedColor: true, onPressed: () {
-                                course_service.sendToCoursePage(context,
-                                    organizationId: widget.organizationId);
-                              }),
-                            ],
-                          ),
-                        );
-                      } else {
-                        return const LinearProgressIndicator();
-                      }
-                    })),
-          ),
-          Row(
-            children: [
-              const SizedBox(width: 350),
-              ScholarlyHolder(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 200),
-                    ScholarlyTextH2(
-                        "Welcome back, ${auth_service.globalUser.username}"),
-                    Container(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return ScholarlyScaffold(
+      hasAppbar: true,
+      body: [
+        const SizedBox(height: 50),
+        FutureBuilder(
+            future: _loadName(),
+            builder: (context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData) {
+                return ScholarlyPadding(
+                    verticalOnly: true, child: ScholarlyTextH2(_orgName));
+              } else {
+                return const ScholarlyLoading();
+              }
+            }),
+        const SizedBox(height: 50),
+      ],
+      bottom: [
+        const SizedBox(height: 50),
+        ScholarlyButton("New", invertedColor: true, verticalOnlyPadding: true,
+            onPressed: () {
+          course_service.sendToCoursePage(context,
+              organizationId: widget.organizationId);
+        }),
+        const SizedBox(height: 8),
+        FutureBuilder(
+            future: _loadCourses(),
+            builder: (context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData) {
+                return Column(
+                    children: List.generate(_courses.length, (int i) {
+                  return ScholarlyPadding(
+                    verticalOnly: true,
+                    child: ScholarlyTile(
+                      child: InkWell(
+                        onTap: () {
+                          course_service.sendToCoursePage(context,
+                              courseId: _courses[i]["courseId"]);
+                        },
+                        child: ScholarlyPadding(
+                          child: SizedBox(
+                              height: 70,
+                              child: ScholarlyTextH3(Uri.decodeComponent(
+                                  _courses[i]["courseName"]))),
+                        ),
+                      ),
+                    ),
+                  );
+                }));
+              } else {
+                return const ScholarlyLoading();
+              }
+            }),
+        Container(),
+      ],
     );
   }
 }

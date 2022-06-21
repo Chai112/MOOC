@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
@@ -73,79 +74,62 @@ class _State extends State<EditorPage> {
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(
-                bottom:
-                    BorderSide(color: scholarly_color.highlightGrey, width: 1)),
-            //boxShadow: [scholarly_color.shadow],
-          ),
-        ),
-        title: Container(
-            height: 20,
-            child:
-                Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
-      ),
-      body: Stack(
-        children: [
-          SizedBox(
-            width: 350,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                    right: BorderSide(
-                        color: scholarly_color.highlightGrey, width: 1)),
-                //boxShadow: [scholarly_color.shadow],
-              ),
-              child: FutureBuilder(
-                  future: loadData(),
-                  builder: (context, AsyncSnapshot<bool> snapshot) {
-                    if (snapshot.hasData) {
-                      return ScholarlyPadding(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SwappableTextField(
-                              textWidget: ScholarlyTextH2(_courseName),
-                              textFieldWidget: ScholarlyTextField(
-                                  label: "course name",
-                                  controller: _courseNameController),
-                              onSubmit: changeCourseName,
-                            ),
-                            ScholarlyButton("Delete Course",
-                                onPressed: removeCourse)
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const LinearProgressIndicator();
-                    }
-                  }),
-            ),
-          ),
-          Row(
-            children: [
-              const SizedBox(width: 350),
-              ScholarlyHolder(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 200),
-                    ScholarlyTextH2("Course Editor"),
-                    Text(widget.courseId.toString()),
-                    Container(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return ScholarlyScaffold(
+      hasAppbar: true,
+      sideBar: [
+        ScholarlyButton("Delete Course", onPressed: removeCourse),
+        ScholarlyTextH2("A")
+      ],
+      body: [
+        FutureBuilder(
+            future: loadData(),
+            builder: (context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData) {
+                return ScholarlyPadding(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SwappableTextField(
+                        textWidget: ScholarlyTextH2(_courseName),
+                        textFieldWidget: ScholarlyTextField(
+                            label: "course name",
+                            controller: _courseNameController),
+                        onSubmit: changeCourseName,
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return const ScholarlyLoading();
+              }
+            }),
+      ],
+      bottom: [
+        const SizedBox(height: 200),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        ScholarlyTextH2("Course Editor"),
+        Text(widget.courseId.toString()),
+        Container(),
+      ],
     );
   }
 }

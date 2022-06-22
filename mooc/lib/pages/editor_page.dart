@@ -105,10 +105,12 @@ class _State extends State<EditorPage> {
               }
             }),
       ],
-      tabNames: [
-        Tab(icon: Icon(Icons.directions_car)),
-        Tab(icon: Icon(Icons.directions_transit)),
-        Tab(icon: Icon(Icons.directions_bike)),
+      tabNames: const [
+        ScholarlyTabHeaders(
+            tabName: "Editor", tabIcon: Icons.format_shapes_rounded),
+        ScholarlyTabHeaders(
+            tabName: "Analytics", tabIcon: Icons.analytics_rounded),
+        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.group_rounded),
       ],
       tabs: [
         ScholarlyTabPage(body: [

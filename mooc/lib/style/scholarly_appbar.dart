@@ -28,17 +28,27 @@ class ScholarlyAppbar extends StatelessWidget {
   }
 }
 
+class ScholarlyTabHeaders {
+  final String tabName;
+  final IconData tabIcon;
+  const ScholarlyTabHeaders({required this.tabName, required this.tabIcon});
+}
+
 class ScholarlyScaffold extends StatelessWidget {
   final bool hasAppbar;
+  final int numberOfTabs;
+  final List<ScholarlyTabHeaders> tabNames;
   final List<Widget> body;
-  final List<Widget>? bottom;
+  final List<ScholarlyTabPage> tabs;
   final List<Widget>? sideBar;
   // constructor
   const ScholarlyScaffold(
       {Key? key,
       required this.hasAppbar,
       required this.body,
-      this.bottom,
+      required this.numberOfTabs,
+      required this.tabNames,
+      required this.tabs,
       this.sideBar})
       : super(key: key);
 
@@ -47,86 +57,114 @@ class ScholarlyScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     // this is to make sure it fills the entire column
     body.add(Container());
-    if (bottom != null) {
-      bottom!.add(Container());
-    }
 
-    return Scaffold(
+    return DefaultTabController(
+      length: numberOfTabs,
+      child: Scaffold(
         appBar: hasAppbar
             ? AppBar(
                 elevation: 0,
                 flexibleSpace: ScholarlyAppbar(),
               )
             : null,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              ScholarlyHolder(
-                child: Column(
+        body: Column(children: [
+          ScholarlyHolder(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: body,
                 ),
-              ),
-              bottom != null
-                  ? Container(
-                      constraints: BoxConstraints(
-                          minHeight: MediaQuery.of(context).size.height),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                            top: BorderSide(
-                                color: scholarly_color.highlightGrey,
-                                width: 1)),
-                        //boxShadow: [scholarly_color.shadow],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          sideBar != null
-                              ? Container(
-                                  width: 350,
-                                  constraints: BoxConstraints(
-                                      minHeight:
-                                          MediaQuery.of(context).size.height),
-                                  child: ScholarlyHolder(
-                                      child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: sideBar!,
-                                  )))
-                              : Container(),
-                          Expanded(
-                            child: Container(
-                              decoration: sideBar != null
-                                  ? const BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border(
-                                          left: BorderSide(
-                                              color:
-                                                  scholarly_color.highlightGrey,
-                                              width: 1)),
-                                      //boxShadow: [scholarly_color.shadow],
-                                    )
-                                  : null,
-                              child: Center(
-                                child: ScholarlyHolder(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: bottom!,
-                                  ),
-                                ),
-                              ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 450),
+                  child: TabBar(
+                    tabs: List.generate(tabNames.length, (int i) {
+                      return Tab(
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4.0),
+                              child: Icon(tabNames[i].tabIcon,
+                                  color: scholarly_color.h2Grey),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
-            ],
+                            const SizedBox(width: 10),
+                            Text(tabNames[i].tabName,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: scholarly_color.h2Grey,
+                                )),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ));
+          Expanded(
+              child: TabBarView(
+            children: tabs,
+          ))
+        ]),
+      ),
+    );
+  }
+}
+
+class ScholarlyTabPage extends StatelessWidget {
+  final List<Widget> body;
+  final List<Widget>? sideBar;
+  // constructor
+  const ScholarlyTabPage({Key? key, required this.body, this.sideBar})
+      : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    body.add(Container());
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+            top: BorderSide(color: scholarly_color.highlightGrey, width: 1)),
+        //boxShadow: [scholarly_color.shadow],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          sideBar != null
+              ? Container(
+                  width: 350,
+                  constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height),
+                  child: ScholarlyHolder(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: sideBar!,
+                  )))
+              : Container(),
+          sideBar != null
+              ? VerticalDivider(
+                  width: 20, thickness: 1, color: scholarly_color.highlightGrey)
+              : Container(),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Center(
+                child: ScholarlyHolder(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: body,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

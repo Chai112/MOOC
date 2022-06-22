@@ -66,6 +66,7 @@ class _State extends State<OrganizationPage> {
     print("loading");
     // ignore: unused_local_variable
     return ScholarlyScaffold(
+      numberOfTabs: 3,
       hasAppbar: true,
       body: [
         const SizedBox(height: 50),
@@ -79,45 +80,60 @@ class _State extends State<OrganizationPage> {
                 return const ScholarlyLoading();
               }
             }),
-        const SizedBox(height: 50),
+        const SizedBox(height: 30),
       ],
-      bottom: [
-        const SizedBox(height: 50),
-        ScholarlyButton("New", invertedColor: true, verticalOnlyPadding: true,
-            onPressed: () {
-          course_service.sendToCoursePage(context,
-              organizationId: widget.organizationId);
-        }),
-        const SizedBox(height: 8),
-        FutureBuilder(
-            future: _loadCourses(),
-            builder: (context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.hasData) {
-                return Column(
-                    children: List.generate(_courses.length, (int i) {
-                  return ScholarlyPadding(
-                    verticalOnly: true,
-                    child: ScholarlyTile(
-                      child: InkWell(
-                        onTap: () {
-                          course_service.sendToCoursePage(context,
-                              courseId: _courses[i]["courseId"]);
-                        },
-                        child: ScholarlyPadding(
-                          child: SizedBox(
-                              height: 70,
-                              child: ScholarlyTextH3(Uri.decodeComponent(
-                                  _courses[i]["courseName"]))),
+      tabNames: const [
+        ScholarlyTabHeaders(
+            tabName: "Courses", tabIcon: Icons.library_books_rounded),
+        ScholarlyTabHeaders(
+            tabName: "Analytics", tabIcon: Icons.analytics_rounded),
+        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.group_rounded),
+      ],
+      tabs: [
+        ScholarlyTabPage(body: [
+          const SizedBox(height: 50),
+          ScholarlyButton("New", invertedColor: true, verticalOnlyPadding: true,
+              onPressed: () {
+            course_service.sendToCoursePage(context,
+                organizationId: widget.organizationId);
+          }),
+          const SizedBox(height: 8),
+          FutureBuilder(
+              future: _loadCourses(),
+              builder: (context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.hasData) {
+                  return Column(
+                      children: List.generate(_courses.length, (int i) {
+                    return ScholarlyPadding(
+                      verticalOnly: true,
+                      child: ScholarlyTile(
+                        child: InkWell(
+                          onTap: () {
+                            course_service.sendToCoursePage(context,
+                                courseId: _courses[i]["courseId"]);
+                          },
+                          child: ScholarlyPadding(
+                            child: SizedBox(
+                                height: 70,
+                                child: ScholarlyTextH3(Uri.decodeComponent(
+                                    _courses[i]["courseName"]))),
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }));
-              } else {
-                return const ScholarlyLoading();
-              }
-            }),
-        Container(),
+                    );
+                  }));
+                } else {
+                  return const ScholarlyLoading();
+                }
+              }),
+          Container(),
+        ]),
+        ScholarlyTabPage(body: [
+          Text("B"),
+        ]),
+        ScholarlyTabPage(body: [
+          Text("C"),
+        ]),
       ],
     );
   }

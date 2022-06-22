@@ -75,6 +75,7 @@ class _State extends State<EditorPage> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     return ScholarlyScaffold(
+      numberOfTabs: 3,
       hasAppbar: true,
       sideBar: [
         ScholarlyButton("Delete Course", onPressed: removeCourse),
@@ -104,30 +105,21 @@ class _State extends State<EditorPage> {
               }
             }),
       ],
-      bottom: [
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        ScholarlyTextH2("Course Editor"),
-        Text(widget.courseId.toString()),
-        Container(),
+      tabNames: [
+        Tab(icon: Icon(Icons.directions_car)),
+        Tab(icon: Icon(Icons.directions_transit)),
+        Tab(icon: Icon(Icons.directions_bike)),
+      ],
+      tabs: [
+        ScholarlyTabPage(body: [
+          Text("A"),
+        ]),
+        ScholarlyTabPage(body: [
+          Text("B"),
+        ]),
+        ScholarlyTabPage(body: [
+          Text("C"),
+        ]),
       ],
     );
   }

@@ -51,6 +51,43 @@ class ScholarlyTextH3 extends StatelessWidget {
   }
 }
 
+class ScholarlyTextH4 extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+
+  // constructor
+  const ScholarlyTextH4(this.text, {Key? key}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: const TextStyle(
+          fontSize: 25,
+        ));
+  }
+}
+
+class ScholarlyTextH5 extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+  final bool red;
+
+  // constructor
+  const ScholarlyTextH5(this.text, {Key? key, this.red = false})
+      : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: TextStyle(
+          fontSize: 20,
+          color: red ? scholarly_color.scholarlyRed : scholarly_color.h2Grey,
+        ));
+  }
+}
+
 class ScholarlyTextP extends StatelessWidget {
   // members of MyWidget
   final String text;

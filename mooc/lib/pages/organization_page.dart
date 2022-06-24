@@ -85,9 +85,9 @@ class _State extends State<OrganizationPage> {
       tabNames: const [
         ScholarlyTabHeaders(
             tabName: "Courses", tabIcon: Icons.library_books_rounded),
+        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.groups),
         ScholarlyTabHeaders(
-            tabName: "Analytics", tabIcon: Icons.analytics_rounded),
-        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.group_rounded),
+            tabName: "Analytics", tabIcon: Icons.stacked_line_chart_rounded),
       ],
       tabs: [
         ScholarlyTabPage(body: [

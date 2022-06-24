@@ -4,7 +4,7 @@ import 'package:mooc/wrapper.dart';
 import 'package:mooc/pages/home_page.dart';
 import 'package:mooc/pages/auth_page.dart';
 import 'package:mooc/pages/auth_register_page.dart';
-import 'package:mooc/pages/editor_page.dart';
+import 'package:mooc/pages/course/course_page.dart';
 import 'package:mooc/pages/organization_page.dart';
 import 'package:mooc/pages/organization_register_page.dart';
 
@@ -70,7 +70,7 @@ class RouteGenerator {
               ));
     }
 
-    if (uri.pathSegments.first == 'editor') {
+    if (uri.pathSegments.first == 'course') {
       String? courseIdStr = uri.queryParameters["id"];
       int courseId;
 
@@ -87,7 +87,7 @@ class RouteGenerator {
 
       return MaterialPageRoute(
           settings: settings,
-          builder: (context) => Wrapper(EditorPage(courseId: courseId)));
+          builder: (context) => Wrapper(CoursePage(courseId: courseId)));
     }
 
     //var uri = Uri.parse(settings.name);

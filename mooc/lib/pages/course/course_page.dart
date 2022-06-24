@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooc/pages/course/editor_page.dart';
 import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_button.dart';
@@ -11,16 +12,16 @@ import 'package:mooc/services/course_service.dart' as course_service;
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
 
 // myPage class which creates a state on call
-class EditorPage extends StatefulWidget {
+class CoursePage extends StatefulWidget {
   final int courseId;
-  const EditorPage({Key? key, required this.courseId}) : super(key: key);
+  const CoursePage({Key? key, required this.courseId}) : super(key: key);
 
   @override
   _State createState() => _State();
 }
 
 // myPage state
-class _State extends State<EditorPage> {
+class _State extends State<CoursePage> {
   String _courseName = "";
   final _courseNameController = ScholarlyTextFieldController();
 
@@ -82,6 +83,7 @@ class _State extends State<EditorPage> {
         ScholarlyTextH3("A")
       ],
       body: [
+        const SizedBox(height: 20),
         FutureBuilder(
             future: loadData(),
             builder: (context, AsyncSnapshot<bool> snapshot) {
@@ -107,15 +109,13 @@ class _State extends State<EditorPage> {
       ],
       tabNames: const [
         ScholarlyTabHeaders(
-            tabName: "Editor", tabIcon: Icons.format_shapes_rounded),
+            tabName: "Editor", tabIcon: Icons.construction_rounded),
+        ScholarlyTabHeaders(tabName: "Team", tabIcon: Icons.group_rounded),
         ScholarlyTabHeaders(
-            tabName: "Analytics", tabIcon: Icons.analytics_rounded),
-        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.group_rounded),
+            tabName: "Insights", tabIcon: Icons.show_chart_rounded),
       ],
       tabs: [
-        ScholarlyTabPage(body: [
-          Text("A"),
-        ]),
+        CourseEditorPage(),
         ScholarlyTabPage(body: [
           Text("B"),
         ]),

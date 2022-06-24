@@ -39,18 +39,18 @@ class ScholarlyScaffold extends StatelessWidget {
   final int numberOfTabs;
   final List<ScholarlyTabHeaders> tabNames;
   final List<Widget> body;
-  final List<ScholarlyTabPage> tabs;
+  final List<Widget> tabs;
   final List<Widget>? sideBar;
   // constructor
-  const ScholarlyScaffold(
-      {Key? key,
-      required this.hasAppbar,
-      required this.body,
-      required this.numberOfTabs,
-      required this.tabNames,
-      required this.tabs,
-      this.sideBar})
-      : super(key: key);
+  const ScholarlyScaffold({
+    Key? key,
+    required this.hasAppbar,
+    required this.body,
+    required this.numberOfTabs,
+    required this.tabNames,
+    required this.tabs,
+    this.sideBar,
+  }) : super(key: key);
 
   // main build function
   @override
@@ -76,29 +76,27 @@ class ScholarlyScaffold extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: body,
                 ),
-                Container(
-                  constraints: BoxConstraints(maxWidth: 450),
-                  child: TabBar(
-                    tabs: List.generate(tabNames.length, (int i) {
-                      return Tab(
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0),
-                              child: Icon(tabNames[i].tabIcon,
-                                  color: scholarly_color.h2Grey),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(tabNames[i].tabName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: scholarly_color.h2Grey,
-                                )),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
+                TabBar(
+                  isScrollable: true,
+                  tabs: List.generate(tabNames.length, (int i) {
+                    return Tab(
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 1.0),
+                            child: Icon(tabNames[i].tabIcon,
+                                color: scholarly_color.h2Grey),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(tabNames[i].tabName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: scholarly_color.h2Grey,
+                              )),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -178,5 +176,53 @@ class ScholarlyLoading extends StatelessWidget {
     return const Center(
         child: SizedBox(
             height: 30, width: 30, child: CircularProgressIndicator()));
+  }
+}
+
+class ScholarlySideBarButton extends StatelessWidget {
+  // members of MyWidget
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final Function onPressed;
+
+  // constructor
+  const ScholarlySideBarButton(
+      {Key? key,
+      required this.label,
+      required this.icon,
+      required this.onPressed,
+      this.selected = false})
+      : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+        onPressed: () {
+          onPressed();
+        },
+        style: ButtonStyle(
+            backgroundColor: selected
+                ? MaterialStateProperty.all<Color>(
+                    scholarly_color.scholarlyRedBackground)
+                : null,
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ))),
+        child: Row(
+          children: [
+            Icon(icon,
+                color: selected
+                    ? scholarly_color.scholarlyRed
+                    : scholarly_color.h2Grey),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ScholarlyTextH5(label, red: selected),
+            ),
+            Container(),
+          ],
+        ));
   }
 }

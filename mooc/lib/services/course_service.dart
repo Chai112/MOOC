@@ -59,5 +59,5 @@ void sendToCoursePage(BuildContext context,
     courseId = response["courseId"];
     // create new course
   }
-  Navigator.of(context).pushNamed("/editor?id=$courseId");
+  Navigator.of(context).pushNamed("/course?id=$courseId");
 }

@@ -8,6 +8,9 @@ import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
 
+// This is the type used by the popup menu below.
+enum Menu { video, reading, test }
+
 // myPage class which creates a state on call
 class CourseEditorPage extends StatefulWidget {
   final int courseId;
@@ -45,25 +48,6 @@ class _State extends State<CourseEditorPage> {
     super.dispose();
   }
 
-  Future<bool> loadCourseHierarchy() async {
-    String token = auth_service.globalUser.token!.token;
-
-    Map<String, dynamic> response =
-        await networking_service.getServer("getCourseHierarchy", {
-      "token": token,
-      "courseId": widget.courseId.toString(),
-    });
-
-    _courseHierarchy = []; // reset
-    for (int i = 0; i < response["data"].length; i++) {
-      _CourseSection courseSection = _CourseSection();
-      courseSection.courseSectionName =
-          response["data"][i]["courseSectionName"];
-      _courseHierarchy.add(courseSection);
-    }
-    return true;
-  }
-
   Future<bool> loadCourseName() async {
     String token = auth_service.globalUser.token!.token;
 
@@ -89,6 +73,25 @@ class _State extends State<CourseEditorPage> {
     setState(() {
       _courseName = _courseNameController.text;
     });
+  }
+
+  Future<bool> loadCourseHierarchy() async {
+    String token = auth_service.globalUser.token!.token;
+
+    Map<String, dynamic> response =
+        await networking_service.getServer("getCourseHierarchy", {
+      "token": token,
+      "courseId": widget.courseId.toString(),
+    });
+
+    _courseHierarchy = []; // reset
+    for (int i = 0; i < response["data"].length; i++) {
+      _CourseSection courseSection = _CourseSection();
+      courseSection.courseSectionName =
+          response["data"][i]["courseSectionName"];
+      _courseHierarchy.add(courseSection);
+    }
+    return true;
   }
 
   Future<bool> addCourseSection() async {
@@ -139,16 +142,53 @@ class _State extends State<CourseEditorPage> {
                   //if (snapshot.hasData) {
                   return Column(
                     children: List.generate(_courseHierarchy.length, (int i) {
-                      return ScholarlySideBarButton(
-                          label: Uri.decodeComponent(
-                              _courseHierarchy[i].courseSectionName),
-                          icon: Icons.chevron_right,
-                          selected: i == _selectedCourseModule,
-                          onPressed: () {
-                            setState(() {
-                              _selectedCourseModule = i;
-                            });
-                          });
+                      return ExpansionTile(
+                        tilePadding: EdgeInsets.only(left: 10),
+                        iconColor: scholarly_color.grey,
+                        title: Align(
+                          alignment: Alignment(-1.45, 0),
+                          child: ScholarlyTextH5(
+                              Uri.decodeComponent(
+                                  _courseHierarchy[i].courseSectionName),
+                              red: false),
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 32.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ScholarlySideBarButton(
+                                        icon: Icons.article_rounded,
+                                        label: "Introduction",
+                                        selected: i == _selectedCourseModule,
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedCourseModule = i;
+                                          });
+                                        }),
+                                  ],
+                                ),
+                                _PopupAddElement(onPressed: (Menu item) {
+                                  switch (item) {
+                                    case Menu.video:
+                                      break;
+                                    case Menu.reading:
+                                      break;
+                                    case Menu.test:
+                                      break;
+                                  }
+                                  print(item);
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
                     }),
                   );
                   //} else {
@@ -158,6 +198,7 @@ class _State extends State<CourseEditorPage> {
             IconButton(
               icon: const Icon(Icons.add_circle_outline_rounded,
                   color: scholarly_color.greyLight),
+              tooltip: "Add section",
               onPressed: () async {
                 await addCourseSection();
                 setState(() {});
@@ -169,5 +210,53 @@ class _State extends State<CourseEditorPage> {
     ], body: [
       Text("A"),
     ]);
+  }
+}
+
+class _PopupAddElement extends StatelessWidget {
+  // members of MyWidget
+  final Function(Menu) onPressed;
+
+  // constructor
+  const _PopupAddElement({Key? key, required this.onPressed}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<Menu>(
+        icon: const Icon(Icons.add_rounded, color: scholarly_color.greyLight),
+        tooltip: "Add element",
+        // Callback that sets the selected popup menu item.
+        onSelected: onPressed,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+              PopupMenuItem<Menu>(
+                value: Menu.video,
+                child: Row(
+                  children: const [
+                    Icon(Icons.videocam_rounded),
+                    SizedBox(width: 10),
+                    Text('Add Video'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<Menu>(
+                value: Menu.reading,
+                child: Row(
+                  children: const [
+                    Icon(Icons.article_rounded),
+                    SizedBox(width: 10),
+                    Text('Add Reading'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<Menu>(
+                value: Menu.test,
+                child: Row(children: const [
+                  Icon(Icons.quiz_rounded),
+                  SizedBox(width: 10),
+                  Text('Add Test'),
+                ]),
+              ),
+            ]);
   }
 }

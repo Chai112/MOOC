@@ -1,6 +1,3 @@
-import 'dart:html';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; // Flutter
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_elements.dart';
@@ -181,7 +178,7 @@ class ScholarlyLoading extends StatelessWidget {
   }
 }
 
-class ScholarlySideBarButton extends StatefulWidget {
+class ScholarlySideBarButton extends StatelessWidget {
   // members of MyWidget
   final String label;
   final IconData icon;
@@ -197,73 +194,37 @@ class ScholarlySideBarButton extends StatefulWidget {
       this.selected = false})
       : super(key: key);
 
-  @override
-  _ScholarlySideBarButtonState createState() => _ScholarlySideBarButtonState();
-}
-
-class _ScholarlySideBarButtonState extends State<ScholarlySideBarButton> {
-  bool _isHovering = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   // main build function
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (PointerEnterEvent _) {
-        setState(() {
-          _isHovering = true;
-        });
-      },
-      onExit: (PointerExitEvent _) {
-        setState(() {
-          _isHovering = false;
-        });
-      },
-      child: TextButton(
-          onPressed: () {
-            widget.onPressed();
-          },
-          style: ButtonStyle(
-              backgroundColor: widget.selected
-                  ? MaterialStateProperty.all<Color>(
-                      scholarly_color.scholarlyRedBackground)
-                  : null,
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ))),
-          child: Row(
-            children: [
-              Icon(widget.icon,
-                  color: widget.selected
+    return TextButton(
+        onPressed: () {
+          onPressed();
+        },
+        style: ButtonStyle(
+            backgroundColor: selected
+                ? MaterialStateProperty.all<Color>(
+                    scholarly_color.scholarlyRedBackground)
+                : null,
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ))),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Icon(icon,
+                  color: selected
                       ? scholarly_color.scholarlyRed
                       : scholarly_color.grey),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ScholarlyTextH5(widget.label, red: widget.selected),
-              ),
-              Expanded(child: Container()),
-              _isHovering
-                  ? IconButton(
-                      hoverColor: Colors.transparent,
-                      icon: Icon(Icons.post_add_rounded,
-                          color: widget.selected
-                              ? scholarly_color.scholarlyRedLight
-                              : scholarly_color.greyLight),
-                      onPressed: () {},
-                    )
-                  : Container(),
-            ],
-          )),
-    );
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ScholarlyTextH5(label, red: selected),
+            ),
+            Container(),
+          ],
+        ));
   }
 }

@@ -6,7 +6,7 @@ Future<int?> getFirstOrganizationId() async {
   String token = auth_service.globalUser.token!.token;
 
   Map<String, dynamic> response =
-      await networking_service.getServer("getOrganizationsFromUser", {
+      await networking_service.getServer("getOrganizations", {
     "token": token,
   });
   // bring to create a new organization
@@ -25,7 +25,7 @@ void sendToOrgPage(BuildContext context, {int? organizationId}) async {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getOrganizationsFromUser", {
+        await networking_service.getServer("getOrganizations", {
       "token": token,
     });
     // bring to create a new organization

@@ -27,17 +27,17 @@ class Router{
             case "register":
                 this.register();
                 break;
-            case "getCoursesFromOrganization":
-                this.getCoursesFromOrganization();
-                break;
-            case "getOrganizationsFromUser":
-                this.getOrganizationsFromUser();
+            case "getOrganizations":
+                this.getOrganizations();
                 break;
             case "getOrganization":
                 this.getOrganization();
                 break;
             case "createOrganization":
                 this.createOrganization();
+                break;
+            case "getCourses":
+                this.getCourses();
                 break;
             case "getCourse":
                 this.getCourse();
@@ -50,6 +50,18 @@ class Router{
                 break;
             case "removeCourse":
                 this.removeCourse();
+                break;
+            case "getCourseHierarchy":
+                this.getCourseHierarchy();
+                break;
+            case "createCourseSection":
+                this.createCourseSection();
+                break;
+            case "editCourseSection":
+                this.editCourseSection();
+                break;
+            case "removeCourseSection":
+                this.removeCourseSection();
                 break;
             case "createVideo":
                 this.createVideo();
@@ -150,28 +162,7 @@ class Router{
         this.response.status(200);
         this.response.json({"token": token});
     }
-    async getCoursesFromOrganization() {
-        let token = this._getQuery("token");
-        let organizationId = this._getQuery("organizationId");
-        let data;
-        try {
-            data = await Courses.getCoursesForOrganization(token, organizationId);
-        } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
-        }
-        this.response.status(200);
-        this.response.json({"data": data});
-    }
-    async getOrganizationsFromUser() {
+    async getOrganizations() {
         let token = this._getQuery("token");
         let data;
         try {
@@ -220,6 +211,27 @@ class Router{
             "organizationPrivilegeId": orgData.organizationPrivilegesId,
         });
     }
+    async getCourses() {
+        let token = this._getQuery("token");
+        let organizationId = this._getQuery("organizationId");
+        let data;
+        try {
+            data = await Courses.getCoursesForOrganization(token, organizationId);
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({"data": data});
+    }
     async getCourse() {
         let token = this._getQuery("token");
         let courseId = this._getQuery("courseId");
@@ -253,7 +265,7 @@ class Router{
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
-                case "assigner has insuficient permission":
+                case "assigner has insufficient permission":
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
@@ -286,7 +298,7 @@ class Router{
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
-                case "assigner has insuficient permission":
+                case "assigner has insufficient permission":
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
@@ -312,7 +324,7 @@ class Router{
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
-                case "assigner has insuficient permission":
+                case "assigner has insufficient permission":
                     this.response.status(400);
                     this.response.json({message: err});
                     return;
@@ -324,6 +336,74 @@ class Router{
         }
         this.response.status(200);
         this.response.json({});
+    }
+    async getCourseHierarchy() {
+        let token = this._getQuery("token");
+        let courseId = this._getQuery("courseId");
+        let data;
+        try {
+            data = await CourseSections.getCourseHierarchy(token, courseId);
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner not part of course":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({
+            "data": data,
+        });
+    }
+    async createCourseSection() {
+        let token = this._getQuery("token");
+        let courseId = this._getQuery("courseId");
+        let courseSectionName = this._getQuery("courseSectionName");
+        let courseSectionId;
+
+        try {
+            courseSectionId = await CourseSections.addCourseSection(token, courseId, 
+                { courseSectionName: courseSectionName }
+            );
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner not part of course":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner has insufficient permission":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({
+            "courseSectionId": courseSectionId,
+        });
+    }
+    async editCourseSection() {
+
+    }
+    async removeCourseSection() {
+
     }
     /*
     createVideo() {

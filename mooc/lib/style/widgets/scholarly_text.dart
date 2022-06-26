@@ -14,7 +14,7 @@ class ScholarlyTextH2 extends StatelessWidget {
     return Text(text,
         style: const TextStyle(
           fontSize: 35,
-          color: scholarly_color.h2Grey,
+          color: scholarly_color.grey,
         ));
   }
 }
@@ -82,8 +82,8 @@ class ScholarlyTextH5 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text,
         style: TextStyle(
-          fontSize: 20,
-          color: red ? scholarly_color.scholarlyRed : scholarly_color.h2Grey,
+          fontSize: 18,
+          color: red ? scholarly_color.scholarlyRed : scholarly_color.grey,
         ));
   }
 }

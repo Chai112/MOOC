@@ -23,7 +23,7 @@ void main() {
         fontFamily: "Avenir Next",
         primarySwatch:
             scholarly_color.createMaterialColor(scholarly_color.scholarlyRed),
-        backgroundColor: scholarly_color.backgroundGrey,
+        backgroundColor: scholarly_color.greyBackground,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: scholarly_color.scholarlyRed,

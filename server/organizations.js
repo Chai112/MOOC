@@ -393,7 +393,7 @@ async function getCoursePrivilegesForCourseAndUser(courseId, organizationId, use
         organizationId: organizationId,
     });
     if (organizationPrivilege.length === 0) {
-        throw "assignee must be a part of the organization";
+        throw "assigner not part of organization";
     }
     let organizationPrivilegeId = organizationPrivilege[0].organizationPrivilegeId;
 
@@ -402,7 +402,7 @@ async function getCoursePrivilegesForCourseAndUser(courseId, organizationId, use
         organizationPrivilegeId: organizationPrivilegeId,
     });
     if (coursePrivilege.length === 0) {
-        throw "assignee must be a part of the course";
+        throw "assignee not part of course";
     }
     return coursePrivilege[0];
 }

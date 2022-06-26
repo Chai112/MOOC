@@ -35,33 +35,6 @@ class _State extends State<CoursePage> {
     super.dispose();
   }
 
-  Future<bool> loadData() async {
-    String token = auth_service.globalUser.token!.token;
-
-    Map<String, dynamic> response =
-        await networking_service.getServer("getCourse", {
-      "token": token,
-      "courseId": widget.courseId.toString(),
-    });
-    _courseName = Uri.decodeComponent(response["data"]["courseName"]);
-    _courseNameController.text = _courseName;
-    return true;
-  }
-
-  void changeCourseName() async {
-    String token = auth_service.globalUser.token!.token;
-    await networking_service.getServer("changeCourseOptions", {
-      "token": token,
-      "courseId": widget.courseId.toString(),
-      "courseName": _courseNameController.text,
-      "courseDescription": "", // TODO: support course desc changing
-    });
-
-    setState(() {
-      _courseName = _courseNameController.text;
-    });
-  }
-
   void removeCourse() async {
     String token = auth_service.globalUser.token!.token;
     await networking_service.getServer("removeCourse", {
@@ -82,31 +55,7 @@ class _State extends State<CoursePage> {
         ScholarlyButton("Delete Course", onPressed: removeCourse),
         ScholarlyTextH3("A")
       ],
-      body: [
-        const SizedBox(height: 20),
-        FutureBuilder(
-            future: loadData(),
-            builder: (context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.hasData) {
-                return ScholarlyPadding(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SwappableTextField(
-                        textWidget: ScholarlyTextH2(_courseName),
-                        textFieldWidget: ScholarlyTextField(
-                            label: "course name",
-                            controller: _courseNameController),
-                        onSubmit: changeCourseName,
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return const ScholarlyLoading();
-              }
-            }),
-      ],
+      body: [],
       tabNames: const [
         ScholarlyTabHeaders(
             tabName: "Editor", tabIcon: Icons.construction_rounded),
@@ -115,7 +64,7 @@ class _State extends State<CoursePage> {
             tabName: "Insights", tabIcon: Icons.show_chart_rounded),
       ],
       tabs: [
-        CourseEditorPage(),
+        CourseEditorPage(courseId: widget.courseId),
         ScholarlyTabPage(body: [
           Text("B"),
         ]),

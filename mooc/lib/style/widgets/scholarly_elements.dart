@@ -19,7 +19,7 @@ class ScholarlyTile extends StatelessWidget {
       width: width ?? 1000000, // if no width given, then expand fully
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: scholarly_color.highlightGrey, width: 1),
+          border: Border.all(color: scholarly_color.greyLight, width: 1),
           borderRadius: BorderRadius.circular(8),
           color: Colors.white,
           boxShadow: hasShadows ? const [scholarly_color.shadow] : const [],

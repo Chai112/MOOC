@@ -1,3 +1,6 @@
+import 'dart:html';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'; // Flutter
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_elements.dart';
@@ -16,8 +19,7 @@ class ScholarlyAppbar extends StatelessWidget {
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(
-              bottom:
-                  BorderSide(color: scholarly_color.highlightGrey, width: 1)),
+              bottom: BorderSide(color: scholarly_color.greyLight, width: 1)),
           //boxShadow: [scholarly_color.shadow],
         ),
       ),
@@ -85,13 +87,13 @@ class ScholarlyScaffold extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 1.0),
                             child: Icon(tabNames[i].tabIcon,
-                                color: scholarly_color.h2Grey),
+                                color: scholarly_color.grey),
                           ),
                           const SizedBox(width: 10),
                           Text(tabNames[i].tabName,
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: scholarly_color.h2Grey,
+                                color: scholarly_color.grey,
                               )),
                         ],
                       ),
@@ -125,8 +127,8 @@ class ScholarlyTabPage extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-            top: BorderSide(color: scholarly_color.highlightGrey, width: 1)),
+        border:
+            Border(top: BorderSide(color: scholarly_color.greyLight, width: 1)),
         //boxShadow: [scholarly_color.shadow],
       ),
       child: Row(
@@ -146,7 +148,7 @@ class ScholarlyTabPage extends StatelessWidget {
               : Container(),
           sideBar != null
               ? VerticalDivider(
-                  width: 20, thickness: 1, color: scholarly_color.highlightGrey)
+                  width: 20, thickness: 1, color: scholarly_color.greyLight)
               : Container(),
           Expanded(
             child: SingleChildScrollView(
@@ -179,7 +181,7 @@ class ScholarlyLoading extends StatelessWidget {
   }
 }
 
-class ScholarlySideBarButton extends StatelessWidget {
+class ScholarlySideBarButton extends StatefulWidget {
   // members of MyWidget
   final String label;
   final IconData icon;
@@ -195,34 +197,73 @@ class ScholarlySideBarButton extends StatelessWidget {
       this.selected = false})
       : super(key: key);
 
+  @override
+  _ScholarlySideBarButtonState createState() => _ScholarlySideBarButtonState();
+}
+
+class _ScholarlySideBarButtonState extends State<ScholarlySideBarButton> {
+  bool _isHovering = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   // main build function
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-        onPressed: () {
-          onPressed();
-        },
-        style: ButtonStyle(
-            backgroundColor: selected
-                ? MaterialStateProperty.all<Color>(
-                    scholarly_color.scholarlyRedBackground)
-                : null,
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ))),
-        child: Row(
-          children: [
-            Icon(icon,
-                color: selected
-                    ? scholarly_color.scholarlyRed
-                    : scholarly_color.h2Grey),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ScholarlyTextH5(label, red: selected),
-            ),
-            Container(),
-          ],
-        ));
+    return MouseRegion(
+      onEnter: (PointerEnterEvent _) {
+        setState(() {
+          _isHovering = true;
+        });
+      },
+      onExit: (PointerExitEvent _) {
+        setState(() {
+          _isHovering = false;
+        });
+      },
+      child: TextButton(
+          onPressed: () {
+            widget.onPressed();
+          },
+          style: ButtonStyle(
+              backgroundColor: widget.selected
+                  ? MaterialStateProperty.all<Color>(
+                      scholarly_color.scholarlyRedBackground)
+                  : null,
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ))),
+          child: Row(
+            children: [
+              Icon(widget.icon,
+                  color: widget.selected
+                      ? scholarly_color.scholarlyRed
+                      : scholarly_color.grey),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ScholarlyTextH5(widget.label, red: widget.selected),
+              ),
+              Expanded(child: Container()),
+              _isHovering
+                  ? IconButton(
+                      hoverColor: Colors.transparent,
+                      icon: Icon(Icons.post_add_rounded,
+                          color: widget.selected
+                              ? scholarly_color.scholarlyRedLight
+                              : scholarly_color.greyLight),
+                      onPressed: () {},
+                    )
+                  : Container(),
+            ],
+          )),
+    );
   }
 }

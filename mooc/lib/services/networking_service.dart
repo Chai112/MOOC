@@ -41,6 +41,7 @@ Future<Map<String, dynamic>> getServer(
       Map<String, dynamic> resBodyJson = jsonDecode(resBodyStr);
       return resBodyJson;
     case 400: // bad request  (client error)
+      print(response.body);
       throw NetworkingException("something went wrong",
           description: "400: Bad request, client error");
     case 403: // forbidden    (user error)

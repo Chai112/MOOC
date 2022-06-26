@@ -97,6 +97,12 @@ async function getAllCourseSectionsFromCourse(courseId) {
     return await courseSections.select({ courseId: courseId });
 }
 
+module.exports.getCourseHierarchy = getCourseHierarchy;
+async function getCourseHierarchy(token, courseId) {
+    await assertUserCanViewCourse(token, courseId);
+    return await courseSections.select({ courseId: courseId });
+}
+
 module.exports.getCourseSection = getCourseSection;
 async function getCourseSection(courseSectionId) {
     return await courseSections.select({ courseSectionId: courseSectionId });
@@ -119,6 +125,17 @@ async function assertUserCanEditCourse(token, courseId) {
     let coursePrivileges = await Org.getCoursePrivilegesForCourseAndUser(courseId, organizationId, userId);
     let canEditCourse = Db.readBool(coursePrivileges.canEditCourse);
     if (!canEditCourse) {
-        throw `assigner has insufficient permission to edit course ${courseId}`;
+        throw `assigner has insufficient permission`;
     }
+}
+
+async function assertUserCanViewCourse(token, courseId) {
+    // get organizationId
+    let courseData = await Courses.getCourse(courseId);
+    let organizationId = courseData[0].organizationId;
+
+    let user = await Auth.getUserFromToken(token);
+    userId = user[0].userId;
+    await Org.getCoursePrivilegesForCourseAndUser(courseId, organizationId, userId);
+    return true;
 }

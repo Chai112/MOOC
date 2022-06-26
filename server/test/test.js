@@ -503,7 +503,6 @@ describe('Course Development Tests', function () {
             coursePrivId = courseData.coursePrivilegeId;
         });
         it('should add course section to course', async function () {
-            await CourseSections.DO_NOT_RUN_FULL_RESET();
             let data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
             assert.equal(data.length, 0);
             courseSectionId = await CourseSections.addCourseSection(tokenA, courseId, 
@@ -511,6 +510,17 @@ describe('Course Development Tests', function () {
             );
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
             assert.equal(data.length, 1);
+        });
+        it('should find course hierarchy', async function () {
+            let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data.length, 1);
+        });
+        it('should not allow non permission to see', async function () {
+            await assert.rejects(
+                async function () {
+                    let data = await CourseSections.getCourseHierarchy(tokenB, courseId);
+                }
+            );
         });
         it('should not allow non permission to edit', async function () {
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
@@ -556,6 +566,7 @@ describe('Course Development Tests', function () {
         let coursePrivId;
         let courseSectionId;
         it('init', async function () {
+            CourseElements.DO_NOT_RUN_FULL_RESET();
             // create users
             try {
                 tokenA = await Auth.loginUser("test", "password");
@@ -587,7 +598,6 @@ describe('Course Development Tests', function () {
             );
         });
         it('should add video', async function () {
-            await CourseElements.DO_NOT_RUN_FULL_RESET();
             let data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
             assert.equal(data.length, 0);
             await CourseElements.createVideo(tokenA, courseSectionId, {

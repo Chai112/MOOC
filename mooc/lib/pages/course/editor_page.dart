@@ -9,7 +9,7 @@ import 'package:mooc/style/widgets/scholarly_text.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
 
 // This is the type used by the popup menu below.
-enum Menu { video, reading, test }
+enum CourseElementTypes { video, literature, form }
 
 // myPage class which creates a state on call
 class CourseEditorPage extends StatefulWidget {
@@ -22,7 +22,14 @@ class CourseEditorPage extends StatefulWidget {
 
 class _CourseSection {
   String courseSectionName = "";
-  List<String> courseElementNames = [];
+  int courseSectionId = 0;
+  List<_CourseElement> courseElements = [];
+}
+
+class _CourseElement {
+  String courseElementName = "";
+  int courseElementId = 0;
+  int courseElementType = 0;
 }
 
 // myPage state
@@ -33,7 +40,8 @@ class _State extends State<CourseEditorPage> {
     "Course Module 3",
     "Course Module 4"
   ];
-  int _selectedCourseModule = 0;
+  int _selectedCourseSection = 0;
+  int _selectedCourseElement = 0;
   String _courseName = "";
   List<_CourseSection> _courseHierarchy = [];
   final _courseNameController = ScholarlyTextFieldController();
@@ -87,8 +95,21 @@ class _State extends State<CourseEditorPage> {
     _courseHierarchy = []; // reset
     for (int i = 0; i < response["data"].length; i++) {
       _CourseSection courseSection = _CourseSection();
-      courseSection.courseSectionName =
-          response["data"][i]["courseSectionName"];
+      var courseSectionJson = response["data"][i];
+      courseSection.courseSectionName = courseSectionJson["courseSectionName"];
+      courseSection.courseSectionId = courseSectionJson["courseSectionId"];
+
+      for (int j = 0; j < response["data"][i]["children"].length; j++) {
+        _CourseElement courseElement = _CourseElement();
+        var courseElementJson = response["data"][i]["children"][j];
+        courseElement.courseElementId = courseElementJson["courseElementId"];
+        courseElement.courseElementName =
+            courseElementJson["courseElementName"];
+        courseElement.courseElementType =
+            courseElementJson["courseElementType"];
+
+        courseSection.courseElements.add(courseElement);
+      }
       _courseHierarchy.add(courseSection);
     }
     return true;
@@ -105,6 +126,22 @@ class _State extends State<CourseEditorPage> {
     });
 
     int courseSectionId = response["courseSectionId"];
+    return true;
+  }
+
+  Future<bool> addCourseElementVideo(int courseSectionId) async {
+    String token = auth_service.globalUser.token!.token;
+
+    print("csid ${courseSectionId.toString}");
+    Map<String, dynamic> response =
+        await networking_service.getServer("createVideo", {
+      "token": token,
+      "courseSectionId": courseSectionId.toString(),
+      "courseElementName": "New Video",
+    });
+
+    print("aok");
+    int courseElementId = response["courseElementId"];
     return true;
   }
 
@@ -161,29 +198,61 @@ class _State extends State<CourseEditorPage> {
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ScholarlySideBarButton(
-                                        icon: Icons.article_rounded,
-                                        label: "Introduction",
-                                        selected: i == _selectedCourseModule,
+                                  children: List.generate(
+                                      _courseHierarchy[i].courseElements.length,
+                                      (int j) {
+                                    _CourseElement courseElement =
+                                        _courseHierarchy[i].courseElements[j];
+                                    String courseElementName =
+                                        courseElement.courseElementName;
+                                    IconData courseElementIcon = Icons.help;
+                                    switch (courseElement.courseElementType) {
+                                      case 0:
+                                        courseElementIcon =
+                                            Icons.videocam_rounded;
+                                        break;
+                                      case 1:
+                                        courseElementIcon =
+                                            Icons.article_rounded;
+                                        break;
+                                      case 2:
+                                        courseElementIcon =
+                                            Icons.school_rounded;
+                                        break;
+                                    }
+
+                                    return ScholarlySideBarButton(
+                                        icon: courseElementIcon,
+                                        label: Uri.decodeComponent(
+                                            courseElementName),
+                                        selected: i == _selectedCourseSection &&
+                                            j == _selectedCourseElement,
                                         onPressed: () {
                                           setState(() {
-                                            _selectedCourseModule = i;
+                                            _selectedCourseSection = i;
+                                            _selectedCourseElement = j;
                                           });
-                                        }),
-                                  ],
+                                        });
+                                  }),
                                 ),
-                                _PopupAddElement(onPressed: (Menu item) {
+                                _PopupAddElement(
+                                    onPressed: (CourseElementTypes item) async {
                                   switch (item) {
-                                    case Menu.video:
+                                    case CourseElementTypes.video:
+                                      setState(() {
+                                        addCourseElementVideo(
+                                            _courseHierarchy[i]
+                                                .courseSectionId);
+                                      });
                                       break;
-                                    case Menu.reading:
+                                    case CourseElementTypes.literature:
                                       break;
-                                    case Menu.test:
+                                    case CourseElementTypes.form:
                                       break;
                                   }
                                   print(item);
                                 }),
+                                Container(),
                               ],
                             ),
                           ),
@@ -215,7 +284,7 @@ class _State extends State<CourseEditorPage> {
 
 class _PopupAddElement extends StatelessWidget {
   // members of MyWidget
-  final Function(Menu) onPressed;
+  final Function(CourseElementTypes) onPressed;
 
   // constructor
   const _PopupAddElement({Key? key, required this.onPressed}) : super(key: key);
@@ -223,14 +292,15 @@ class _PopupAddElement extends StatelessWidget {
   // main build function
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Menu>(
+    return PopupMenuButton<CourseElementTypes>(
         icon: const Icon(Icons.add_rounded, color: scholarly_color.greyLight),
         tooltip: "Add element",
         // Callback that sets the selected popup menu item.
         onSelected: onPressed,
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
-              PopupMenuItem<Menu>(
-                value: Menu.video,
+        itemBuilder: (BuildContext context) =>
+            <PopupMenuEntry<CourseElementTypes>>[
+              PopupMenuItem<CourseElementTypes>(
+                value: CourseElementTypes.video,
                 child: Row(
                   children: const [
                     Icon(Icons.videocam_rounded),
@@ -239,8 +309,8 @@ class _PopupAddElement extends StatelessWidget {
                   ],
                 ),
               ),
-              PopupMenuItem<Menu>(
-                value: Menu.reading,
+              PopupMenuItem<CourseElementTypes>(
+                value: CourseElementTypes.literature,
                 child: Row(
                   children: const [
                     Icon(Icons.article_rounded),
@@ -249,8 +319,8 @@ class _PopupAddElement extends StatelessWidget {
                   ],
                 ),
               ),
-              PopupMenuItem<Menu>(
-                value: Menu.test,
+              PopupMenuItem<CourseElementTypes>(
+                value: CourseElementTypes.form,
                 child: Row(children: const [
                   Icon(Icons.school_rounded),
                   SizedBox(width: 10),

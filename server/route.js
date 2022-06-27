@@ -407,7 +407,7 @@ class Router{
     }
     async createVideo() {
         let token = this._getQuery("token");
-        let courseSectionId = this._getQuery("courseId");
+        let courseSectionId = this._getQuery("courseSectionId");
         let courseElementName = this._getQuery("courseElementName");
         let courseElementId;
 

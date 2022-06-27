@@ -107,13 +107,43 @@ async function createVideo (token, courseSectionId, videoOptions) {
     // create video
     var videoDataId = Token.generateToken();
 
-    let videoId = videos.insertInto({
+    let videoId = await videos.insertInto({
         courseElementId: courseElementId,
         videoDataId: videoDataId,
         duration: "?",
     });
 
-    return videoId;
+    return courseElementId;
+}
+
+module.exports.createLiterature = createLiterature;
+async function createLiterature (token, courseSectionId, literatureOptions) {
+    // check auth
+    await CourseSections.assertUserCanEditCourseSection(token, courseSectionId);
+
+    let courseElementId = await _addCourseElement(courseSectionId, literatureOptions, 1);
+
+    let literatureId = await literature.insertInto({
+        courseElementId: courseElementId,
+        literatureData: literatureOptions.literatureData,
+    });
+
+    return courseElementId;
+}
+
+module.exports.createForm = createForm;
+async function createForm (token, courseSectionId, formOptions) {
+    // check auth
+    await CourseSections.assertUserCanEditCourseSection(token, courseSectionId);
+
+    let courseElementId = await _addCourseElement(courseSectionId, formOptions, 2);
+
+    let formId = await forms.insertInto({
+        courseElementId: courseElementId,
+        formData: formOptions.formData,
+    });
+
+    return courseElementId;
 }
 
 async function removeVideo (token, videoId) {

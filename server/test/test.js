@@ -671,18 +671,37 @@ describe('Course Development Tests', function () {
             assert.equal(data[0].children[0].elementOrder, 0);
             assert.equal(data[0].children[1].elementOrder, 1);
         });
+        it('should add literature', async function () {
+            let data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 2);
+            await CourseElements.createLiterature(tokenA, courseSectionId, {
+                courseElementName: "literature",
+                courseElementDescription: "this is a description",
+                literatureData: "",
+            });
+            data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 3);
+            assert.equal(data[2].courseElementName, "literature");
+            assert.equal(data[2].courseElementType, 1);
+        });
+        it('should add form', async function () {
+            let data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 3);
+            courseElementId = await CourseElements.createForm(tokenA, courseSectionId, {
+                courseElementName: "form",
+                courseElementDescription: "this is a description",
+                formData: "",
+            });
+            data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 4);
+            assert.equal(data[3].courseElementName, "form");
+            assert.equal(data[3].courseElementType, 2);
+        });
         it('should move course element order', async function () {
-            await CourseElements.createVideo(tokenA, courseSectionId, {
-                courseElementName: "video_3",
-                courseElementDescription: "this is a description",
-            });
-            courseElementId = await CourseElements.createVideo(tokenA, courseSectionId, {
-                courseElementName: "video_4",
-                courseElementDescription: "this is a description",
-            });
-            await CourseElements.createVideo(tokenA, courseSectionId, {
+            await CourseElements.createLiterature(tokenA, courseSectionId, {
                 courseElementName: "video_5",
                 courseElementDescription: "this is a description",
+                literatureData: "",
             });
             await CourseElements.moveCourseElement(courseElementId, 1);
             let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
@@ -700,9 +719,7 @@ describe('Course Development Tests', function () {
             data = await CourseSections.getCourseHierarchy(tokenA, courseId);
             assert.equal(data[0].children.length, 4);
         });
-        it('should remove allcourse elements when course sections is deleted', async function () {
-            data = await CourseSections.getCourseHierarchy(tokenA, courseId);
-            assert.equal(data[0].children.length, 4);
+        it('should remove course elements when course sections is deleted', async function () {
             await CourseSections.removeCourseSection(tokenA, courseSectionId);
             data = await CourseSections.getCourseHierarchy(tokenA, courseId);
             assert.equal(data.length, 1);

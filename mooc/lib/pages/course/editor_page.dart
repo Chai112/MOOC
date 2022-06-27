@@ -92,6 +92,7 @@ class _State extends State<CourseEditorPage> {
       "courseId": widget.courseId.toString(),
     });
 
+    print(response["data"]);
     _courseHierarchy = []; // reset
     for (int i = 0; i < response["data"].length; i++) {
       _CourseSection courseSection = _CourseSection();
@@ -132,7 +133,6 @@ class _State extends State<CourseEditorPage> {
   Future<bool> addCourseElementVideo(int courseSectionId) async {
     String token = auth_service.globalUser.token!.token;
 
-    print("csid ${courseSectionId.toString}");
     Map<String, dynamic> response =
         await networking_service.getServer("createVideo", {
       "token": token,
@@ -140,7 +140,36 @@ class _State extends State<CourseEditorPage> {
       "courseElementName": "New Video",
     });
 
-    print("aok");
+    int courseElementId = response["courseElementId"];
+    return true;
+  }
+
+  Future<bool> addCourseElementLiterature(int courseSectionId) async {
+    String token = auth_service.globalUser.token!.token;
+
+    Map<String, dynamic> response =
+        await networking_service.getServer("createLiterature", {
+      "token": token,
+      "courseSectionId": courseSectionId.toString(),
+      "courseElementName": "New Literature",
+      "literatureData": "",
+    });
+
+    int courseElementId = response["courseElementId"];
+    return true;
+  }
+
+  Future<bool> addCourseElementForm(int courseSectionId) async {
+    String token = auth_service.globalUser.token!.token;
+
+    Map<String, dynamic> response =
+        await networking_service.getServer("createForm", {
+      "token": token,
+      "courseSectionId": courseSectionId.toString(),
+      "courseElementName": "New Test",
+      "formData": "",
+    });
+
     int courseElementId = response["courseElementId"];
     return true;
   }
@@ -149,132 +178,134 @@ class _State extends State<CourseEditorPage> {
   @override
   Widget build(BuildContext context) {
     return ScholarlyTabPage(sideBar: [
-      Flexible(flex: 1, child: Container()),
-      Flexible(
-        flex: 9,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FutureBuilder(
-                future: loadCourseName(),
-                builder: (context, AsyncSnapshot<bool> snapshot) {
-                  if (snapshot.hasData) {
-                    return ScholarlyPadding(
-                      child: SwappableTextField(
-                        textWidget: ScholarlyTextH2(_courseName),
-                        textFieldWidget: ScholarlyTextField(
-                            label: "course name",
-                            controller: _courseNameController),
-                        onSubmit: changeCourseName,
+      SizedBox(height: 50),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder(
+              future: loadCourseName(),
+              builder: (context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.hasData) {
+                  return ScholarlyPadding(
+                    child: SwappableTextField(
+                      textWidget: ScholarlyTextH2(_courseName),
+                      textFieldWidget: ScholarlyTextField(
+                          label: "course name",
+                          controller: _courseNameController),
+                      onSubmit: changeCourseName,
+                    ),
+                  );
+                } else {
+                  return const ScholarlyLoading();
+                }
+              }),
+          const SizedBox(height: 30),
+          FutureBuilder(
+              future: loadCourseHierarchy(),
+              builder: (context, AsyncSnapshot<bool> snapshot) {
+                //if (snapshot.hasData) {
+                return Column(
+                  children: List.generate(_courseHierarchy.length, (int i) {
+                    return ExpansionTile(
+                      tilePadding: EdgeInsets.only(left: 10),
+                      iconColor: scholarly_color.grey,
+                      title: Align(
+                        alignment: Alignment(-1.45, 0),
+                        child: ScholarlyTextH5(
+                            Uri.decodeComponent(
+                                _courseHierarchy[i].courseSectionName),
+                            red: false),
                       ),
-                    );
-                  } else {
-                    return const ScholarlyLoading();
-                  }
-                }),
-            const SizedBox(height: 30),
-            FutureBuilder(
-                future: loadCourseHierarchy(),
-                builder: (context, AsyncSnapshot<bool> snapshot) {
-                  //if (snapshot.hasData) {
-                  return Column(
-                    children: List.generate(_courseHierarchy.length, (int i) {
-                      return ExpansionTile(
-                        tilePadding: EdgeInsets.only(left: 10),
-                        iconColor: scholarly_color.grey,
-                        title: Align(
-                          alignment: Alignment(-1.45, 0),
-                          child: ScholarlyTextH5(
-                              Uri.decodeComponent(
-                                  _courseHierarchy[i].courseSectionName),
-                              red: false),
-                        ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 32.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: List.generate(
-                                      _courseHierarchy[i].courseElements.length,
-                                      (int j) {
-                                    _CourseElement courseElement =
-                                        _courseHierarchy[i].courseElements[j];
-                                    String courseElementName =
-                                        courseElement.courseElementName;
-                                    IconData courseElementIcon = Icons.help;
-                                    switch (courseElement.courseElementType) {
-                                      case 0:
-                                        courseElementIcon =
-                                            Icons.videocam_rounded;
-                                        break;
-                                      case 1:
-                                        courseElementIcon =
-                                            Icons.article_rounded;
-                                        break;
-                                      case 2:
-                                        courseElementIcon =
-                                            Icons.school_rounded;
-                                        break;
-                                    }
-
-                                    return ScholarlySideBarButton(
-                                        icon: courseElementIcon,
-                                        label: Uri.decodeComponent(
-                                            courseElementName),
-                                        selected: i == _selectedCourseSection &&
-                                            j == _selectedCourseElement,
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedCourseSection = i;
-                                            _selectedCourseElement = j;
-                                          });
-                                        });
-                                  }),
-                                ),
-                                _PopupAddElement(
-                                    onPressed: (CourseElementTypes item) async {
-                                  switch (item) {
-                                    case CourseElementTypes.video:
-                                      setState(() {
-                                        addCourseElementVideo(
-                                            _courseHierarchy[i]
-                                                .courseSectionId);
-                                      });
+                      controlAffinity: ListTileControlAffinity.leading,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 32.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(
+                                    _courseHierarchy[i].courseElements.length,
+                                    (int j) {
+                                  _CourseElement courseElement =
+                                      _courseHierarchy[i].courseElements[j];
+                                  String courseElementName =
+                                      courseElement.courseElementName;
+                                  IconData courseElementIcon = Icons.help;
+                                  switch (courseElement.courseElementType) {
+                                    case 0:
+                                      courseElementIcon =
+                                          Icons.videocam_rounded;
                                       break;
-                                    case CourseElementTypes.literature:
+                                    case 1:
+                                      courseElementIcon = Icons.article_rounded;
                                       break;
-                                    case CourseElementTypes.form:
+                                    case 2:
+                                      courseElementIcon = Icons.school_rounded;
                                       break;
                                   }
-                                  print(item);
+
+                                  return ScholarlySideBarButton(
+                                      icon: courseElementIcon,
+                                      label: Uri.decodeComponent(
+                                          courseElementName),
+                                      selected: i == _selectedCourseSection &&
+                                          j == _selectedCourseElement,
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedCourseSection = i;
+                                          _selectedCourseElement = j;
+                                        });
+                                      });
                                 }),
-                                Container(),
-                              ],
-                            ),
+                              ),
+                              _PopupAddElement(
+                                  onPressed: (CourseElementTypes item) async {
+                                switch (item) {
+                                  case CourseElementTypes.video:
+                                    setState(() {
+                                      addCourseElementVideo(
+                                          _courseHierarchy[i].courseSectionId);
+                                    });
+                                    break;
+                                  case CourseElementTypes.literature:
+                                    setState(() {
+                                      addCourseElementLiterature(
+                                          _courseHierarchy[i].courseSectionId);
+                                    });
+                                    break;
+                                  case CourseElementTypes.form:
+                                    setState(() {
+                                      addCourseElementForm(
+                                          _courseHierarchy[i].courseSectionId);
+                                    });
+                                    break;
+                                }
+                                print(item);
+                              }),
+                              Container(),
+                            ],
                           ),
-                        ],
-                      );
-                    }),
-                  );
-                  //} else {
-                  //return const ScholarlyLoading();
-                  //}
-                }),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline_rounded,
-                  color: scholarly_color.greyLight),
-              tooltip: "Add section",
-              onPressed: () async {
-                await addCourseSection();
-                setState(() {});
-              },
-            )
-          ],
-        ),
+                        ),
+                      ],
+                    );
+                  }),
+                );
+                //} else {
+                //return const ScholarlyLoading();
+                //}
+              }),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline_rounded,
+                color: scholarly_color.greyLight),
+            tooltip: "Add section",
+            onPressed: () async {
+              await addCourseSection();
+              setState(() {});
+            },
+          )
+        ],
       ),
     ], body: [
       Text("A"),

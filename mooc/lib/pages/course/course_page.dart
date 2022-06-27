@@ -66,10 +66,10 @@ class _State extends State<CoursePage> {
       tabs: [
         CourseEditorPage(courseId: widget.courseId),
         ScholarlyTabPage(body: [
-          Text("B"),
+          Center(child: Text("Work in Progress")),
         ]),
         ScholarlyTabPage(body: [
-          Text("C"),
+          Center(child: Text("Work in Progress")),
         ]),
       ],
     );

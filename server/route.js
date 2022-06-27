@@ -66,6 +66,12 @@ class Router{
             case "createVideo":
                 this.createVideo();
                 break;
+            case "createLiterature":
+                this.createLiterature();
+                break;
+            case "createForm":
+                this.createForm();
+                break;
             case "removeVideo":
                 this.removeVideo();
                 break;
@@ -95,6 +101,39 @@ class Router{
             throw "error";
         }
     }
+    _handleError(err) {
+        switch (err) {
+            case "no user exists":
+                this.response.status(403);
+                this.response.json({message: err});
+                return;
+            case "passwords do not match":
+                this.response.status(403);
+                this.response.json({message: err});
+                return;
+            case "user already exists":
+                this.response.status(403);
+                this.response.json({message: err});
+                return;
+            case "assigner not part of organization":
+                this.response.status(400);
+                this.response.json({message: err});
+                return;
+            case "assigner has insufficient permission":
+                this.response.status(400);
+                this.response.json({message: err});
+                return;
+            case "assigner not part of course":
+                this.response.status(400);
+                this.response.json({message: err});
+                return;
+            default:
+                this.response.status(500);
+                this.response.json({message: "unreachable"});
+                return;
+        }
+    }
+
     async getUserFromToken() {
         let token = this._getQuery("token");
         let userData = {};
@@ -120,20 +159,8 @@ class Router{
         try {
             token = await Auth.loginUser(username, password);
         } catch (err) {
-            switch (err) {
-                case "no user exists":
-                    this.response.status(403);
-                    this.response.json({message: err});
-                    return;
-                case "passwords do not match":
-                    this.response.status(403);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({"token": token});
@@ -148,16 +175,8 @@ class Router{
         try {
             token = await Auth.registerUser(username, password, email,firstName, lastName);
         } catch (err) {
-            switch (err) {
-                case "user already exists":
-                    this.response.status(403);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({"token": token});
@@ -168,8 +187,7 @@ class Router{
         try {
             data = await Org.getOrganizationsForUser(token);
         } catch (err) {
-            this.response.status(500);
-            this.response.json({message: "unreachable"});
+            this._handleError(err);
             return;
         }
         this.response.status(200);
@@ -183,8 +201,7 @@ class Router{
             // TODO: there should be an authentication check
             orgData = await Org.getOrganization(organizationId);
         } catch (err) {
-            this.response.status(500);
-            this.response.json({message: "unreachable"});
+            this._handleError(err);
             return;
         }
         this.response.status(200);
@@ -201,8 +218,7 @@ class Router{
                 organizationName: organizationName,
             });
         } catch (err) {
-            this.response.status(500);
-            this.response.json({message: "unreachable"});
+            this._handleError(err);
             return;
         }
         this.response.status(200);
@@ -218,16 +234,8 @@ class Router{
         try {
             data = await Courses.getCoursesForOrganization(token, organizationId);
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({"data": data});
@@ -240,8 +248,7 @@ class Router{
             // TODO: there should be an authentication check
             courseData = await Courses.getCourse(courseId);
         } catch (err) {
-            this.response.status(500);
-            this.response.json({message: "unreachable"});
+            this._handleError(err);
             return;
         }
         this.response.status(200);
@@ -260,20 +267,8 @@ class Router{
                 courseDescription: "",
             });
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner has insufficient permission":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({
@@ -293,20 +288,8 @@ class Router{
                 courseDescription: courseDescription,
             });
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner has insufficient permission":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({});
@@ -319,20 +302,8 @@ class Router{
         try {
             await Courses.removeCourse(token, courseId);
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner has insufficient permission":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({});
@@ -344,20 +315,8 @@ class Router{
         try {
             data = await CourseSections.getCourseHierarchy(token, courseId);
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner not part of course":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({
@@ -375,24 +334,8 @@ class Router{
                 { courseSectionName: courseSectionName }
             );
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner not part of course":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner has insufficient permission":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({
@@ -417,24 +360,52 @@ class Router{
                 courseElementDescription: "Click here to give the video a description!",
             });
         } catch (err) {
-            switch (err) {
-                case "assigner not part of organization":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner not part of course":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                case "assigner has insufficient permission":
-                    this.response.status(400);
-                    this.response.json({message: err});
-                    return;
-                default:
-                    this.response.status(500);
-                    this.response.json({message: "unreachable"});
-                    return;
-            }
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({
+            "courseElementId": courseElementId,
+        });
+    }
+    async createLiterature() {
+        let token = this._getQuery("token");
+        let courseSectionId = this._getQuery("courseSectionId");
+        let courseElementName = this._getQuery("courseElementName");
+        let literatureData = this._getQuery("literatureData");
+        let courseElementId;
+
+        try {
+            courseElementId = await CourseElements.createLiterature(token, courseSectionId, {
+                courseElementName: courseElementName,
+                courseElementDescription: "Click here to give the video a description!",
+                literatureData: literatureData,
+            });
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({
+            "courseElementId": courseElementId,
+        });
+    }
+    async createForm() {
+        let token = this._getQuery("token");
+        let courseSectionId = this._getQuery("courseSectionId");
+        let courseElementName = this._getQuery("courseElementName");
+        let formData = this._getQuery("formData");
+        let courseElementId;
+
+        try {
+            courseElementId = await CourseElements.createForm(token, courseSectionId, {
+                courseElementName: courseElementName,
+                courseElementDescription: "Click here to give the video a description!",
+                formData: formData,
+            });
+        } catch (err) {
+            this._handleError(err);
+            return;
         }
         this.response.status(200);
         this.response.json({

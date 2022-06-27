@@ -137,11 +137,13 @@ class ScholarlyTabPage extends StatelessWidget {
                   width: 350,
                   constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height),
-                  child: ScholarlyHolder(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: sideBar!,
-                  )))
+                  child: SingleChildScrollView(
+                    child: ScholarlyHolder(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: sideBar!,
+                    )),
+                  ))
               : Container(),
           sideBar != null
               ? VerticalDivider(

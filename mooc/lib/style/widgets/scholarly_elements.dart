@@ -76,3 +76,48 @@ class ScholarlyPadding extends StatelessWidget {
     );
   }
 }
+
+// myPage class which creates a state on call
+class ScholarlyHoverButton extends StatefulWidget {
+  final Widget child;
+  const ScholarlyHoverButton({Key? key, required this.child}) : super(key: key);
+
+  @override
+  _ScholarlyHoverButtonState createState() => _ScholarlyHoverButtonState();
+}
+
+// myPage state
+class _ScholarlyHoverButtonState extends State<ScholarlyHoverButton> {
+  bool _isHovering = false;
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          _isHovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _isHovering = false;
+        });
+      },
+      child: Stack(
+        children: [
+          widget.child,
+          _isHovering
+              ? Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: Icon(Icons.settings, color: Colors.black12),
+                    onPressed: () {},
+                  ),
+                )
+              : Container(),
+        ],
+      ),
+    );
+  }
+}

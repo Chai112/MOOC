@@ -245,14 +245,14 @@ class _PopupAddElement extends StatelessWidget {
                   children: const [
                     Icon(Icons.article_rounded),
                     SizedBox(width: 10),
-                    Text('Add Reading'),
+                    Text('Add Literature'),
                   ],
                 ),
               ),
               PopupMenuItem<Menu>(
                 value: Menu.test,
                 child: Row(children: const [
-                  Icon(Icons.quiz_rounded),
+                  Icon(Icons.school_rounded),
                   SizedBox(width: 10),
                   Text('Add Test'),
                 ]),

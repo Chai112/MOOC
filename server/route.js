@@ -405,6 +405,42 @@ class Router{
     async removeCourseSection() {
 
     }
+    async createVideo() {
+        let token = this._getQuery("token");
+        let courseSectionId = this._getQuery("courseId");
+        let courseElementName = this._getQuery("courseElementName");
+        let courseElementId;
+
+        try {
+            courseElementId = await CourseElements.createVideo(token, courseSectionId, {
+                courseElementName: courseElementName,
+                courseElementDescription: "Click here to give the video a description!",
+            });
+        } catch (err) {
+            switch (err) {
+                case "assigner not part of organization":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner not part of course":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                case "assigner has insufficient permission":
+                    this.response.status(400);
+                    this.response.json({message: err});
+                    return;
+                default:
+                    this.response.status(500);
+                    this.response.json({message: "unreachable"});
+                    return;
+            }
+        }
+        this.response.status(200);
+        this.response.json({
+            "courseElementId": courseElementId,
+        });
+    }
     /*
     createVideo() {
         let token = this._getQuery("token");

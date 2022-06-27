@@ -164,6 +164,22 @@ class DatabaseTable {
         return await this.query(queryStr);
     }
 
+    async selectMax(columnName, where) {
+        let queryStr = `SELECT MAX(${columnName}) AS ${columnName} FROM ${this.tableName}`;
+        if (where !== undefined) {
+            let queryStrWheres = "";
+            for (let name in where) {
+                let value = where[name];
+                queryStrWheres += `${name} = ${sanitizeSqlValue(value)} AND `;
+            }
+            // remove the AND at the end
+            queryStrWheres = queryStrWheres.substring(0, queryStrWheres.length - 5);
+            queryStr += ` WHERE ${queryStrWheres}`
+        }
+        queryStr += ";";
+        return (await this.query(queryStr))[0];
+    }
+
     async insertInto(entry) {
         let queryStrCol = `${this.tableKeyName}, `;
         let nextKey = await this.getNextKey();

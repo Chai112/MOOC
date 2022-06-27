@@ -26,6 +26,10 @@ describe('Database', function () {
                 {
                 name: "password",
                 type: "varchar(32)"
+                },
+                {
+                name: "idx",
+                type: "int"
                 }
             ]
         );
@@ -41,12 +45,14 @@ describe('Database', function () {
         await testingTable.insertInto(
         {
             username: "cat",
-            password: "bat"
+            password: "bat",
+            idx: 1,
         });
         await testingTable.insertInto(
         {
             username: "cat",
-            password: "mat"
+            password: "mat",
+            idx: 2,
         });
 
         // check
@@ -58,6 +64,10 @@ describe('Database', function () {
         assert.equal(data[1].testId, 2);
         assert.equal(data[1].username, "cat");
         assert.equal(data[1].password, "mat");
+    });
+    it('should get maximum value of column', async function () {
+        let data = await testingTable.selectMax("idx", {username: "cat"});
+        assert.equal(data.idx, 2);
     });
     it('should delete from table', async function () {
         await testingTable.deleteFrom(
@@ -473,6 +483,7 @@ describe('Course Development Tests', function () {
         let tokenB;
         let courseId;
         let coursePrivId;
+        let csid;
         let courseSectionId;
         it('init', async function () {
             // create users
@@ -511,10 +522,6 @@ describe('Course Development Tests', function () {
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
             assert.equal(data.length, 1);
         });
-        it('should find course hierarchy', async function () {
-            let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
-            assert.equal(data.length, 1);
-        });
         it('should not allow non permission to see', async function () {
             await assert.rejects(
                 async function () {
@@ -544,12 +551,47 @@ describe('Course Development Tests', function () {
             data = await CourseSections.getCourseSection(courseSectionId);
             assert.equal(data[0].courseSectionName, "section_1_edited");
         });
-        it('should remove course section from course', async function () {
+        it('should have correct section order when adding', async function () {
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
             assert.equal(data.length, 1);
+            csid = await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_2" }
+            );
+            data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
+            assert.equal(data.length, 2);
+            assert.equal(data[0].sectionOrder, 0);
+            assert.equal(data[1].sectionOrder, 1);
+        });
+        it('should move course section order', async function () {
+            await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_3" }
+            );
+            await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_4" }
+            );
+            await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_5" }
+            );
+            await CourseSections.moveCourseSection(csid, 3);
+            data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
+            assert.equal(data.length, 5);
+            assert.equal(data[0].sectionOrder, 0);
+            assert.equal(data[1].sectionOrder, 3);
+            assert.equal(data[2].sectionOrder, 1);
+            assert.equal(data[3].sectionOrder, 2);
+            assert.equal(data[4].sectionOrder, 4);
+        });
+        it('should remove course section from course', async function () {
+            data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
+            assert.equal(data.length, 5);
             await CourseSections.removeCourseSection(tokenA, courseSectionId);
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
-            assert.equal(data.length, 0);
+            assert.equal(data.length, 4);
+        });
+        it('should redo section order after removal', async function () {
+            data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
+            assert.equal(data.length, 4);
+            assert.equal(data[0].sectionOrder, 2);
         });
         it('cleanup', async function () {
             await Org.deleteOrganization(tokenA, orgId);
@@ -565,8 +607,8 @@ describe('Course Development Tests', function () {
         let courseId;
         let coursePrivId;
         let courseSectionId;
+        let courseElementId;
         it('init', async function () {
-            CourseElements.DO_NOT_RUN_FULL_RESET();
             // create users
             try {
                 tokenA = await Auth.loginUser("test", "password");
@@ -601,12 +643,70 @@ describe('Course Development Tests', function () {
             let data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
             assert.equal(data.length, 0);
             await CourseElements.createVideo(tokenA, courseSectionId, {
-                videoName: "bob",
-                videoDescription: "this is a description",
+                courseElementName: "bob",
+                courseElementDescription: "this is a description",
             });
             data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
             assert.equal(data.length, 1);
-            assert.equal(data[0].videoName, "bob");
+            assert.equal(data[0].courseElementName, "bob");
+            assert.equal(data[0].courseElementType, 0);
+        });
+        it('should give course hierarchy', async function () {
+            await CourseSections.addCourseSection(tokenA, courseId, 
+                { courseSectionName: "section_2" }
+            );
+            let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data.length, 2);
+            assert.equal(data[0].children.length, 1);
+            assert.equal(data[0].children[0].courseElementName, "bob");
+            assert.equal(data[0].children[0].courseElementType, 0);
+        });
+        it('should have correct element order when adding', async function () {
+            await CourseElements.createVideo(tokenA, courseSectionId, {
+                courseElementName: "video_2",
+                courseElementDescription: "this is a description",
+            });
+            let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data[0].children.length, 2);
+            assert.equal(data[0].children[0].elementOrder, 0);
+            assert.equal(data[0].children[1].elementOrder, 1);
+        });
+        it('should move course element order', async function () {
+            await CourseElements.createVideo(tokenA, courseSectionId, {
+                courseElementName: "video_3",
+                courseElementDescription: "this is a description",
+            });
+            courseElementId = await CourseElements.createVideo(tokenA, courseSectionId, {
+                courseElementName: "video_4",
+                courseElementDescription: "this is a description",
+            });
+            await CourseElements.createVideo(tokenA, courseSectionId, {
+                courseElementName: "video_5",
+                courseElementDescription: "this is a description",
+            });
+            await CourseElements.moveCourseElement(courseElementId, 1);
+            let data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data[0].children.length, 5);
+            assert.equal(data[0].children[0].elementOrder, 0);
+            assert.equal(data[0].children[1].elementOrder, 2);
+            assert.equal(data[0].children[2].elementOrder, 3);
+            assert.equal(data[0].children[3].elementOrder, 1);
+            assert.equal(data[0].children[4].elementOrder, 4);
+        });
+        it('should remove course elements', async function () {
+            data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data[0].children.length, 5);
+            await CourseElements.removeCourseElement(tokenA, courseElementId);
+            data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data[0].children.length, 4);
+        });
+        it('should remove allcourse elements when course sections is deleted', async function () {
+            data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data[0].children.length, 4);
+            await CourseSections.removeCourseSection(tokenA, courseSectionId);
+            data = await CourseSections.getCourseHierarchy(tokenA, courseId);
+            assert.equal(data.length, 1);
+            assert.equal(data[0].children.length, 0);
         });
         it('cleanup', async function () {
             await Org.deleteOrganization(tokenA, orgId);

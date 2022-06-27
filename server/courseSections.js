@@ -2,6 +2,7 @@ const Db = require('./database');
 const Auth = require('./auth');
 const Org = require('./organizations');
 const Courses = require('./courses');
+const CourseElements = require('./courseElements');
 
 var courseSections = new Db.DatabaseTable("CourseSections",
     "courseSectionId",
@@ -23,7 +24,7 @@ var courseSections = new Db.DatabaseTable("CourseSections",
         "type": "datetime"
         },
         {
-        "name": "elementOrder",
+        "name": "sectionOrder",
         "type": "int"
         },
 ]);
@@ -41,14 +42,14 @@ async function addCourseSection (token, courseId, courseSectionOptions) {
     await assertUserCanEditCourse(token, courseId);
 
     // find element order
-    let elementOrder = 0;
+    let sectionOrder = await _getNextSectionOrder(courseId);
 
     let courseSectionId = await courseSections.insertInto({
         courseId: courseId,
         courseSectionName: courseSectionOptions.courseSectionName,
         dateCreated: Db.getDatetime(),
         dateModified: Db.getDatetime(),
-        elementOrder: elementOrder,
+        sectionOrder: sectionOrder,
     });
     return courseSectionId;
 }
@@ -69,27 +70,22 @@ async function removeCourseSection (token, courseSectionId) {
     // check auth
     await assertUserCanEditCourseSection(token, courseSectionId);
 
+    // remove element order
+    let courseSection = await courseSections.select({ courseSectionId: courseSectionId });
+    await _removeSectionOrder(courseSection[0].sectionOrder, courseSection[0].courseId);
+    await CourseElements.removeAllCourseElementsFromCourseSection(courseSection[0].courseSectionId);
+
     courseSections.deleteFrom({ courseSectionId: courseSectionId, });
 }
 
 module.exports.removeAllCourseSectionsFromCourse = removeAllCourseSectionsFromCourse;
 async function removeAllCourseSectionsFromCourse(courseId) {
+    // clean all course sections
+    let data = await courseSections.select({ courseId:  courseId });
+    for (var i = 0; i < data.length; i++) {
+        await CourseElements.removeAllCourseElementsFromCourseSection(data[i].courseSectionId);
+    }
     await courseSections.deleteFrom({ courseId: courseId, });
-}
-
-module.exports.moveCourseSection = moveCourseSection;
-// 0: [ Alice ]
-// 1: [ Bob ]
-// 2: [ Charlie ]
-// 3: [ Derek ]
-// move alice to index 2 (move index [alice + 1] to [place alice will go to] down by one)
-// 0: [ Bob ]
-// 1: [ Charlie ]
-// 2: [ Alice ]
-// 3: [ Derek ]
-
-async function moveCourseSection(courseSectionId, toElementOrder) {
-    throw "not yet implemented";
 }
 
 module.exports.getAllCourseSectionsFromCourse = getAllCourseSectionsFromCourse;
@@ -100,7 +96,11 @@ async function getAllCourseSectionsFromCourse(courseId) {
 module.exports.getCourseHierarchy = getCourseHierarchy;
 async function getCourseHierarchy(token, courseId) {
     await assertUserCanViewCourse(token, courseId);
-    return await courseSections.select({ courseId: courseId });
+    let output = await courseSections.select({ courseId: courseId });
+    for (let i = 0; i < output.length; i++) {
+        output[i].children = await CourseElements.getAllElementsFromCourseSection(output[i].courseSectionId);
+    }
+    return output;
 }
 
 module.exports.getCourseSection = getCourseSection;
@@ -137,5 +137,70 @@ async function assertUserCanViewCourse(token, courseId) {
     let user = await Auth.getUserFromToken(token);
     userId = user[0].userId;
     await Org.getCoursePrivilegesForCourseAndUser(courseId, organizationId, userId);
-    return true;
+    // if no errors caused by above, should be OK
+}
+
+async function _getNextSectionOrder (courseId) {
+    let sectionOrder = await courseSections.selectMax("sectionOrder", { courseId: courseId });
+
+    // check if even any elements exists
+    if (sectionOrder.sectionOrder === null) {
+        return 0;
+    }
+    return sectionOrder.sectionOrder + 1;
+}
+
+async function _removeSectionOrder (sectionOrder, courseId) {
+    let cs = await courseSections.select({courseId: courseId});
+    for (let i = 0; i < cs.length; i++) {
+        if (cs[i].sectionOrder > sectionOrder) {
+            await courseSections.update(
+                { courseSectionId: cs[i].courseSectionId },
+                { sectionOrder: cs[i].sectionOrder - 1 }
+            );
+        }
+    }
+}
+
+// 0: [ Alice ]
+// 1: [ Bob ]
+// 2: [ Charlie ]
+// 3: [ Derek ]
+// 4: [ Franky ]
+// move Bob to index 3 (toSectionOrder = 3, currentSectionOrder = 1)
+// 0: [ Alice ]
+// 1: [ Charlie ]
+// 2: [ Derek ]
+// 3: [ Bob ]
+// 4: [ Franky ]
+// 
+// step 1: remove the currentSectionOrder
+// step 2: anything above or equal toSectionOrder, shift up by one
+// step 3: insert into
+
+module.exports.moveCourseSection = moveCourseSection;
+async function moveCourseSection(courseSectionId, toSectionOrder) {
+    let courseSection = (await courseSections.select({courseSectionId: courseSectionId}))[0];
+    let currentSectionOrder = courseSection.sectionOrder;
+    let courseId = courseSection.courseId;
+
+    // step 1: remove the currentSectionOrder
+    await _removeSectionOrder(currentSectionOrder, courseId);
+
+    // step 2: anything above toSectionOrder, shift up by one
+    let cs = await courseSections.select({courseId: courseId});
+    for (let i = 0; i < cs.length; i++) {
+        if (cs[i].sectionOrder >= toSectionOrder) {
+            await courseSections.update(
+                { courseSectionId: cs[i].courseSectionId },
+                { sectionOrder: cs[i].sectionOrder + 1 }
+            );
+        }
+    }
+
+    // step 3: insert into
+    await courseSections.update(
+        { courseSectionId: courseSectionId },
+        { sectionOrder: toSectionOrder }
+    );
 }

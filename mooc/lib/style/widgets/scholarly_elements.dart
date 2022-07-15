@@ -79,8 +79,12 @@ class ScholarlyPadding extends StatelessWidget {
 
 // myPage class which creates a state on call
 class ScholarlyHoverButton extends StatefulWidget {
-  final Widget child;
-  const ScholarlyHoverButton({Key? key, required this.child}) : super(key: key);
+  final Widget child, button;
+  const ScholarlyHoverButton({
+    Key? key,
+    required this.child,
+    required this.button,
+  }) : super(key: key);
 
   @override
   _ScholarlyHoverButtonState createState() => _ScholarlyHoverButtonState();
@@ -110,10 +114,7 @@ class _ScholarlyHoverButtonState extends State<ScholarlyHoverButton> {
           _isHovering
               ? Align(
                   alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(Icons.settings, color: Colors.black12),
-                    onPressed: () {},
-                  ),
+                  child: widget.button,
                 )
               : Container(),
         ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mooc/services/networking_service.dart' as networking_service;
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void reportError(
     networking_service.NetworkingException error, BuildContext context) {
   if (!error.expandError) return;

@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:mooc/route.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 
+import 'package:mooc/services/error_service.dart' as error_service;
+
 void main() {
   runApp(
     MaterialApp(
@@ -32,6 +34,8 @@ void main() {
       ),
       initialRoute: '/',
       onGenerateRoute: RouteGenerator.generateRoute,
+      navigatorKey:
+          error_service.navigatorKey, // Setting a global key for error service
       //home: _App(),
     ),
   );

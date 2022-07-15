@@ -542,7 +542,7 @@ describe('Course Development Tests', function () {
             data = await CourseSections.getAllCourseSectionsFromCourse(courseId);
             assert.equal(data.length, 1);
         });
-        it('should change course section to course', async function () {
+        it('should change course section', async function () {
             let data = await CourseSections.getCourseSection(courseSectionId);
             assert.equal(data[0].courseSectionName, "section_1");
             await CourseSections.changeCourseSection(tokenA, courseSectionId, 
@@ -696,6 +696,18 @@ describe('Course Development Tests', function () {
             assert.equal(data.length, 4);
             assert.equal(data[3].courseElementName, "form");
             assert.equal(data[3].courseElementType, 2);
+        });
+        it('should change course elements', async function () {
+            data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 4);
+            assert.equal(data[3].courseElementName, "form");
+            await CourseElements.changeCourseElement(tokenA, courseElementId, {
+                courseElementName: "form_edited",
+                courseElementDescription: "",
+            });
+            data = await CourseElements.getAllElementsFromCourseSection(courseSectionId);
+            assert.equal(data.length, 4);
+            assert.equal(data[3].courseElementName, "form_edited");
         });
         it('should move course element order', async function () {
             await CourseElements.createLiterature(tokenA, courseSectionId, {

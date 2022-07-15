@@ -224,15 +224,64 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
 
   void _editElementButton(
       _EditElementTypes item, int courseSectionId, int courseElementId) {
+    String token = auth_service.globalUser.token!.token;
     switch (item) {
       case _EditElementTypes.rename:
-        setState(() {});
+        setState(() {
+          int i = 0, j = 0;
+          while (_courseHierarchy[i].courseSectionId != courseSectionId) {
+            i++;
+          }
+          while (_courseHierarchy[i].courseElements[j].courseElementId !=
+              courseElementId) {
+            j++;
+          }
+          String courseElementName = Uri.decodeComponent(
+              _courseHierarchy[i].courseElements[j].courseElementName);
+
+          error_service.alert(error_service.Alert(
+              title: "Rename $courseElementName",
+              description: "Please enter a new name",
+              buttonName: "RENAME",
+              prefillInputText: courseElementName,
+              acceptInput: true,
+              callback: (String input) async {
+                await networking_service.getServer("changeCourseElement", {
+                  "token": token,
+                  "courseElementId": courseElementId.toString(),
+                  "courseElementName": input,
+                  "courseElementDescription": "",
+                });
+                setState(() {});
+              }));
+        });
         break;
       case _EditElementTypes.move:
         setState(() {});
         break;
       case _EditElementTypes.delete:
-        setState(() {});
+        setState(() {
+          int i = 0, j = 0;
+          while (_courseHierarchy[i].courseSectionId != courseSectionId) {
+            i++;
+          }
+          while (_courseHierarchy[i].courseElements[j].courseElementId !=
+              courseElementId) {
+            j++;
+          }
+          String courseElementName = Uri.decodeComponent(
+              _courseHierarchy[i].courseElements[j].courseElementName);
+
+          error_service.alert(error_service.Alert(
+              title: "Delete $courseElementName",
+              description:
+                  "Are you sure you wish to permanently delete $courseElementName?\nAll data will be lost forever.",
+              buttonName: "DELETE",
+              acceptInput: false,
+              callback: (String input) {
+                print("got $input");
+              }));
+        });
         break;
     }
   }
@@ -254,6 +303,7 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
   // main build function
   @override
   Widget build(BuildContext context) {
+    error_service.checkAlerts(context);
     // ignore: unused_local_variable
     return FutureBuilder(
         future: loadCourseHierarchy(),

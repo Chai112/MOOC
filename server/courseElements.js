@@ -165,6 +165,22 @@ async function getAllElementsFromCourseSection(courseSectionId) {
     return output;
 }
 
+module.exports.changeCourseElement = changeCourseElement;
+async function changeCourseElement (token, courseElementId, courseElementOptions) {
+    let courseElement = await courseElements.select({courseElementId: courseElementId});
+    let courseSectionId = courseElement[0].courseSectionId;
+    // check auth
+    await CourseSections.assertUserCanEditCourseSection(token, courseSectionId);
+
+    await courseElements.update(
+        { courseElementId: courseElementId },
+        {
+            courseElementName: courseElementOptions.courseElementName,
+            courseElementDescription: courseElementOptions.courseElementDescription,
+        }
+    );
+}
+
 module.exports.removeCourseElement = removeCourseElement;
 async function removeCourseElement (token, courseElementId) {
     let courseElement = await courseElements.select({courseElementId: courseElementId});
@@ -190,14 +206,14 @@ async function removeAllCourseElementsFromCourseSection(courseSectionId) {
     await courseElements.deleteFrom({courseSectionId: courseSectionId});
 }
 
-async function _addCourseElement (courseSectionId, options, courseElementType) {
+async function _addCourseElement (courseSectionId, courseElementOptions, courseElementType) {
     // determine next element order
     let elementOrder = await _getNextElementOrder(courseSectionId);
 
     let courseElementId = await courseElements.insertInto({
         courseSectionId: courseSectionId,
-        courseElementName: options.courseElementName,
-        courseElementDescription: options.courseElementDescription,
+        courseElementName: courseElementOptions.courseElementName,
+        courseElementDescription: courseElementOptions.courseElementDescription,
         courseElementType: courseElementType,
         elementOrder: elementOrder,
         dateCreated: Db.getDatetime(),

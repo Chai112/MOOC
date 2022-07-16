@@ -134,6 +134,7 @@ class Router{
                 this.response.json({message: err});
                 return;
             default:
+                console.log("FATAL: " + err);
                 this.response.status(500);
                 this.response.json({message: "unreachable"});
                 return;
@@ -352,12 +353,10 @@ class Router{
         let token = this._getQuery("token");
         let courseSectionId = this._getQuery("courseSectionId");
         let courseSectionName = this._getQuery("courseSectionName");
-        let courseSectionDescription = this._getQuery("courseSectionDescription");
 
         try {
             await CourseSections.changeCourseSection(token, courseSectionId, {
                 courseSectionName: courseSectionName,
-                courseSectionDescription: courseSectionDescription,
             });
         } catch (err) {
             this._handleError(err);
@@ -402,7 +401,7 @@ class Router{
         let courseElementId = this._getQuery("courseElementId");
 
         try {
-            await CourseSections.removeCourseSection(token, courseElementId);
+            await CourseElements.removeCourseElement(token, courseElementId);
         } catch (err) {
             this._handleError(err);
             return;

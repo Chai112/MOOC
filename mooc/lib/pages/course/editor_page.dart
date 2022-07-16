@@ -278,8 +278,12 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
                   "Are you sure you wish to permanently delete $courseElementName?\nAll data will be lost forever.",
               buttonName: "DELETE",
               acceptInput: false,
-              callback: (String input) {
-                print("got $input");
+              callback: (String input) async {
+                await networking_service.getServer("removeCourseElement", {
+                  "token": token,
+                  "courseElementId": courseElementId.toString(),
+                });
+                setState(() {});
               }));
         });
         break;
@@ -287,15 +291,59 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
   }
 
   void _editSectionButton(_EditSectionTypes item, int courseSectionId) {
+    String token = auth_service.globalUser.token!.token;
     switch (item) {
       case _EditSectionTypes.rename:
-        setState(() {});
+        setState(() {
+          int i = 0;
+          while (_courseHierarchy[i].courseSectionId != courseSectionId) {
+            i++;
+          }
+          String courseSectionName =
+              Uri.decodeComponent(_courseHierarchy[i].courseSectionName);
+
+          error_service.alert(error_service.Alert(
+              title: "Rename $courseSectionName",
+              description: "Please enter a new name",
+              buttonName: "RENAME",
+              prefillInputText: courseSectionName,
+              acceptInput: true,
+              callback: (String input) async {
+                await networking_service.getServer("changeCourseSection", {
+                  "token": token,
+                  "courseSectionId": courseSectionId.toString(),
+                  "courseSectionName": input,
+                });
+                setState(() {});
+              }));
+        });
         break;
       case _EditSectionTypes.move:
         setState(() {});
         break;
       case _EditSectionTypes.delete:
-        setState(() {});
+        setState(() {
+          int i = 0;
+          while (_courseHierarchy[i].courseSectionId != courseSectionId) {
+            i++;
+          }
+          String courseSectionName =
+              Uri.decodeComponent(_courseHierarchy[i].courseSectionName);
+
+          error_service.alert(error_service.Alert(
+              title: "Delete $courseSectionName",
+              description:
+                  "Are you sure you wish to permanently delete $courseSectionName?\nAll data will be lost forever.",
+              buttonName: "DELETE",
+              acceptInput: false,
+              callback: (String input) async {
+                await networking_service.getServer("removeCourseSection", {
+                  "token": token,
+                  "courseSectionId": courseSectionId.toString(),
+                });
+                setState(() {});
+              }));
+        });
         break;
     }
   }
@@ -325,11 +373,14 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
                       tilePadding: EdgeInsets.only(left: 10),
                       iconColor: scholarly_color.grey,
                       title: Align(
-                        alignment: Alignment(-1.45, 0),
-                        child: ScholarlyTextH5(
-                            Uri.decodeComponent(
-                                courseSection.courseSectionName),
-                            red: false),
+                        alignment: Alignment(-1.65, 0),
+                        child: SizedBox(
+                          width: 200,
+                          child: ScholarlyTextH5(
+                              Uri.decodeComponent(
+                                  courseSection.courseSectionName),
+                              red: false),
+                        ),
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
                       children: [
@@ -534,11 +585,13 @@ class _PopupEditSectionButton extends StatelessWidget {
         // Callback that sets the selected popup menu item.
         itemBuilder: (BuildContext context) =>
             <PopupMenuEntry<_EditSectionTypes>>[
-              /*
-              const PopupMenuItem<_EditSectionTypes>(
-                value: _EditSectionTypes.rename,
-                child: Text('Rename'),
+              PopupMenuItem<_EditSectionTypes>(
+                onTap: () {
+                  onPressed(_EditSectionTypes.rename);
+                },
+                child: const Text('Rename'),
               ),
+              /*
               const PopupMenuItem<_EditSectionTypes>(
                 value: _EditSectionTypes.move,
                 child: Text('Move'),

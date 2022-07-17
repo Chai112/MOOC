@@ -168,15 +168,19 @@ class ScholarlyTabPage extends StatelessWidget {
 }
 
 class ScholarlyLoading extends StatelessWidget {
+  final bool white;
   // constructor
-  const ScholarlyLoading({Key? key}) : super(key: key);
+  const ScholarlyLoading({Key? key, this.white = false}) : super(key: key);
 
   // main build function
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
         child: SizedBox(
-            height: 30, width: 30, child: CircularProgressIndicator()));
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+                color: white ? Colors.white : scholarly_color.scholarlyRed)));
   }
 }
 

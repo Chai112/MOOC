@@ -21,6 +21,7 @@ class AuthPage extends StatefulWidget {
 class _State extends State<AuthPage> {
   final _usernameController = ScholarlyTextFieldController();
   final _passwordController = ScholarlyTextFieldController();
+  bool _isLoggingIn = false;
 
   @override
   void initState() {
@@ -124,15 +125,24 @@ class _State extends State<AuthPage> {
                         children: [
                           ScholarlyButton("Login", onPressed: () async {
                             try {
+                              setState(() {
+                                _isLoggingIn = true;
+                              });
                               bool success = await login();
+                              setState(() {
+                                _isLoggingIn = false;
+                              });
                               if (success) {
                                 course_service.sendToOrgPage(context);
                               }
                             } on networking_service
                                 .NetworkingException catch (error) {
+                              setState(() {
+                                _isLoggingIn = false;
+                              });
                               error_service.reportError(error, context);
                             }
-                          }, invertedColor: true),
+                          }, invertedColor: true, loading: _isLoggingIn),
                           ScholarlyButton(
                             "Create an Account",
                             onPressed: () {

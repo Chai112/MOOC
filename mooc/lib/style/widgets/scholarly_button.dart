@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart'; // Flutter
+import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 
 class ScholarlyButton extends StatelessWidget {
@@ -7,14 +8,17 @@ class ScholarlyButton extends StatelessWidget {
   final Function() onPressed;
   final bool invertedColor;
   final bool verticalOnlyPadding;
+  final bool loading;
 
   // constructor
-  const ScholarlyButton(this.text,
-      {Key? key,
-      required this.onPressed,
-      this.invertedColor = false,
-      this.verticalOnlyPadding = false})
-      : super(key: key);
+  const ScholarlyButton(
+    this.text, {
+    Key? key,
+    required this.onPressed,
+    this.invertedColor = false,
+    this.verticalOnlyPadding = false,
+    this.loading = false,
+  }) : super(key: key);
 
   // main build function
   @override
@@ -34,13 +38,25 @@ class ScholarlyButton extends StatelessWidget {
           child: Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 15),
-              child: Text(
-                text,
-                style: TextStyle(
-                    fontSize: 16,
-                    color: !invertedColor
-                        ? scholarly_color.scholarlyRed
-                        : Colors.white),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  loading
+                      ? ScholarlyLoading(white: invertedColor)
+                      : Container(),
+                  Text(
+                    text,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: !invertedColor
+                            ? (!loading
+                                ? scholarly_color.scholarlyRed
+                                : Colors.white)
+                            : (!loading
+                                ? Colors.white
+                                : scholarly_color.scholarlyRed)),
+                  ),
+                ],
               ))),
     );
   }

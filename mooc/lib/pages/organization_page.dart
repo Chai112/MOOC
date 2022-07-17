@@ -63,7 +63,6 @@ class _State extends State<OrganizationPage> {
   // main build function
   @override
   Widget build(BuildContext context) {
-    print("loading");
     // ignore: unused_local_variable
     return ScholarlyScaffold(
       numberOfTabs: 3,
@@ -91,11 +90,13 @@ class _State extends State<OrganizationPage> {
       tabs: [
         ScholarlyTabPage(body: [
           const SizedBox(height: 50),
-          ScholarlyButton("New", invertedColor: true, verticalOnlyPadding: true,
-              onPressed: () {
-            course_service.sendToCoursePage(context,
-                organizationId: widget.organizationId);
-          }),
+          FittedBox(
+            child: ScholarlyButton("New",
+                invertedColor: true, verticalOnlyPadding: true, onPressed: () {
+              course_service.sendToCoursePage(context,
+                  organizationId: widget.organizationId);
+            }),
+          ),
           const SizedBox(height: 8),
           FutureBuilder(
               future: _loadCourses(),

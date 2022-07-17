@@ -32,6 +32,8 @@ class _CourseElement {
 
 // myPage state
 class _State extends State<CourseEditorPage> {
+  _CourseHierarchyController _courseEditorController =
+      _CourseHierarchyController();
   @override
   void initState() {
     super.initState();
@@ -52,13 +54,32 @@ class _State extends State<CourseEditorPage> {
         children: [
           _CourseName(courseId: widget.courseId),
           const SizedBox(height: 30),
-          _CourseHierarchy(courseId: widget.courseId),
+          _CourseHierarchy(
+              courseId: widget.courseId,
+              callback: (_CourseHierarchyController newController) {
+                setState(() {
+                  _courseEditorController = newController;
+                });
+              }),
         ],
       ),
     ], body: [
-      Text("A"),
+      _CourseViewer(controller: _courseEditorController),
     ]);
   }
+}
+
+class _CourseHierarchyController {
+  String courseSectionName, courseElementName;
+  int courseSectionId, courseElementId;
+  bool isLoading;
+  _CourseHierarchyController({
+    this.isLoading = true,
+    this.courseSectionName = "",
+    this.courseSectionId = 0,
+    this.courseElementName = "",
+    this.courseElementId = 0,
+  });
 }
 
 class _CourseName extends StatefulWidget {
@@ -125,7 +146,10 @@ class _CourseNameState extends State<_CourseName> {
 
 class _CourseHierarchy extends StatefulWidget {
   final int courseId;
-  const _CourseHierarchy({Key? key, required this.courseId}) : super(key: key);
+  final Function(_CourseHierarchyController) callback;
+  const _CourseHierarchy(
+      {Key? key, required this.courseId, required this.callback})
+      : super(key: key);
 
   @override
   _CourseHierarchyState createState() => _CourseHierarchyState();
@@ -348,6 +372,7 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
     }
   }
 
+  int a = 0;
   // main build function
   @override
   Widget build(BuildContext context) {
@@ -356,7 +381,6 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
     return FutureBuilder(
         future: loadCourseHierarchy(),
         builder: (context, AsyncSnapshot<bool> snapshot) {
-          //if (snapshot.hasData) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -428,10 +452,29 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
                                         selected: i == _selectedCourseSection &&
                                             j == _selectedCourseElement,
                                         onPressed: () {
-                                          setState(() {
-                                            _selectedCourseSection = i;
-                                            _selectedCourseElement = j;
-                                          });
+                                          _selectedCourseSection = i;
+                                          _selectedCourseElement = j;
+                                          widget.callback(
+                                              _CourseHierarchyController(
+                                            courseSectionId: _courseHierarchy[
+                                                    _selectedCourseSection]
+                                                .courseSectionId,
+                                            courseSectionName: _courseHierarchy[
+                                                    _selectedCourseSection]
+                                                .courseSectionName,
+                                            courseElementId: _courseHierarchy[
+                                                    _selectedCourseSection]
+                                                .courseElements[
+                                                    _selectedCourseElement]
+                                                .courseElementId,
+                                            courseElementName: _courseHierarchy[
+                                                    _selectedCourseSection]
+                                                .courseElements[
+                                                    _selectedCourseElement]
+                                                .courseElementName,
+                                            isLoading: false,
+                                          ));
+                                          setState(() {});
                                         }),
                                   );
                                 }),
@@ -604,5 +647,37 @@ class _PopupEditSectionButton extends StatelessWidget {
                 child: const Text('Delete'),
               ),
             ]);
+  }
+}
+
+// myPage class which creates a state on call
+class _CourseViewer extends StatefulWidget {
+  final _CourseHierarchyController controller;
+  const _CourseViewer({Key? key, required this.controller}) : super(key: key);
+
+  @override
+  _CourseViewerState createState() => _CourseViewerState();
+}
+
+// myPage state
+class _CourseViewerState extends State<_CourseViewer> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    print("course viewer load ${widget.controller.courseElementName}");
+    // ignore: unused_local_variable
+    return Container(
+      child: Text("Hey"),
+    );
   }
 }

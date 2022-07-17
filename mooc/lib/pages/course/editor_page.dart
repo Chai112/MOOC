@@ -56,6 +56,7 @@ class _State extends State<CourseEditorPage> {
           const SizedBox(height: 30),
           _CourseHierarchy(
               courseId: widget.courseId,
+              controller: _courseEditorController,
               callback: (_CourseHierarchyController newController) {
                 setState(() {
                   _courseEditorController = newController;
@@ -146,9 +147,13 @@ class _CourseNameState extends State<_CourseName> {
 
 class _CourseHierarchy extends StatefulWidget {
   final int courseId;
+  final _CourseHierarchyController controller;
   final Function(_CourseHierarchyController) callback;
   const _CourseHierarchy(
-      {Key? key, required this.courseId, required this.callback})
+      {Key? key,
+      required this.courseId,
+      required this.controller,
+      required this.callback})
       : super(key: key);
 
   @override
@@ -189,7 +194,29 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
       }
       _courseHierarchy.add(courseSection);
     }
+    _updateController();
     return true;
+  }
+
+  void _updateController() {
+    if (widget.controller.courseElementId !=
+        _courseHierarchy[_selectedCourseSection]
+            .courseElements[_selectedCourseElement]
+            .courseElementId) {
+      widget.callback(_CourseHierarchyController(
+        courseSectionId:
+            _courseHierarchy[_selectedCourseSection].courseSectionId,
+        courseSectionName:
+            _courseHierarchy[_selectedCourseSection].courseSectionName,
+        courseElementId: _courseHierarchy[_selectedCourseSection]
+            .courseElements[_selectedCourseElement]
+            .courseElementId,
+        courseElementName: _courseHierarchy[_selectedCourseSection]
+            .courseElements[_selectedCourseElement]
+            .courseElementName,
+        isLoading: false,
+      ));
+    }
   }
 
   Future<bool> addCourseSection() async {
@@ -396,6 +423,7 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
                     child: ExpansionTile(
                       tilePadding: EdgeInsets.only(left: 10),
                       iconColor: scholarly_color.grey,
+                      initiallyExpanded: i == _selectedCourseSection,
                       title: Align(
                         alignment: Alignment(-1.65, 0),
                         child: SizedBox(
@@ -454,26 +482,7 @@ class _CourseHierarchyState extends State<_CourseHierarchy> {
                                         onPressed: () {
                                           _selectedCourseSection = i;
                                           _selectedCourseElement = j;
-                                          widget.callback(
-                                              _CourseHierarchyController(
-                                            courseSectionId: _courseHierarchy[
-                                                    _selectedCourseSection]
-                                                .courseSectionId,
-                                            courseSectionName: _courseHierarchy[
-                                                    _selectedCourseSection]
-                                                .courseSectionName,
-                                            courseElementId: _courseHierarchy[
-                                                    _selectedCourseSection]
-                                                .courseElements[
-                                                    _selectedCourseElement]
-                                                .courseElementId,
-                                            courseElementName: _courseHierarchy[
-                                                    _selectedCourseSection]
-                                                .courseElements[
-                                                    _selectedCourseElement]
-                                                .courseElementName,
-                                            isLoading: false,
-                                          ));
+                                          _updateController();
                                           setState(() {});
                                         }),
                                   );
@@ -674,10 +683,12 @@ class _CourseViewerState extends State<_CourseViewer> {
   // main build function
   @override
   Widget build(BuildContext context) {
-    print("course viewer load ${widget.controller.courseElementName}");
     // ignore: unused_local_variable
+    if (widget.controller.isLoading) return Container(child: Text("Loading "));
+
     return Container(
-      child: Text("Hey"),
+      child: Text(
+          "${Uri.decodeComponent(widget.controller.courseSectionName)}/${Uri.decodeComponent(widget.controller.courseElementName)}"),
     );
   }
 }

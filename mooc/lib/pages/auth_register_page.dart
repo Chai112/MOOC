@@ -26,6 +26,7 @@ class _State extends State<AuthRegisterPage> {
   final _emailController = ScholarlyTextFieldController();
   final _firstNameController = ScholarlyTextFieldController();
   final _lastNameController = ScholarlyTextFieldController();
+  bool _isRegistering = false;
 
   @override
   void initState() {
@@ -192,7 +193,13 @@ class _State extends State<AuthRegisterPage> {
                       Center(
                         child: ScholarlyButton("Register", onPressed: () async {
                           try {
+                            setState(() {
+                              _isRegistering = true;
+                            });
                             bool success = await register();
+                            setState(() {
+                              _isRegistering = false;
+                            });
                             if (success) {
                               course_service.sendToOrgPage(context);
                             }
@@ -200,7 +207,7 @@ class _State extends State<AuthRegisterPage> {
                               .NetworkingException catch (error) {
                             error_service.reportError(error, context);
                           }
-                        }, invertedColor: true),
+                        }, invertedColor: true, loading: _isRegistering),
                       ),
                     ],
                   ),

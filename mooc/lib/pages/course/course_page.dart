@@ -3,6 +3,7 @@ import 'package:mooc/pages/course/editor_page.dart';
 import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_button.dart';
+import 'package:mooc/style/widgets/scholarly_divider.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
@@ -49,22 +50,29 @@ class _State extends State<CoursePage> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     return ScholarlyScaffold(
-      numberOfTabs: 3,
+      numberOfTabs: 4,
       hasAppbar: true,
       sideBar: [
         ScholarlyButton("Delete Course", onPressed: removeCourse),
         ScholarlyTextH3("A")
       ],
-      body: [],
+      body: [
+        Align(alignment: Alignment(-1.1, 0), child: Text("Admin Controls:"))
+      ],
       tabNames: const [
         ScholarlyTabHeaders(
             tabName: "Editor", tabIcon: Icons.construction_rounded),
-        ScholarlyTabHeaders(tabName: "Team", tabIcon: Icons.group_rounded),
         ScholarlyTabHeaders(
             tabName: "Insights", tabIcon: Icons.show_chart_rounded),
+        ScholarlyTabHeaders(
+            tabName: "Contributors", tabIcon: Icons.group_rounded),
+        ScholarlyTabHeaders(tabName: "Students", tabIcon: Icons.person_rounded),
       ],
       tabs: [
         CourseEditorPage(courseId: widget.courseId),
+        ScholarlyTabPage(body: [
+          Center(child: Text("Work in Progress")),
+        ]),
         ScholarlyTabPage(body: [
           Center(child: Text("Work in Progress")),
         ]),

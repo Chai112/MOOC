@@ -14,7 +14,7 @@ class NetworkingException implements Exception {
       {this.description, this.expandError = true});
 }
 
-Future<Map<String, dynamic>> getServer(
+Future<Map<String, dynamic>> serverGet(
     String action, Map<String, String> queryParameters) async {
   // add action to queries
   queryParameters["action"] = action;

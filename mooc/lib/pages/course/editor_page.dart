@@ -9,6 +9,7 @@ import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/pages/course/editor/editor_sidebar_page.dart';
+import 'package:mooc/pages/course/editor/editor_video_page.dart';
 
 // myPage class which creates a state on call
 class CourseEditorPage extends StatefulWidget {
@@ -41,7 +42,6 @@ class _State extends State<CourseEditorPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CourseName(courseId: widget.courseId),
           const SizedBox(height: 30),
           CourseHierarchy(
               courseId: widget.courseId,
@@ -54,7 +54,11 @@ class _State extends State<CourseEditorPage> {
         ],
       ),
     ], body: [
-      _CourseViewer(controller: _courseEditorController),
+      _CourseViewer(
+          controller: _courseEditorController,
+          callback: () {
+            setState(() {});
+          }),
     ]);
   }
 }
@@ -76,7 +80,10 @@ class CourseHierarchyController {
 // myPage class which creates a state on call
 class _CourseViewer extends StatefulWidget {
   final CourseHierarchyController controller;
-  const _CourseViewer({Key? key, required this.controller}) : super(key: key);
+  final Function() callback;
+  const _CourseViewer(
+      {Key? key, required this.controller, required this.callback})
+      : super(key: key);
 
   @override
   _CourseViewerState createState() => _CourseViewerState();
@@ -99,6 +106,17 @@ class _CourseViewerState extends State<_CourseViewer> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     if (widget.controller.isLoading) return Container(child: Text("Loading "));
+
+    switch (widget.controller.courseElementType) {
+      case 0:
+        return CourseEditorVideoPage(
+            controller: widget.controller,
+            callback: () {
+              widget.callback();
+            });
+      case 1:
+      case 2:
+    }
 
     return Container(
       child: Text(

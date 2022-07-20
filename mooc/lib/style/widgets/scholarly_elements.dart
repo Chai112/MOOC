@@ -43,7 +43,7 @@ class ScholarlyHolder extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 900),
+        constraints: const BoxConstraints(maxWidth: 800),
         child: child,
       ),
     );
@@ -118,6 +118,31 @@ class _ScholarlyHoverButtonState extends State<ScholarlyHoverButton> {
                 )
               : Container(),
         ],
+      ),
+    );
+  }
+}
+
+class ScholarlyBox extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+
+  // constructor
+  const ScholarlyBox({Key? key, required this.text}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: scholarly_color.scholarlyRedBackground,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: scholarly_color.scholarlyRed),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child:
+            Text(text, style: TextStyle(color: scholarly_color.scholarlyRed)),
       ),
     );
   }

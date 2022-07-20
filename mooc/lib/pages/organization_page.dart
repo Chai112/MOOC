@@ -38,7 +38,7 @@ class _State extends State<OrganizationPage> {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getOrganization", {
+        await networking_service.serverGet("getOrganization", {
       "token": token,
       "organizationId": widget.organizationId.toString(),
     });
@@ -50,7 +50,7 @@ class _State extends State<OrganizationPage> {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response2 =
-        await networking_service.getServer("getCourses", {
+        await networking_service.serverGet("getCourses", {
       "token": token,
       "organizationId": widget.organizationId.toString(),
     });
@@ -82,10 +82,11 @@ class _State extends State<OrganizationPage> {
         const SizedBox(height: 30),
       ],
       tabNames: const [
-        ScholarlyTabHeaders(tabName: "Courses", tabIcon: Icons.school),
+        ScholarlyTabHeaders(
+            tabName: "Courses", tabIcon: Icons.collections_bookmark_rounded),
+        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.groups),
         ScholarlyTabHeaders(
             tabName: "Analytics", tabIcon: Icons.stacked_line_chart_rounded),
-        ScholarlyTabHeaders(tabName: "Teams", tabIcon: Icons.groups),
       ],
       tabs: [
         ScholarlyTabPage(body: [

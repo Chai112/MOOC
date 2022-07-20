@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart'; // Flutter
 
+import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
+
 class MyVideoProgressIndicator extends StatefulWidget {
   final VideoPlayerController controller;
   const MyVideoProgressIndicator({Key? key, required this.controller})
@@ -78,7 +80,7 @@ class _MyVideoProgressIndicatorState extends State<MyVideoProgressIndicator> {
                     SliderTheme(
                       data: SliderThemeData(
                           thumbColor: Colors.white,
-                          activeTrackColor: const Color(0x88FFFFFF),
+                          activeTrackColor: const Color(0x55FFFFFF),
                           trackHeight: animMouseHover * 5 + 3,
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 0)),
@@ -90,7 +92,7 @@ class _MyVideoProgressIndicatorState extends State<MyVideoProgressIndicator> {
                     SliderTheme(
                       data: SliderThemeData(
                           inactiveTrackColor: Colors.transparent,
-                          thumbColor: Colors.blue,
+                          thumbColor: scholarly_color.scholarlyRed,
                           trackHeight: animMouseHover * 5 + 3,
                           thumbShape: RoundSliderThumbShape(
                               enabledThumbRadius: animMouseHover * 10)),

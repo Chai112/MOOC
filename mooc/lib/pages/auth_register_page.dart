@@ -191,23 +191,33 @@ class _State extends State<AuthRegisterPage> {
                         ],
                       ),
                       Center(
-                        child: ScholarlyButton("Register", onPressed: () async {
-                          try {
-                            setState(() {
-                              _isRegistering = true;
-                            });
-                            bool success = await register();
-                            setState(() {
-                              _isRegistering = false;
-                            });
-                            if (success) {
-                              course_service.sendToOrgPage(context);
-                            }
-                          } on networking_service
-                              .NetworkingException catch (error) {
-                            error_service.reportError(error, context);
-                          }
-                        }, invertedColor: true, loading: _isRegistering),
+                        child: Row(
+                          children: [
+                            ScholarlyButton(
+                              "Register",
+                              onPressed: () async {
+                                try {
+                                  setState(() {
+                                    _isRegistering = true;
+                                  });
+                                  bool success = await register();
+                                  setState(() {
+                                    _isRegistering = false;
+                                  });
+                                  if (success) {
+                                    course_service.sendToOrgPage(context);
+                                  }
+                                } on networking_service
+                                    .NetworkingException catch (error) {
+                                  error_service.reportError(error, context);
+                                }
+                              },
+                              invertedColor: true,
+                              loading: _isRegistering,
+                              verticalOnlyPadding: true,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

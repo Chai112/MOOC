@@ -12,6 +12,8 @@ import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/course_service.dart' as course_service;
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
 
+import 'package:mooc/pages/course/editor/editor_sidebar_page.dart';
+
 // myPage class which creates a state on call
 class CoursePage extends StatefulWidget {
   final int courseId;
@@ -38,7 +40,7 @@ class _State extends State<CoursePage> {
 
   void removeCourse() async {
     String token = auth_service.globalUser.token!.token;
-    await networking_service.getServer("removeCourse", {
+    await networking_service.serverGet("removeCourse", {
       "token": token,
       "courseId": widget.courseId.toString(),
     });
@@ -50,26 +52,56 @@ class _State extends State<CoursePage> {
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
     return ScholarlyScaffold(
-      numberOfTabs: 4,
-      hasAppbar: true,
+      numberOfTabs: 5,
+      hasAppbar: false,
       sideBar: [
         ScholarlyButton("Delete Course", onPressed: removeCourse),
         ScholarlyTextH3("A")
       ],
-      body: [
-        Align(alignment: Alignment(-1.1, 0), child: Text("Admin Controls:"))
-      ],
+      body: [],
+      tabPrefix: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: CourseName(courseId: widget.courseId),
+      ),
+      tabSuffix: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ScholarlyButton(
+              "Preview",
+              //icon: Icons.rocket_launch_rounded,
+              darkenBackground: true,
+              onPressed: () {},
+              padding: false,
+            ),
+            SizedBox(width: 10),
+            ScholarlyButton(
+              "Publish",
+              icon: Icons.rocket_launch_rounded,
+              invertedColor: true,
+              onPressed: () {},
+              padding: false,
+            ),
+          ],
+        ),
+      ),
       tabNames: const [
         ScholarlyTabHeaders(
             tabName: "Editor", tabIcon: Icons.construction_rounded),
         ScholarlyTabHeaders(
-            tabName: "Insights", tabIcon: Icons.show_chart_rounded),
-        ScholarlyTabHeaders(
             tabName: "Contributors", tabIcon: Icons.group_rounded),
-        ScholarlyTabHeaders(tabName: "Students", tabIcon: Icons.person_rounded),
+        ScholarlyTabHeaders(
+            tabName: "Insights", tabIcon: Icons.show_chart_rounded),
+        ScholarlyTabHeaders(tabName: "Tests", tabIcon: Icons.school_rounded),
+        ScholarlyTabHeaders(
+            tabName: "Settings", tabIcon: Icons.settings_rounded),
       ],
       tabs: [
         CourseEditorPage(courseId: widget.courseId),
+        ScholarlyTabPage(body: [
+          Center(child: Text("Work in Progress")),
+        ]),
         ScholarlyTabPage(body: [
           Center(child: Text("Work in Progress")),
         ]),

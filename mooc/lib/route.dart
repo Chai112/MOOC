@@ -120,7 +120,7 @@ class ErrorPage extends StatelessWidget {
   // main build function
   @override
   Widget build(BuildContext context) {
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushNamed("/login");
       error_service.reportError(error, context);
     });

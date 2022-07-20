@@ -13,7 +13,25 @@ class ScholarlyTextH2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text,
         style: const TextStyle(
-          fontSize: 35,
+          fontSize: 40,
+          color: scholarly_color.grey,
+        ));
+  }
+}
+
+class ScholarlyTextH2B extends StatelessWidget {
+  // members of MyWidget
+  final String text;
+
+  // constructor
+  const ScholarlyTextH2B(this.text, {Key? key}) : super(key: key);
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: const TextStyle(
+          fontSize: 25,
           color: scholarly_color.grey,
         ));
   }

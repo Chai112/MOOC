@@ -39,7 +39,7 @@ class _CourseNameState extends State<CourseName> {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getCourse", {
+        await networking_service.serverGet("getCourse", {
       "token": token,
       "courseId": widget.courseId.toString(),
     });
@@ -50,7 +50,7 @@ class _CourseNameState extends State<CourseName> {
 
   void changeCourseName() async {
     String token = auth_service.globalUser.token!.token;
-    await networking_service.getServer("changeCourseOptions", {
+    await networking_service.serverGet("changeCourseOptions", {
       "token": token,
       "courseId": widget.courseId.toString(),
       "courseName": _courseNameController.text,
@@ -70,9 +70,10 @@ class _CourseNameState extends State<CourseName> {
         future: loadCourseName(),
         builder: (context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData) {
-            return ScholarlyPadding(
+            return SizedBox(
+              width: 300,
               child: SwappableTextField(
-                textWidget: ScholarlyTextH2(_courseName),
+                textWidget: ScholarlyTextH2B(_courseName),
                 textFieldWidget: ScholarlyTextField(
                     label: "course name", controller: _courseNameController),
                 onSubmit: changeCourseName,
@@ -109,7 +110,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getCourseHierarchy", {
+        await networking_service.serverGet("getCourseHierarchy", {
       "token": token,
       "courseId": widget.courseId.toString(),
     });
@@ -166,7 +167,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("createCourseSection", {
+        await networking_service.serverGet("createCourseSection", {
       "token": token,
       "courseId": widget.courseId.toString(),
       "courseSectionName": "New Course Section",
@@ -181,7 +182,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
       case _AddElementTypes.video:
         String token = auth_service.globalUser.token!.token;
 
-        await networking_service.getServer("createVideo", {
+        await networking_service.serverGet("createVideo", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
           "courseElementName": "New Video",
@@ -192,7 +193,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
       case _AddElementTypes.literature:
         String token = auth_service.globalUser.token!.token;
 
-        await networking_service.getServer("createLiterature", {
+        await networking_service.serverGet("createLiterature", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
           "courseElementName": "New Literature",
@@ -204,7 +205,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
       case _AddElementTypes.form:
         String token = auth_service.globalUser.token!.token;
 
-        await networking_service.getServer("createForm", {
+        await networking_service.serverGet("createForm", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
           "courseElementName": "New Test",
@@ -240,7 +241,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
               prefillInputText: courseElementName,
               acceptInput: true,
               callback: (String input) async {
-                await networking_service.getServer("changeCourseElement", {
+                await networking_service.serverGet("changeCourseElement", {
                   "token": token,
                   "courseElementId": courseElementId.toString(),
                   "courseElementName": input,
@@ -273,7 +274,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
               buttonName: "DELETE",
               acceptInput: false,
               callback: (String input) async {
-                await networking_service.getServer("removeCourseElement", {
+                await networking_service.serverGet("removeCourseElement", {
                   "token": token,
                   "courseElementId": courseElementId.toString(),
                 });
@@ -303,7 +304,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
               prefillInputText: courseSectionName,
               acceptInput: true,
               callback: (String input) async {
-                await networking_service.getServer("changeCourseSection", {
+                await networking_service.serverGet("changeCourseSection", {
                   "token": token,
                   "courseSectionId": courseSectionId.toString(),
                   "courseSectionName": input,
@@ -331,7 +332,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
               buttonName: "DELETE",
               acceptInput: false,
               callback: (String input) async {
-                await networking_service.getServer("removeCourseSection", {
+                await networking_service.serverGet("removeCourseSection", {
                   "token": token,
                   "courseSectionId": courseSectionId.toString(),
                 });

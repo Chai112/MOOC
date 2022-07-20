@@ -52,7 +52,7 @@ class _State extends State<OrganizationRegisterPage> {
                       invertedColor: true, onPressed: () async {
                     String token = auth_service.globalUser.token!.token;
                     Map<String, dynamic> response2 = await networking_service
-                        .getServer("createOrganization", {
+                        .serverGet("createOrganization", {
                       "token": token,
                       "organizationName": "s organization"
                     });

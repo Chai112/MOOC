@@ -6,7 +6,7 @@ Future<int?> getFirstOrganizationId() async {
   String token = auth_service.globalUser.token!.token;
 
   Map<String, dynamic> response =
-      await networking_service.getServer("getOrganizations", {
+      await networking_service.serverGet("getOrganizations", {
     "token": token,
   });
   // bring to create a new organization
@@ -25,7 +25,7 @@ void sendToOrgPage(BuildContext context, {int? organizationId}) async {
     String token = auth_service.globalUser.token!.token;
 
     Map<String, dynamic> response =
-        await networking_service.getServer("getOrganizations", {
+        await networking_service.serverGet("getOrganizations", {
       "token": token,
     });
     // bring to create a new organization
@@ -51,7 +51,7 @@ void sendToCoursePage(BuildContext context,
       throw Exception("invalid use of function");
     }
     Map<String, dynamic> response =
-        await networking_service.getServer("createCourse", {
+        await networking_service.serverGet("createCourse", {
       "token": token,
       "organizationId": organizationId.toString(),
       "courseName": "Untitled",

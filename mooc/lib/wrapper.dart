@@ -36,7 +36,7 @@ class _State extends State<Wrapper> {
     try {
       await auth_service.globalUser.tryLogin();
     } on networking_service.NetworkingException catch (error) {
-      SchedulerBinding.instance?.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushNamed("/login");
         error_service.reportError(error, context);
       });
@@ -62,7 +62,7 @@ class _State extends State<Wrapper> {
               if (isLoggedIn) {
                 return widget.goToPage;
               } else {
-                SchedulerBinding.instance?.addPostFrameCallback((_) {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
                   Navigator.of(context).pushNamed("/login");
                 });
                 return const LoadingPage();

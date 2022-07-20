@@ -39,7 +39,7 @@ class AuthUser {
   Future<void> _getUserFromToken() async {
     try {
       Map<String, dynamic> response = await networking_service
-          .getServer("getUserFromToken", {"token": token!.token});
+          .serverGet("getUserFromToken", {"token": token!.token});
       if (response != {}) {
         username = response["username"];
         email = response["email"];
@@ -60,7 +60,7 @@ class AuthUser {
     try {
       // Await the http get response, then decode the json-formatted response.
       Map<String, dynamic> response = await networking_service
-          .getServer("login", {"username": username, "password": password});
+          .serverGet("login", {"username": username, "password": password});
       token = Token(response["token"]);
       // email, firstName and lastName are included from the server on login
       await _getUserFromToken();
@@ -79,7 +79,7 @@ class AuthUser {
     try {
       // Await the http get response, then decode the json-formatted response.
       Map<String, dynamic> response =
-          await networking_service.getServer("register", {
+          await networking_service.serverGet("register", {
         "username": username,
         "password": password,
         "email": email,

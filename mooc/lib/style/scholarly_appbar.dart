@@ -10,20 +10,24 @@ class ScholarlyAppbar extends StatelessWidget {
   // main build function
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(
-              bottom: BorderSide(color: scholarly_color.greyLight, width: 1)),
-          //boxShadow: [scholarly_color.shadow],
-        ),
+    return Container(
+      height: 65,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+            bottom: BorderSide(color: scholarly_color.greyLight, width: 1)),
       ),
-      title: Container(
-          height: 20,
-          child: Image(fit: BoxFit.fill, image: AssetImage('assets/logo.png'))),
+      child: Center(
+          child: Container(
+              height: 20,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 48),
+                child: Image(
+                    fit: BoxFit.fill, image: AssetImage('assets/logo.png')),
+              ))),
     );
+    /*
+          */
   }
 }
 
@@ -40,6 +44,7 @@ class ScholarlyScaffold extends StatelessWidget {
   final List<Widget> body;
   final List<Widget> tabs;
   final List<Widget>? sideBar;
+  final Widget? tabPrefix, tabSuffix;
   // constructor
   const ScholarlyScaffold({
     Key? key,
@@ -48,6 +53,8 @@ class ScholarlyScaffold extends StatelessWidget {
     required this.numberOfTabs,
     required this.tabNames,
     required this.tabs,
+    this.tabPrefix,
+    this.tabSuffix,
     this.sideBar,
   }) : super(key: key);
 
@@ -60,45 +67,63 @@ class ScholarlyScaffold extends StatelessWidget {
     return DefaultTabController(
       length: numberOfTabs,
       child: Scaffold(
-        appBar: hasAppbar
-            ? AppBar(
-                elevation: 0,
-                flexibleSpace: ScholarlyAppbar(),
-              )
-            : null,
         body: Column(children: [
-          ScholarlyHolder(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: body,
-                ),
-                TabBar(
-                  isScrollable: true,
-                  tabs: List.generate(tabNames.length, (int i) {
-                    return Tab(
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 1.0),
-                            child: Icon(tabNames[i].tabIcon,
-                                color: scholarly_color.grey),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(tabNames[i].tabName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: scholarly_color.grey,
-                              )),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 48, vertical: 8),
+                    child: tabPrefix ?? Container(),
+                  )),
+              Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 48, vertical: 8),
+                    child: tabSuffix ?? Container(),
+                  )),
+              Column(
+                children: [
+                  hasAppbar ? ScholarlyAppbar() : Container(),
+                  ScholarlyHolder(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: body,
+                        ),
+                        TabBar(
+                          isScrollable: true,
+                          tabs: List.generate(tabNames.length, (int i) {
+                            return Tab(
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 1.0),
+                                    child: Icon(tabNames[i].tabIcon,
+                                        color: scholarly_color.grey),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(tabNames[i].tabName,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: scholarly_color.grey,
+                                      )),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           Expanded(
               child: TabBarView(
@@ -152,11 +177,17 @@ class ScholarlyTabPage extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               child: Center(
-                child: ScholarlyHolder(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: body,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScholarlyHolder(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: body,
+                      ),
+                    ),
+                    SizedBox(width: sideBar != null ? 350 : 0),
+                  ],
                 ),
               ),
             ),
@@ -225,9 +256,11 @@ class ScholarlySideBarButton extends StatelessWidget {
                       ? scholarly_color.scholarlyRed
                       : scholarly_color.grey),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ScholarlyTextH5(label, red: selected),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ScholarlyTextH5(label, red: selected),
+              ),
             ),
             Container(),
           ],

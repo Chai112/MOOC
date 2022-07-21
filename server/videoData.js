@@ -68,23 +68,24 @@ function uploadVideo(router) {
     })
     const videoUploadSingle = videoUpload.single('video');
 
+    console.log(router.request.headers);
     console.log("uploading");
     let progress = 0;
     let fileSize = router.request.headers['content-length'] ? parseInt(router.request.headers['content-length']) : 0;
     router.request.on('data', (chunk) => {
         progress += chunk.length;
         progressString = `${Math.floor((progress * 100) / fileSize)}%`;
-        videoUploadProgress.set(videoId, progressString);
+        //videoUploadProgress.set(videoId, progressString);
         if (progress === fileSize) {
             console.log('Finished', progress, fileSize)
         }
     });
     videoUploadSingle(router.request, router.response, (err) => {
         if (err !== undefined)
-        console.log(err);
+            console.log(err);
         router.response.send(router.request.file)
         console.log("finish");
-        videoUploadProgress.delete(videoId);
+        //videoUploadProgress.delete(videoId);
     });
 }
 

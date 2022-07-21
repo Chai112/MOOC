@@ -31,56 +31,63 @@ class ScholarlyButton extends StatelessWidget {
     Color textColor = !invertedColor
         ? (!loading ? scholarly_color.scholarlyRed : Colors.white)
         : (!loading ? Colors.white : scholarly_color.scholarlyRed);
-    return Padding(
-      padding: padding
-          ? EdgeInsets.symmetric(
-              vertical: 8.0, horizontal: (verticalOnlyPadding ? 0.0 : 8.0))
-          : EdgeInsets.zero,
-      child: TextButton(
-          onPressed: onPressed,
-          style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-              backgroundColor: !invertedColor
-                  ? (!darkenBackground
-                      ? MaterialStateProperty.all<Color>(
-                          scholarly_color.scholarlyRedBackground)
+    return Row(
+      children: [
+        Padding(
+          padding: padding
+              ? EdgeInsets.symmetric(
+                  vertical: 8.0, horizontal: (verticalOnlyPadding ? 0.0 : 8.0))
+              : EdgeInsets.zero,
+          child: TextButton(
+              onPressed: onPressed,
+              style: ButtonStyle(
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  backgroundColor: !invertedColor
+                      ? (!darkenBackground
+                          ? MaterialStateProperty.all<Color>(
+                              scholarly_color.scholarlyRedBackground)
+                          : MaterialStateProperty.all<Color>(
+                              scholarly_color.scholarlyRedLight))
                       : MaterialStateProperty.all<Color>(
-                          scholarly_color.scholarlyRedLight))
-                  : MaterialStateProperty.all<Color>(
-                      scholarly_color.scholarlyRed),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ))),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              loading ? ScholarlyLoading(white: invertedColor) : Container(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                          scholarly_color.scholarlyRed),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ))),
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  icon != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 0),
-                          child: Icon(
-                            icon,
-                            color: textColor,
-                          ),
-                        )
+                  loading
+                      ? ScholarlyLoading(white: invertedColor)
                       : Container(),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: icon == null ? 14 : 8, vertical: 12),
-                    child: Text(text,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: textColor,
-                        )),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      icon != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 0),
+                              child: Icon(
+                                icon,
+                                color: textColor,
+                              ),
+                            )
+                          : Container(),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: icon == null ? 14 : 8, vertical: 12),
+                        child: Text(text,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: textColor,
+                            )),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          )),
+              )),
+        ),
+      ],
     );
   }
 }

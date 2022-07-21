@@ -1,5 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 const String uriScheme = "http";
 const String uriHost = "ec2-54-255-233-46.ap-southeast-1.compute.amazonaws.com";
@@ -56,4 +58,32 @@ Future<Map<String, dynamic>> serverGet(
           description:
               "can connect to server but recieved an unknown status code");
   }
+}
+
+Future<void> serverUploadVideo(int videoId, List<int> bytes) async {
+  final Uri requestUri = Uri(
+    scheme: uriScheme,
+    host: uriHost,
+    port: uriPort,
+    queryParameters: {"action": "uploadVideo", "videoId": videoId.toString()},
+  );
+  var request = http.MultipartRequest("POST", requestUri);
+  request.files.add(http.MultipartFile.fromBytes("video", bytes,
+      filename: "video.mp4", contentType: MediaType("video", "mp4")));
+
+  request.send().then((response) {
+    if (response.statusCode == 200) {
+      print("Uploaded!");
+    } else {
+      print(response.statusCode);
+    }
+  });
+  /*
+
+  var formData = FormData.fromMap(
+      {'video': new UploadFileInfo(new File("./upload.jpg"), "upload1.jpg")});
+  var response = await Dio().post(
+      '$uriScheme://$uriHost:$uriPort?action=uploadVideo&videoId=${videoId.toString()}',
+      data: formData);
+      */
 }

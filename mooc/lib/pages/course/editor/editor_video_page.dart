@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:mooc/pages/course/editor_page.dart';
+import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 import 'package:mooc/style/widgets/scholarly_text_field.dart';
@@ -81,7 +85,8 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
         children: <Widget>[
           SizedBox(height: 70),
           Container(
-            constraints: BoxConstraints(maxWidth: 720),
+            constraints:
+                BoxConstraints(minWidth: 720, maxWidth: 720, maxHeight: 540),
             child: AspectRatio(
               aspectRatio: _controller.value.aspectRatio,
               child: ClipRRect(
@@ -97,6 +102,25 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
                 ),
               ),
             ),
+          ),
+          Container(width: 800),
+          SizedBox(height: 30),
+          ScholarlyButton(
+            "Upload",
+            icon: Icons.upload_file_rounded,
+            invertedColor: true,
+            onPressed: () async {
+              FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+              if (result != null) {
+                //print(result.files.single.bytes);
+                networking_service.serverUploadVideo(
+                    123, result.files.single.bytes!);
+              } else {
+                // User canceled the picker
+              }
+            },
+            padding: false,
           ),
           SizedBox(height: 30),
           SwappableTextField(

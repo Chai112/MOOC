@@ -2,7 +2,7 @@ import 'package:flutter/material.dart'; // Flutter
 
 //const COLOR_MAIN = const Color(0xFF006EB4);
 const scholarlyRed = Color(0xFFD41C3A);
-const scholarlyRedLight = Color(0xFFfad1d8);
+const scholarlyRedLight = Color(0xFFfbdfe4);
 const scholarlyRedBackground = Color(0xFFFDF2F4);
 const greyBackground = Color(0xFFF7F7FB);
 const greyLight = Color(0xFFD0D0D0);

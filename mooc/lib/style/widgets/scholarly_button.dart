@@ -6,7 +6,7 @@ class ScholarlyButton extends StatelessWidget {
   // members of MyWidget
   final String text;
   final Function() onPressed;
-  final bool invertedColor, darkenBackground;
+  final bool invertedColor, darkenBackground, lightenBackground;
   final bool verticalOnlyPadding;
   final bool padding;
   final bool loading;
@@ -19,6 +19,7 @@ class ScholarlyButton extends StatelessWidget {
     required this.onPressed,
     this.invertedColor = false,
     this.darkenBackground = false,
+    this.lightenBackground = false,
     this.verticalOnlyPadding = false,
     this.padding = true,
     this.loading = false,
@@ -41,12 +42,20 @@ class ScholarlyButton extends StatelessWidget {
           child: TextButton(
               onPressed: onPressed,
               style: ButtonStyle(
+                  side: lightenBackground
+                      ? MaterialStateProperty.all<BorderSide>(BorderSide(
+                          color: scholarly_color.greyLight,
+                          width: 1,
+                          style: BorderStyle.solid))
+                      : null,
                   foregroundColor:
                       MaterialStateProperty.all<Color>(Colors.white),
                   backgroundColor: !invertedColor
                       ? (!darkenBackground
-                          ? MaterialStateProperty.all<Color>(
-                              scholarly_color.scholarlyRedBackground)
+                          ? (!lightenBackground
+                              ? MaterialStateProperty.all<Color>(
+                                  scholarly_color.scholarlyRedBackground)
+                              : MaterialStateProperty.all<Color>(Colors.white))
                           : MaterialStateProperty.all<Color>(
                               scholarly_color.scholarlyRedLight))
                       : MaterialStateProperty.all<Color>(

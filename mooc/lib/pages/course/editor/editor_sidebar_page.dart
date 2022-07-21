@@ -4,6 +4,7 @@ import 'package:mooc/services/auth_service.dart' as auth_service;
 import 'package:mooc/services/error_service.dart' as error_service;
 
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
+import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
@@ -446,10 +447,9 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
                   );
                 }),
               ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline_rounded,
-                    color: scholarly_color.greyLight),
-                tooltip: "Add section",
+              ScholarlyButton(
+                "Add Section",
+                lightenBackground: true,
                 onPressed: () async {
                   await addCourseSection();
                   setState(() {});
@@ -532,7 +532,7 @@ class _PopupEditElementButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_EditElementTypes>(
-        icon: const Icon(Icons.more_vert_rounded, color: Colors.black12),
+        icon: const Icon(Icons.more_vert_rounded, color: Colors.black26),
         tooltip: "Edit",
         // Callback that sets the selected popup menu item.
         onSelected: onPressed,
@@ -576,7 +576,7 @@ class _PopupEditSectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_EditSectionTypes>(
-        icon: const Icon(Icons.more_vert_rounded, color: Colors.black12),
+        icon: const Icon(Icons.more_vert_rounded, color: Colors.black26),
         tooltip: "Edit",
         // Callback that sets the selected popup menu item.
         itemBuilder: (BuildContext context) =>

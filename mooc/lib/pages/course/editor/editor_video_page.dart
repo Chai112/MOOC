@@ -105,6 +105,7 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
           ),
           Container(width: 800),
           SizedBox(height: 30),
+          /*
           ScholarlyButton(
             "Upload",
             icon: Icons.upload_file_rounded,
@@ -122,6 +123,7 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
             },
             padding: false,
           ),
+          */
           SizedBox(height: 30),
           SwappableTextField(
             textWidget: ScholarlyTextH2(_courseElementNameController.text),

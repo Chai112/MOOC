@@ -72,6 +72,9 @@ class Router{
             case "createForm":
                 this.createForm();
                 break;
+            case "getVideo":
+                this.getVideo();
+                break;
             case "changeCourseElement":
                 this.changeCourseElement();
                 break;
@@ -378,37 +381,6 @@ class Router{
         this.response.status(200);
         this.response.json({});
     }
-    async changeCourseElement() {
-        let token = this._getQuery("token");
-        let courseElementId = this._getQuery("courseElementId");
-        let courseElementName = this._getQuery("courseElementName");
-        let courseElementDescription = this._getQuery("courseElementDescription");
-
-        try {
-            await CourseElements.changeCourseElement(token, courseElementId, {
-                courseElementName: courseElementName,
-                courseElementDescription: courseElementDescription,
-            });
-        } catch (err) {
-            this._handleError(err);
-            return;
-        }
-        this.response.status(200);
-        this.response.json({});
-    }
-    async removeCourseElement() {
-        let token = this._getQuery("token");
-        let courseElementId = this._getQuery("courseElementId");
-
-        try {
-            await CourseElements.removeCourseElement(token, courseElementId);
-        } catch (err) {
-            this._handleError(err);
-            return;
-        }
-        this.response.status(200);
-        this.response.json({});
-    }
     async createVideo() {
         let token = this._getQuery("token");
         let courseSectionId = this._getQuery("courseSectionId");
@@ -472,6 +444,52 @@ class Router{
         this.response.json({
             "courseElementId": courseElementId,
         });
+    }
+    async getVideo() {
+        let token = this._getQuery("token");
+        let courseElementId = this._getQuery("courseElementId");
+        try {
+            await CourseElements.changeCourseElement(token, courseElementId, {
+                courseElementName: courseElementName,
+                courseElementDescription: courseElementDescription,
+            });
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({});
+    }
+    async changeCourseElement() {
+        let token = this._getQuery("token");
+        let courseElementId = this._getQuery("courseElementId");
+        let courseElementName = this._getQuery("courseElementName");
+        let courseElementDescription = this._getQuery("courseElementDescription");
+
+        try {
+            await CourseElements.changeCourseElement(token, courseElementId, {
+                courseElementName: courseElementName,
+                courseElementDescription: courseElementDescription,
+            });
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({});
+    }
+    async removeCourseElement() {
+        let token = this._getQuery("token");
+        let courseElementId = this._getQuery("courseElementId");
+
+        try {
+            await CourseElements.removeCourseElement(token, courseElementId);
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({});
     }
     /*
     createVideo() {

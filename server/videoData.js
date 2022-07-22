@@ -75,7 +75,7 @@ function uploadVideo(router) {
     router.request.on('data', (chunk) => {
         progress += chunk.length;
         progressString = `${Math.floor((progress * 100) / fileSize)}%`;
-        //videoUploadProgress.set(videoId, progressString);
+        videoUploadProgress.set(videoId, progressString);
         if (progress === fileSize) {
             console.log('Finished', progress, fileSize)
         }
@@ -85,7 +85,7 @@ function uploadVideo(router) {
             console.log(err);
         router.response.send(router.request.file)
         console.log("finish");
-        //videoUploadProgress.delete(videoId);
+        videoUploadProgress.delete(videoId);
     });
 }
 

@@ -186,7 +186,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
         await networking_service.serverGet("createVideo", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
-          "courseElementName": "New Video",
+          "courseElementName": "Untitled Video",
         });
 
         setState(() {});
@@ -197,7 +197,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
         await networking_service.serverGet("createLiterature", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
-          "courseElementName": "New Literature",
+          "courseElementName": "Untitled Literature",
           "literatureData": "",
         });
         setState(() {});
@@ -209,7 +209,7 @@ class _CourseHierarchyState extends State<CourseHierarchy> {
         await networking_service.serverGet("createForm", {
           "token": token,
           "courseSectionId": courseSectionId.toString(),
-          "courseElementName": "New Test",
+          "courseElementName": "Untitled Test",
           "formData": "",
         });
 

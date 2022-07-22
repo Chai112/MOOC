@@ -6,6 +6,7 @@ import 'package:mooc/services/error_service.dart' as error_service;
 import 'package:mooc/style/scholarly_colors.dart' as scholarly_color;
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/scholarly_appbar.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
 
 import 'package:mooc/pages/course/editor/editor_sidebar_page.dart';
@@ -101,26 +102,41 @@ class _CourseViewerState extends State<_CourseViewer> {
     super.dispose();
   }
 
+  // this is dirty code, but the code needs to reset a widget before returning it.
+  // To do this, we must first load a Container() in between widget loadings.
+  // Otherwise, if the loading returns the same widget, it will not init state again.
+  Future<void> _load() async {
+    await Future.delayed(const Duration(microseconds: 1), () {});
+    setState(() {});
+  }
+
+  bool _isLoaded = false;
   // main build function
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    if (widget.controller.isLoading) return Container(child: Text("Loading "));
+    _isLoaded = !_isLoaded;
+    if (_isLoaded) {
+      // ignore: unused_local_variable
+      if (widget.controller.isLoading)
+        return Container(child: Text("Loading "));
+      switch (widget.controller.courseElementType) {
+        case 0:
+          return CourseEditorVideoPage(
+              controller: widget.controller,
+              callback: () {
+                widget.callback();
+              });
+        case 1:
+        case 2:
+      }
 
-    switch (widget.controller.courseElementType) {
-      case 0:
-        return CourseEditorVideoPage(
-            controller: widget.controller,
-            callback: () {
-              widget.callback();
-            });
-      case 1:
-      case 2:
+      return Container(
+        child: Text(
+            "${Uri.decodeComponent(widget.controller.courseSectionName)}/${Uri.decodeComponent(widget.controller.courseElementName)}"),
+      );
+    } else {
+      _load();
+      return Container();
     }
-
-    return Container(
-      child: Text(
-          "${Uri.decodeComponent(widget.controller.courseSectionName)}/${Uri.decodeComponent(widget.controller.courseElementName)}"),
-    );
   }
 }

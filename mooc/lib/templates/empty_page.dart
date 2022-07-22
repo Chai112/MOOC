@@ -6,11 +6,11 @@ class MyPage extends StatefulWidget {
   const MyPage({Key? key, required this.x}) : super(key: key);
 
   @override
-  _State createState() => _State();
+  _MyPageState createState() => _MyPageState();
 }
 
 // myPage state
-class _State extends State<MyPage> {
+class _MyPageState extends State<MyPage> {
   @override
   void initState() {
     super.initState();

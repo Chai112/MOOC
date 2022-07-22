@@ -52,7 +52,15 @@ var videos = new Db.DatabaseTable("Videos",
         },
         {
         name: "videoDataId",
-        type: "varchar(16)"
+        type: "int"
+        },
+        {
+        name: "isInitialized",
+        type: "bit"
+        },
+        {
+        name: "videoData",
+        type: "mediumtext"
         },
 ]);
 videos.init();
@@ -110,7 +118,9 @@ async function createVideo (token, courseSectionId, videoOptions) {
     let videoId = await videos.insertInto({
         courseElementId: courseElementId,
         videoDataId: videoDataId,
-        duration: "?",
+        duration: 0,
+        isInitialized: false,
+        videoData: "",
     });
 
     return courseElementId;
@@ -144,6 +154,22 @@ async function createForm (token, courseSectionId, formOptions) {
     });
 
     return courseElementId;
+}
+
+module.exports.getVideo = getVideo;
+async function getVideo (token, courseElementId) {
+    // TODO: do auth checks
+    return await videos.select({courseElementId: courseElementId});
+}
+module.exports.getLiterature = getLiterature;
+async function getLiterature (token, courseElementId) {
+    // TODO: do auth checks
+    return await literature.select({courseElementId: courseElementId});
+}
+module.exports.getForm = getForm;
+async function getForm (token, courseElementId) {
+    // TODO: do auth checks
+    return await forms.select({courseElementId: courseElementId});
 }
 
 async function removeVideo (token, videoId) {

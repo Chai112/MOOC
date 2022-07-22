@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:mooc/pages/course/editor_page.dart';
+import 'package:mooc/style/scholarly_appbar.dart';
 import 'package:mooc/style/widgets/scholarly_button.dart';
 import 'package:mooc/style/widgets/scholarly_elements.dart';
 import 'package:mooc/style/widgets/scholarly_text.dart';
@@ -15,6 +16,28 @@ import 'package:mooc/services/auth_service.dart' as auth_service;
 
 import 'package:flutter/material.dart';
 
+class _Video {
+  int duration;
+  int videoDataId;
+  bool isInitialized;
+  String videoData;
+  _Video(
+      {required this.duration,
+      required this.videoDataId,
+      required this.isInitialized,
+      required this.videoData});
+}
+
+class _Literature {
+  String literatureData;
+  _Literature({required this.literatureData});
+}
+
+class _Form {
+  String formData;
+  _Form({required this.formData});
+}
+
 class CourseEditorVideoPage extends StatefulWidget {
   final CourseHierarchyController controller;
   final Function() callback;
@@ -27,37 +50,17 @@ class CourseEditorVideoPage extends StatefulWidget {
 }
 
 class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
-  late VideoPlayerController _controller;
   final _courseElementNameController = ScholarlyTextFieldController();
-
-  Future<ClosedCaptionFile> _loadCaptions() async {
-    final String fileContents = await DefaultAssetBundle.of(context)
-        .loadString('assets/bumble_bee_captions.vtt');
-    return WebVTTCaptionFile(
-        fileContents); // For vtt files, use WebVTTCaptionFile
-  }
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(
-      'https://sicherthai.com/test/nocturne.mp4', // should not use actual server for testing!
-      closedCaptionFile: _loadCaptions(),
-      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-    );
-
-    _controller.addListener(() {
-      setState(() {});
-    });
-    _controller.setLooping(true);
-    _controller.initialize();
     _courseElementNameController.text =
         Uri.decodeComponent(widget.controller.courseElementName);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -70,8 +73,26 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
       "courseElementName": _courseElementNameController.text,
       "courseElementDescription": "",
     });
+    widget.controller.courseElementName = _courseElementNameController.text;
     widget.callback();
     setState(() {});
+  }
+
+  _Video? _video;
+  Future<bool> loadData() async {
+    String token = auth_service.globalUser.token!.token;
+    Map<String, dynamic> response =
+        await networking_service.serverGet("getVideo", {
+      "token": token,
+      "courseElementId": widget.controller.courseElementId.toString(),
+    });
+    _video = _Video(
+      duration: response["data"]["duration"],
+      videoDataId: response["data"]["videoDataId"],
+      isInitialized: response["data"]["isInitialized"]["data"][0] == 1,
+      videoData: response["data"]["videoData"],
+    );
+    return true;
   }
 
   double sliderValue = 0;
@@ -79,65 +100,43 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(height: 70),
-          Container(
-            constraints:
-                BoxConstraints(minWidth: 720, maxWidth: 720, maxHeight: 540),
-            child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: <Widget>[
-                    VideoPlayer(_controller),
-                    ClosedCaption(text: _controller.value.caption.text),
-                    _ControlsOverlay(controller: _controller),
-                    MyVideoProgressIndicator(controller: _controller),
-                  ],
-                ),
+    return FutureBuilder(
+        future: loadData(),
+        builder: (context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.hasData) {
+            return Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 70),
+                  _video!.isInitialized
+                      ? _ScholarlyVideoPlayer(videoDataId: 2)
+                      : _ScholarlyVideoUploader(),
+                  SizedBox(height: 30),
+                  /*
+              ScholarlyButton(
               ),
-            ),
-          ),
-          Container(width: 800),
-          SizedBox(height: 30),
-          /*
-          ScholarlyButton(
-            "Upload",
-            icon: Icons.upload_file_rounded,
-            invertedColor: true,
-            onPressed: () async {
-              FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-              if (result != null) {
-                //print(result.files.single.bytes);
-                networking_service.serverUploadVideo(
-                    123, result.files.single.bytes!);
-              } else {
-                // User canceled the picker
-              }
-            },
-            padding: false,
-          ),
-          */
-          SizedBox(height: 30),
-          SwappableTextField(
-            textWidget: ScholarlyTextH2(_courseElementNameController.text),
-            textFieldWidget: ScholarlyTextField(
-                label: "course name", controller: _courseElementNameController),
-            onSubmit: changeCourseElementName,
-          ),
-          SizedBox(height: 30),
-          ScholarlyBox(text: "ah"),
-          SizedBox(height: 30),
-          SizedBox(height: 300),
-        ],
-      ),
-    );
+              */
+                  SizedBox(height: 30),
+                  SwappableTextField(
+                    textWidget:
+                        ScholarlyTextH2(_courseElementNameController.text),
+                    textFieldWidget: ScholarlyTextField(
+                        label: "course name",
+                        controller: _courseElementNameController),
+                    onSubmit: changeCourseElementName,
+                  ),
+                  SizedBox(height: 30),
+                  ScholarlyBox(text: "ah"),
+                  SizedBox(height: 30),
+                  SizedBox(height: 300),
+                ],
+              ),
+            );
+          } else {
+            return Expanded(child: Center(child: const ScholarlyLoading()));
+          }
+        });
   }
 }
 
@@ -215,5 +214,158 @@ class _ControlsOverlay extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+// myPage class which creates a state on call
+class _ScholarlyVideoPlayer extends StatefulWidget {
+  final int videoDataId;
+  const _ScholarlyVideoPlayer({Key? key, required this.videoDataId})
+      : super(key: key);
+
+  @override
+  _ScholarlyVideoPlayerState createState() => _ScholarlyVideoPlayerState();
+}
+
+// myPage state
+class _ScholarlyVideoPlayerState extends State<_ScholarlyVideoPlayer> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(
+      'https://sicherthai.com/test/nocturne.mp4', // should not use actual server for testing!
+      closedCaptionFile: _loadCaptions(),
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+
+    _controller.addListener(() {
+      setState(() {});
+    });
+    _controller.setLooping(true);
+    _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  Future<ClosedCaptionFile> _loadCaptions() async {
+    final String fileContents = await DefaultAssetBundle.of(context)
+        .loadString('assets/bumble_bee_captions.vtt');
+    return WebVTTCaptionFile(
+        fileContents); // For vtt files, use WebVTTCaptionFile
+  }
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(minWidth: 720, maxWidth: 720, maxHeight: 540),
+      child: AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: <Widget>[
+              VideoPlayer(_controller),
+              ClosedCaption(text: _controller.value.caption.text),
+              _ControlsOverlay(controller: _controller),
+              MyVideoProgressIndicator(controller: _controller),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// myPage class which creates a state on call
+class _ScholarlyVideoUploader extends StatefulWidget {
+  const _ScholarlyVideoUploader({Key? key}) : super(key: key);
+
+  @override
+  _ScholarlyVideoUploaderState createState() => _ScholarlyVideoUploaderState();
+}
+
+// myPage state
+class _ScholarlyVideoUploaderState extends State<_ScholarlyVideoUploader> {
+  FilePickerResult? _result;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // main build function
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+            color: scholarly_color.backgroundDim,
+            border: Border.all(color: scholarly_color.borderColor),
+            borderRadius: BorderRadius.circular(8.0)),
+        child: Container(
+          height: 540,
+          width: 720,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 40),
+              Icon(Icons.file_upload_outlined,
+                  size: 100, color: scholarly_color.grey),
+              SizedBox(height: 10),
+              _result == null
+                  ? ScholarlyTextH2B("Upload your Video")
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.file_copy_rounded,
+                            color: scholarly_color.grey),
+                        SizedBox(width: 5),
+                        ScholarlyTextH2B(_result!.names.first!),
+                      ],
+                    ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _result != null
+                      ? ScholarlyButton("Upload", invertedColor: true,
+                          onPressed: () async {
+                          networking_service.serverUploadVideo(
+                              123, _result!.files.single.bytes!);
+                        })
+                      : Container(),
+                  ScholarlyButton(
+                    _result == null ? "Select Files" : "Reselect Files",
+                    darkenBackground: true,
+                    onPressed: () async {
+                      _result = await FilePicker.platform.pickFiles();
+
+                      if (_result != null) {
+                        setState(() {});
+                        //print(result.files.single.bytes);
+                        //networking_service.serverUploadVideo(
+                        //123, result.files.single.bytes!);
+                      } else {
+                        // User canceled the picker
+                      }
+                    },
+                    padding: false,
+                  )
+                ],
+              ),
+            ],
+          ),
+        ));
   }
 }

@@ -81,9 +81,6 @@ class Router{
             case "removeCourseElement":
                 this.removeCourseElement();
                 break;
-            case "removeVideo":
-                this.removeVideo();
-                break;
             case "downloadVideo":
                 VideoData.downloadVideo(this);
                 break;
@@ -320,6 +317,7 @@ class Router{
     }
     async getCourseHierarchy() {
         let token = this._getQuery("token");
+        // TODO: do auth checks
         let courseId = this._getQuery("courseId");
         let data;
         try {
@@ -446,19 +444,46 @@ class Router{
         });
     }
     async getVideo() {
+        // TODO: do auth checks
         let token = this._getQuery("token");
         let courseElementId = this._getQuery("courseElementId");
+        let video;
         try {
-            await CourseElements.changeCourseElement(token, courseElementId, {
-                courseElementName: courseElementName,
-                courseElementDescription: courseElementDescription,
-            });
+            video = await CourseElements.getVideo(token, courseElementId);
         } catch (err) {
             this._handleError(err);
             return;
         }
         this.response.status(200);
-        this.response.json({});
+        this.response.json({"data": video[0]});
+    }
+    async getLiterature() {
+        // TODO: do auth checks
+        let token = this._getQuery("token");
+        let courseElementId = this._getQuery("courseElementId");
+        let literature;
+        try {
+            literature = await CourseElements.getLiterature(token, courseElementId);
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({"data": literature[0]});
+    }
+    async getForm() {
+        // TODO: do auth checks
+        let token = this._getQuery("token");
+        let courseElementId = this._getQuery("courseElementId");
+        let form;
+        try {
+            form = await CourseElements.getForm(token, courseElementId);
+        } catch (err) {
+            this._handleError(err);
+            return;
+        }
+        this.response.status(200);
+        this.response.json({"data": form[0]});
     }
     async changeCourseElement() {
         let token = this._getQuery("token");

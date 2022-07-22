@@ -44,18 +44,19 @@ class ScholarlyButton extends StatelessWidget {
               style: ButtonStyle(
                   side: lightenBackground
                       ? MaterialStateProperty.all<BorderSide>(BorderSide(
-                          color: scholarly_color.greyLight,
+                          color: scholarly_color.borderColor,
                           width: 1,
                           style: BorderStyle.solid))
                       : null,
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
+                  foregroundColor: MaterialStateProperty.all<Color>(
+                      scholarly_color.background),
                   backgroundColor: !invertedColor
                       ? (!darkenBackground
                           ? (!lightenBackground
                               ? MaterialStateProperty.all<Color>(
                                   scholarly_color.scholarlyRedBackground)
-                              : MaterialStateProperty.all<Color>(Colors.white))
+                              : MaterialStateProperty.all<Color>(
+                                  scholarly_color.background))
                           : MaterialStateProperty.all<Color>(
                               scholarly_color.scholarlyRedLight))
                       : MaterialStateProperty.all<Color>(

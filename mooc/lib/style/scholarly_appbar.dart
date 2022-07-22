@@ -13,9 +13,9 @@ class ScholarlyAppbar extends StatelessWidget {
     return Container(
       height: 65,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: scholarly_color.background,
         border: Border(
-            bottom: BorderSide(color: scholarly_color.greyLight, width: 1)),
+            bottom: BorderSide(color: scholarly_color.borderColor, width: 1)),
       ),
       child: Center(
           child: Container(
@@ -148,9 +148,9 @@ class ScholarlyTabPage extends StatelessWidget {
     body.add(Container());
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border:
-            Border(top: BorderSide(color: scholarly_color.greyLight, width: 1)),
+        color: scholarly_color.background,
+        border: Border(
+            top: BorderSide(color: scholarly_color.borderColor, width: 1)),
         //boxShadow: [scholarly_color.shadow],
       ),
       child: Row(
@@ -172,7 +172,7 @@ class ScholarlyTabPage extends StatelessWidget {
               : Container(),
           sideBar != null
               ? VerticalDivider(
-                  width: 20, thickness: 1, color: scholarly_color.greyLight)
+                  width: 20, thickness: 1, color: scholarly_color.borderColor)
               : Container(),
           Expanded(
             child: SingleChildScrollView(

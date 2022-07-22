@@ -53,8 +53,8 @@ class ScholarlyTextField extends StatelessWidget {
                 ),
                 enabledBorder: const OutlineInputBorder(
                   // width: 0.0 produces a thin "hairline" border
-                  borderSide:
-                      BorderSide(color: scholarly_color.greyLight, width: 1.0),
+                  borderSide: BorderSide(
+                      color: scholarly_color.borderColor, width: 1.0),
                 ),
                 prefixIcon: controller?.errorText == null
                     ? null // if errorText is null, then no icon is needed

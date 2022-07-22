@@ -25,12 +25,9 @@ void main() {
         fontFamily: "Avenir Next",
         primarySwatch:
             scholarly_color.createMaterialColor(scholarly_color.scholarlyRed),
-        backgroundColor: scholarly_color.greyBackground,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: scholarly_color.scholarlyRed,
-        ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: scholarly_color.backgroundDim,
+        visualDensity: VisualDensity
+            .adaptivePlatformDensity, /*scaffoldBackgroundColor: const Color(0xFF161b22)*/
       ),
       initialRoute: '/',
       onGenerateRoute: RouteGenerator.generateRoute,

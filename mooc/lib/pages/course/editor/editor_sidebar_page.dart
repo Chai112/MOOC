@@ -479,7 +479,7 @@ class _PopupAddElementButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_AddElementTypes>(
-        icon: const Icon(Icons.add_rounded, color: scholarly_color.greyLight),
+        icon: const Icon(Icons.add_rounded, color: scholarly_color.borderColor),
         tooltip: "Add element",
         // Callback that sets the selected popup menu item.
         onSelected: onPressed,

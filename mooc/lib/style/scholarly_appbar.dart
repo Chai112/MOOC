@@ -110,7 +110,7 @@ class ScholarlyScaffold extends StatelessWidget {
                                   const SizedBox(width: 10),
                                   Text(tabNames[i].tabName,
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 15,
                                         color: scholarly_color.grey,
                                       )),
                                 ],

@@ -18,13 +18,14 @@ import 'package:flutter/material.dart';
 
 class _Video {
   int duration;
-  int videoDataId;
-  bool isInitialized;
+  String videoDataId;
+  bool isInitialized, isUploading;
   String videoData;
   _Video(
       {required this.duration,
       required this.videoDataId,
       required this.isInitialized,
+      required this.isUploading,
       required this.videoData});
 }
 
@@ -90,8 +91,10 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
       duration: response["data"]["duration"],
       videoDataId: response["data"]["videoDataId"],
       isInitialized: response["data"]["isInitialized"]["data"][0] == 1,
+      isUploading: response["data"]["isUploading"]["data"][0] == 1,
       videoData: response["data"]["videoData"],
     );
+    print(response["data"]);
     return true;
   }
 
@@ -110,8 +113,13 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
                 children: <Widget>[
                   SizedBox(height: 70),
                   _video!.isInitialized
-                      ? _ScholarlyVideoPlayer(videoDataId: 2)
-                      : _ScholarlyVideoUploader(),
+                      ? _ScholarlyVideoPlayer(videoDataId: _video!.videoDataId)
+                      : _ScholarlyVideoUploader(
+                          videoDataId: _video!.videoDataId,
+                          callback: () {
+                            setState(() {});
+                          },
+                        ),
                   SizedBox(height: 30),
                   /*
               ScholarlyButton(
@@ -127,8 +135,12 @@ class _CourseEditorVideoPageState extends State<CourseEditorVideoPage> {
                     onSubmit: changeCourseElementName,
                   ),
                   SizedBox(height: 30),
-                  ScholarlyBox(text: "ah"),
+                  ScholarlyTextP(
+                      "In this course you're gonna be learning how to like become a functioning human. Cause I have experience. I've been a human for over 36 months and have many qualifications. By 8 weeks I even mastered how to breathe. By 4 months I amassed a wealth of 3.5 billion dollars, according to Forbes. Come see how I climb through the ranks of society and bought my first lamborghini with my friend Jeffrey Bezos."),
                   SizedBox(height: 30),
+                  ScholarlyBox(
+                      text:
+                          "Learning Objectives:\n*How to life\n*How to run\n*How to like speak"),
                   SizedBox(height: 300),
                 ],
               ),
@@ -219,7 +231,7 @@ class _ControlsOverlay extends StatelessWidget {
 
 // myPage class which creates a state on call
 class _ScholarlyVideoPlayer extends StatefulWidget {
-  final int videoDataId;
+  final String videoDataId;
   const _ScholarlyVideoPlayer({Key? key, required this.videoDataId})
       : super(key: key);
 
@@ -235,6 +247,7 @@ class _ScholarlyVideoPlayerState extends State<_ScholarlyVideoPlayer> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
+      /*"${networking_service.getApiUrl()}?action=downloadVideo&videoDataId=${widget.videoDataId}",*/
       'https://sicherthai.com/test/nocturne.mp4', // should not use actual server for testing!
       closedCaptionFile: _loadCaptions(),
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -286,7 +299,11 @@ class _ScholarlyVideoPlayerState extends State<_ScholarlyVideoPlayer> {
 
 // myPage class which creates a state on call
 class _ScholarlyVideoUploader extends StatefulWidget {
-  const _ScholarlyVideoUploader({Key? key}) : super(key: key);
+  final String videoDataId;
+  final Function() callback;
+  const _ScholarlyVideoUploader(
+      {Key? key, required this.videoDataId, required this.callback})
+      : super(key: key);
 
   @override
   _ScholarlyVideoUploaderState createState() => _ScholarlyVideoUploaderState();
@@ -341,8 +358,10 @@ class _ScholarlyVideoUploaderState extends State<_ScholarlyVideoUploader> {
                   _result != null
                       ? ScholarlyButton("Upload", invertedColor: true,
                           onPressed: () async {
-                          networking_service.serverUploadVideo(
-                              123, _result!.files.single.bytes!);
+                          await networking_service.serverUploadVideo(
+                              widget.videoDataId, _result!.files.single.bytes!);
+                          print("done uploadign");
+                          widget.callback();
                         })
                       : Container(),
                   ScholarlyButton(

@@ -60,24 +60,19 @@ Future<Map<String, dynamic>> serverGet(
   }
 }
 
-Future<void> serverUploadVideo(int videoId, List<int> bytes) async {
+Future<void> serverUploadVideo(String videoId, List<int> bytes) async {
   final Uri requestUri = Uri(
     scheme: uriScheme,
     host: uriHost,
     port: uriPort,
-    queryParameters: {"action": "uploadVideo", "videoId": videoId.toString()},
+    queryParameters: {"action": "uploadVideo", "videoDataId": videoId},
   );
   var request = http.MultipartRequest("POST", requestUri);
   request.files.add(http.MultipartFile.fromBytes("video", bytes,
       filename: "video.mp4", contentType: MediaType("video", "mp4")));
 
-  request.send().then((response) {
-    if (response.statusCode == 200) {
-      print("Uploaded!");
-    } else {
-      print(response.statusCode);
-    }
-  });
+  await request.send();
+
   /*
 
   var formData = FormData.fromMap(
@@ -86,4 +81,8 @@ Future<void> serverUploadVideo(int videoId, List<int> bytes) async {
       '$uriScheme://$uriHost:$uriPort?action=uploadVideo&videoId=${videoId.toString()}',
       data: formData);
       */
+}
+
+String getApiUrl() {
+  return "$uriScheme://$uriHost:$uriPort";
 }

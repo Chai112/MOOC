@@ -1,6 +1,7 @@
 const Db = require('./database');
 const Token = require('./token');
 const CourseSections = require('./courseSections');
+const VideoData = require('./videoData');
 
 
 var courseElements = new Db.DatabaseTable("CourseElements",
@@ -52,10 +53,14 @@ var videos = new Db.DatabaseTable("Videos",
         },
         {
         name: "videoDataId",
-        type: "int"
+        type: "varchar(16)"
         },
         {
         name: "isInitialized",
+        type: "bit"
+        },
+        {
+        name: "isUploading",
         type: "bit"
         },
         {
@@ -120,6 +125,7 @@ async function createVideo (token, courseSectionId, videoOptions) {
         videoDataId: videoDataId,
         duration: 0,
         isInitialized: false,
+        isUploading: false,
         videoData: "",
     });
 
@@ -172,14 +178,6 @@ async function getForm (token, courseElementId) {
     return await forms.select({courseElementId: courseElementId});
 }
 
-async function removeVideo (token, videoId) {
-    // check auth
-    CourseSection.assertUserCanEditCourseSection(token, courseSectionId);
-
-    // remove video
-    videos.deleteFrom({"videoDataId": videoId});
-}
-
 module.exports.getAllElementsFromCourseSection = getAllElementsFromCourseSection;
 async function getAllElementsFromCourseSection(courseSectionId) {
     let elementOutput = await courseElements.select({ courseSectionId: courseSectionId });
@@ -215,6 +213,13 @@ async function removeCourseElement (token, courseElementId) {
     await CourseSections.assertUserCanEditCourseSection(token, courseSectionId);
 
     await _removeElementOrder(courseElement[0].courseElementOrder, courseSectionId)
+
+    // gotta do a remove specially for videos
+    video = await videos.select({courseElementId: courseElementId});
+    if (video.length > 0) {
+        VideoData.removeVideo(video[0].videoDataId);
+    }
+
     await videos.deleteFrom({courseElementId: courseElementId});
     await literature.deleteFrom({courseElementId: courseElementId});
     await forms.deleteFrom({courseElementId: courseElementId});
@@ -311,4 +316,20 @@ async function moveCourseElement(courseElementId, toElementOrder) {
         { courseElementId: courseElementId },
         { elementOrder: toElementOrder }
     );
+}
+
+module.exports.updateUploadingVideo = updateUploadingVideo;
+async function updateUploadingVideo (videoDataId, isUploading) {
+    console.log("copy")
+    await videos.update(
+        { videoDataId: videoDataId }, 
+        { isUploading: isUploading }
+    );
+    if (!isUploading) {
+        console.log("done uploading " + videoDataId)
+        await videos.update(
+            { videoDataId: videoDataId }, 
+            { isInitialized: true }
+        );
+    }
 }

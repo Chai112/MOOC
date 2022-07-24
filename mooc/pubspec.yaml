@@ -89,6 +89,32 @@ flutter:
           weight: 700
         - asset: assets/fonts/avenir_next/avenirNextLTPro-It.otf
           style: italic
+    - family: Poppins
+      fonts:
+        #- asset: assets/fonts/poppins/Poppins-Thin.ttf
+        #  weight: 100
+        #- asset: assets/fonts/poppins/Poppins-ExtraLight.ttf
+        #  weight: 200
+        - asset: assets/fonts/poppins/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/poppins/Poppins-Regular.ttf
+        #- asset: assets/fonts/poppins/Poppins-Medium.ttf
+        #  weight: 500
+        #- asset: assets/fonts/poppins/Poppins-SemiBold.ttf
+        #  weight: 600
+        #- asset: assets/fonts/poppins/Poppins-Bold.ttf
+        #  weight: 700
+        #- asset: assets/fonts/poppins/Poppins-ExtraBold.ttf
+        #  weight: 800
+        #- asset: assets/fonts/poppins/Poppins-Black.ttf
+        #  weight: 900
+        - asset: assets/fonts/poppins/Poppins-Italic.ttf
+          style: italic
+    - family: Noto Sans
+      fonts:
+        - asset: assets/fonts/noto_sans/NotoSans-Medium.ttf
+        - asset: assets/fonts/noto_sans/NotoSans-MediumItalic.ttf
+          weight: 700
   # fonts:
   #   - family: Schyler
   #     fonts:

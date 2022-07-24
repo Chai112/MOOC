@@ -3,15 +3,17 @@ const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
+const CourseElements = require('./courseElements');
+
 const videoUploadProgress = new Map();
 
 function downloadVideo(router) {
     // TODO: auth check if ID & token can work
 
-    let videoId = router._getQuery("videoId");
+    let videoDataId = router._getQuery("videoDataId");
 
     console.log("downloading");
-    const path = `${__dirname}/videos/${videoId}.mp4`;
+    const path = `${__dirname}/videos/${videoDataId}.mp4`;
     const stat = fs.statSync(path)
     const fileSize = stat.size
     const range = router.request.headers.range
@@ -41,15 +43,16 @@ function downloadVideo(router) {
     }
 }
 
-function uploadVideo(router) {
+async function uploadVideo(router) {
     // TODO: check if ID is valid
 
-    let videoId = router._getQuery("videoId");
+    let videoDataId = router._getQuery("videoDataId");
+    await CourseElements.updateUploadingVideo(videoDataId, true);
 
     const videoStorage = multer.diskStorage({
         destination: 'videos', // Destination to store video 
         filename: (req, file, cb) => {
-            cb(null, videoId
+            cb(null, videoDataId
                 + path.extname(file.originalname))
         }
     });
@@ -75,17 +78,15 @@ function uploadVideo(router) {
     router.request.on('data', (chunk) => {
         progress += chunk.length;
         progressString = `${Math.floor((progress * 100) / fileSize)}%`;
-        videoUploadProgress.set(videoId, progressString);
-        if (progress === fileSize) {
-            console.log('Finished', progress, fileSize)
-        }
+        videoUploadProgress.set(videoDataId, progressString);
     });
     videoUploadSingle(router.request, router.response, (err) => {
         if (err !== undefined)
             console.log(err);
         router.response.send(router.request.file)
         console.log("finish");
-        videoUploadProgress.delete(videoId);
+        videoUploadProgress.delete(videoDataId);
+        CourseElements.updateUploadingVideo(videoDataId, false);
     });
 }
 
@@ -93,6 +94,11 @@ function getVideoUploadProgress (videoId) {
     if (!videoUploadProgress.has(videoId))
         return {progress: "none exists"};
     return {progress: videoUploadProgress.get(videoId)};
+}
+
+module.exports.removeVideo = removeVideo;
+function removeVideo(videoDataId) {
+    fs.unlinkSync("./videos/" + videoDataId + ".mp4")
 }
 
 module.exports.downloadVideo = downloadVideo;

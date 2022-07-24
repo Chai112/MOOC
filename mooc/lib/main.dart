@@ -22,7 +22,7 @@ void main() {
       debugShowCheckedModeBanner: false,
       title: 'Scholarly', // name decided on 23/05/2022
       theme: ThemeData(
-        fontFamily: "Avenir Next",
+        fontFamily: "Poppins",
         primarySwatch:
             scholarly_color.createMaterialColor(scholarly_color.scholarlyRed),
         scaffoldBackgroundColor: scholarly_color.backgroundDim,

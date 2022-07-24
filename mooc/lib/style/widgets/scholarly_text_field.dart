@@ -32,7 +32,7 @@ class ScholarlyTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: SizedBox(
-        height: 70,
+        height: 77,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -75,7 +75,7 @@ class ScholarlyTextField extends StatelessWidget {
                     child: Text(controller?.errorText ?? "",
                         style: const TextStyle(
                           color: scholarly_color.scholarlyRed,
-                          fontSize: 14,
+                          fontSize: 13,
                         )),
                   );
                 }),

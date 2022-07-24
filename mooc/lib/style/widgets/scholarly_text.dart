@@ -14,6 +14,7 @@ class ScholarlyTextH2 extends StatelessWidget {
     return Text(text,
         style: const TextStyle(
           fontSize: 40,
+          fontWeight: FontWeight.w300,
           color: scholarly_color.grey,
         ));
   }
@@ -54,14 +55,14 @@ class ScholarlyTextH3 extends StatelessWidget {
       children: [
         Text(text,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: scholarly_color.scholarlyRed,
               fontWeight: FontWeight.bold,
             )),
         const SizedBox(width: 10),
         Text(bracketText ?? "",
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               color: scholarly_color.scholarlyRed,
             )),
       ],
@@ -100,7 +101,7 @@ class ScholarlyTextH5 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text,
         style: TextStyle(
-          fontSize: 18,
+          fontSize: 15,
           color: red ? scholarly_color.scholarlyRed : scholarly_color.grey,
         ));
   }
